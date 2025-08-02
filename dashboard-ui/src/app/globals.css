@@ -1,0 +1,7 @@
+ @import"tailwindcss";
+@tailwind utilities;
+.react-calendar {
+ width: 100% !important;
+ border:none !important;
+ font-family: 'Inter', sans-serif !important;
+}
