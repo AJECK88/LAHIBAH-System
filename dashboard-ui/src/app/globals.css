@@ -5,3 +5,23 @@
  border:none !important;
  font-family: 'Inter', sans-serif !important;
 }
+
+.perentOL li::marker{
+    color: black !important;
+    font-weight: 200 !important;
+    font-size: 1rem !important;
+    height: inherit !important;
+    width: 100% !important;
+}
+.perentOL {
+   font-size: 20px !important;
+   
+ 
+}
+ p{
+    font-size: 10px !important;
+    font-weight: 100 !important;
+    color: b!important;
+    margin: 0 !important;
+    padding: 0 !important;
+}

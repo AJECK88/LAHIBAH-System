@@ -22,7 +22,7 @@ const AdminPage = () => {
       <div className="flex lg:w-1/3 h-[400px] ">
       <CountChart />
       </div>
-       <div className="flex lg:w-2/3">
+       <div className="flex lg:w-2/3 h-[400px]">
         <AttendanceChart />
       </div> 
       </div>

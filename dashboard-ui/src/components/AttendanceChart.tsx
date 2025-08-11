@@ -51,7 +51,7 @@ const data = [
 
 const AttendanceChart = () => {
   return (
-    <div className="flex rounded-xl bg-white  w-full h-full flex-col pr-5 pl-5 pt-2 pb-2 justify-between">
+    <div className="flex rounded-xl bg-white  w-full h-[100%] flex-col pr-5 pl-5 pt-2 pb-2 justify-between">
        {/* title */}
         <div className="flex justify-between items-center">
            <h2>Attendance</h2>
