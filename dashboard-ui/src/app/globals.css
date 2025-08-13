@@ -8,7 +8,7 @@
 
 .perentOL li::marker{
     color: black !important;
-    font-weight: 200 !important;
+    font-weight: 300 !important;
     font-size: 1rem !important;
     height: inherit !important;
     width: 100% !important;
@@ -18,10 +18,15 @@
    
  
 }
+
  p{
-    font-size: 10px !important;
-    font-weight: 100 !important;
-    color: b!important;
-    margin: 0 !important;
-    padding: 0 !important;
+    font-size: 20px !important;
+    font-weight: 300 !important;
+    line-height: 1.5rem;
+    color: black !important;
+   
+}
+footer ul li{
+  border-bottom: dotted ; 
+  padding-bottom: 1rem; 
 }
