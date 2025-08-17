@@ -1,8 +1,13 @@
 import "../globals.css";
 import Image from "next/image"
+import type { Metadata } from "next";
 import Link from "next/link"
 import {Menu} from "../../components/Menu"
 import {Navber}from "../../components/navbar"
+ export const metadata: Metadata = {
+  title: "LAHIBA School Management System",
+  description: "School Management System",
+};
 export default function RootLayout({
   children,
 }: Readonly<{

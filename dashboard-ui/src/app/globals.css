@@ -30,3 +30,38 @@ footer ul li{
   border-bottom: dotted ; 
   padding-bottom: 1rem; 
 }
+.Menu{
+  display: none;
+}
+.active{
+  display: block;
+}
+@media all and (max-width: 1024px) {
+   header ul{
+   position: absolute !important;
+   right: 0 !important;
+   bottom: -247px;
+   background-color: #262323;
+   display: none;
+   color: white;
+   padding: 1rem;
+   } 
+   ul li{
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
+      border-bottom: solid white 1px;
+      padding: .5rem;
+      font-weight: 500;
+   
+   }
+      header ul li:hover{ 
+      color: orange;
+      }
+    .Menu{
+    display: block;
+
+  }
+  }
+ 
+  
+

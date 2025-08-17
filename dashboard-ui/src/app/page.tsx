@@ -1,25 +1,39 @@
-import { link } from "fs"
+
+"use client"
 import Link from "next/link"
 import Image from "next/image"
-import { url } from "inspector"
+import React from "react"
+import { Navber } from "../components/navbar"
+import { Menu } from "../components/Menu"
+
+
 const Homepage = () => {
+  const [Menu , setMenuOpen] = React.useState(true);
+
+const handleMenuClick = () => {
+  const siteBar = document.querySelector(".Sitbar");
+  siteBar.classList.toggle("active");
+  setMenuOpen( prove => !prove);
+
+};
   return (
     <>
-    <header className=" w-full bg-white border-2 border-amber-200  p-2" >
-    <nav className="flex justify-between items-center w-[98%] mx-auto flex-col lg:flex-row
+    <header className=" w-full bg-[#262323]  p-2 fixed z-100" >
+    <nav className="flex justify-between items-center w-[98%] mx-auto lg:flex-row
   ow">
-     <div className="border-2 border-black p-3"><a className="text-blue-900" href="">LAHIIBA <span className="text-black">MANAGEMENT</span> <span className="text-red-800">IN...</span></a></div> 
-      <ul className="flex gap-4 items-center text-stone-600 hover:text-shadow-neutral-800 flex-col lg:flex-row ms:right-[1000px]">
-        <li className=" hover:text-amber-300">
+     <div className="border-2 border-black p-3 font-semibold text-xl"><a className="text-blue-900" href="">LAHIIBA <span className="text-black">MANAGEMENT</span> <span className="text-red-800">IN...</span></a></div> 
+      <div className="Menu"onClick={handleMenuClick}><Image className="" alt="" src={ Menu ? "/menu.png" :"/close_nav.png" }width={40} height={40} /></div>
+      <ul className=" Sitbar flex gap-4 items-center text-stone-600 hover:text-shadow-neutral-800 flex-col lg:flex-row font-semibold text-xl Navbar">
+        <li className=" hover:text-amber-300 hover:underline ">
           <Link href="">Admission/registration</Link>
         </li>
         <li className=" hover:text-amber-300">
           <Link href="">About Us</Link>
         </li>
-        <li className=" hover:text-amber-300">
+        <li className=" hover:text-amber-300 hover:underline ">
           <Link href="">Help</Link>
         </li>
-        <li className=" hover:text-amber-300">
+        <li className=" hover:text-amber-300 hover:underline ">
           <Link href="/admin">Login</Link>
         </li>
       </ul>
@@ -44,7 +58,7 @@ const Homepage = () => {
    </div>
     </section>
 
-    <section className="p-5 w-90% mx-auto">
+    <section className="p-5 w-90% ml-[1rem] lg:ml-[2.3rem] ml-[2rem]">
       <h1 className="text-[40px] text-[625757]" >Students Admission and Registration Information</h1>
     <ol style={{listStyleType :"lower-roman",paddingLeft:"1rem", color: "black"}} className="flex flex-col gap-4 perentOL">
       <li className="">
