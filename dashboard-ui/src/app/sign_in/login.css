@@ -1,0 +1,21 @@
+input :valid + label,
+input:focus + label,
+input:not(:placeholder-shown) + label
+{
+  
+  top: 2px;
+  z-index: 1;
+  background-color: aliceblue;
+}
+/* || universal buttons */
+button{
+    cursor: pointer;
+}
+#login_as button:active{
+    outline: none;
+    box-shadow: -52px 116px 86px -82px rgba(0,0,0,0.88) inset;
+}
+form button[type="submit"]:focus {
+    outline: none;
+    box-shadow: -52px 116px 86px -82px rgba(0,0,0,0.88) inset;
+}
