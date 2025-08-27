@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image" 
+import { role } from "../lib/data";
 const menuItems = [
   {
     title: "MENU",
@@ -15,7 +16,7 @@ const menuItems = [
         icon: "/teacher.png",
         label: "Teachers",
         href: "/list/teachers",
-        visible: ["admin", "teacher"],
+        visible: ["admin", "teacher ","student"],
       },
       {
         icon: "/student.png",
@@ -31,14 +32,14 @@ const menuItems = [
       },
       {
         icon: "/subject.png",
-        label: "Subjects",
-        href: "/list/subjects",
+        label: "Courses",
+        href: "/list/courses",
         visible: ["admin"],
       },
       {
         icon: "/class.png",
-        label: "Classes",
-        href: "/list/classes",
+        label: "Departments",
+        href: "/list/Departments",
         visible: ["admin", "teacher"],
       },
       {
@@ -119,14 +120,23 @@ const menuItems = [
   return (
     <div className="mt-4 text-sm">
        {menuItems.map( (e)=>(
-         <div className="flex flex-col gap-" key={e.title}>
+       
+         <div className="flex flex-col" key={e.title}>
           <span className="hidden lg:block text-gray-400 font-light my-2">{e.title}</span>
-          {e.items.map(item =>(
-             <Link href={item.href} key={item.label} className="flex items-center justify-center lg:justify-start text-gray-500 gap-1 py-2 ">
+          {e.items.map(item => {
+             if(item.visible.includes(role)) {
+
+          return (
+             <Link href={item.href} key={item.label} 
+             className="flex gap-2 focus:bg-gray-200 pl-4 items-center justify-center lg:justify-start text-gray-500 py-2 ">
               <Image src={item.icon} alt="" width={20} height={20} />
               <span className=" hidden lg:block">{item.label}</span>
              </Link>
-          ))}
+          )
+          }
+        
+        })}
+
          </div>
        ))}
     </div>

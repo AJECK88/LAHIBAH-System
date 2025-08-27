@@ -1,14 +1,16 @@
-module.exports = {
+import type { Config } from "tailwindcss";
+
+const config: Config = {
   content: [
-    "./app/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
         lamasky: "#C3EBFA",
-        dantiskyLight: "#1EDF9FD",
+        dantiskyLight: "#1EDF9F",
         dantiPurple: "#CFCEFF",
         dantiPurpleLight: "#F1F0FF",
         dantiYellow: "#FAE27C",
@@ -25,3 +27,5 @@ module.exports = {
   },
   plugins: [],
 };
+
+export default config;

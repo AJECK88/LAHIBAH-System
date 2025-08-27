@@ -28,9 +28,15 @@ import Image from "next/image";
   ]
  const  EventCalendar = () =>{
     const [value ,onchange] =React.useState <value>(new Date());
+     const currentDate = new Date().getFullYear();
      return( 
      <div className="bg-white p-4 rounded-md" >
-      < Calendar onChange={onchange} value={value} />
+      < Calendar
+       onChange={onchange} 
+       value={value}
+       minDate={new Date(currentDate -2 ,0 ,1)}
+       maxDate={new Date(currentDate + 2, 11, 31)}
+        />
       <div className="flex flex-col gap-2">
         <div className="flex flex-row justify-between items-center">
           <h1 className="text-xl font-semibold my-2">Event</h1>

@@ -17,8 +17,8 @@ export default function RootLayout({
   
       <div className="h-screen flex ">
       {/*The left */}
-      <div className="w-[14%] md:w-[8%] lg:w-[16%] pl-3 ">
-        <Link href="" className="flex items-center justify-center lg:justify-start gap-2" >
+      <div className="w-[14%] md:w-[8%] lg:w-[16%] ">
+        <Link href="" className="flex items-center justify-center lg:justify-start gap-2 pt-3" >
          <Image src="/logo.png" alt="logo" width={32} height={32}/>
          <span className=" hidden lg:block">LAHIBA</span>
              </Link>

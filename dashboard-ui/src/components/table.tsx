@@ -1,13 +1,14 @@
 const Table = ({
     columns,
     renderRow,
-    data}: {
+    data
+}: {
     columns: {header: string, accessorKey: string , className?: string}[],
     renderRow: (item: any) => React.ReactNode,
     data: any[]
 }) => {
      return (
-         <table className="w-full mt-4">
+         <table className="w-full mt-4 ">
             <thead className="">
                  {
                     <tr className="text-left text-gray-500 text-sm ">{
