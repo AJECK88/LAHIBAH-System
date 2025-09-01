@@ -919,7 +919,7 @@ export const announcementsData = [
 ];
 
 
-// YOU SHOULD CHANGE THE DATES OF THE EVENTS TO THE CURRENT DATE TO SEE THE EVENTS ON THE CALENDAR
+
 export const calendarEvents = [
   /* || Monday (day 1) */
   { id: 1, title: "Math", day: 1, startHour: 8, endHour: 10 },
@@ -954,5 +954,41 @@ export const calendarEvents = [
   { id: 18, title: "Programming", day: 5, startHour: 11, endHour: 13 },
   { id: 19, title: "General computer science", day: 5, startHour: 14, endHour: 15 },
   { id: 20, title: "Physics", day: 5, startHour: 15, endHour: 17 },
+  /* || end Friday */
+]
+export const TeacherCalendarEvents = [
+  /* || Monday (day 1) */
+  { id: 1, title: "Math", day: 1, startHour: 8, endHour: 10 , level:"level-100" },
+  { id: 2, title: "Programming", day: 1, startHour: 11, endHour: 13 , level:"level-200" },
+  { id: 3, title: "General computer science", day: 1, startHour: 14, endHour: 15 , level:"level-300" },
+  { id: 4, title: "Physics", day: 1, startHour: 15, endHour: 17 , level:"level-400" },
+  /* || end Monday */
+
+  /* || Tuesday (day 2) */
+  { id: 5, title: "Math", day: 2, startHour: 8, endHour: 11 , level:"level-100" },
+  { id: 6, title: "Programming", day: 2, startHour: 11, endHour: 13 , level:"level-200" },
+  { id: 7, title: "General computer science", day: 2, startHour: 14, endHour: 15 , level:"level-300" },
+  { id: 8, title: "Physics", day: 2, startHour: 15, endHour: 17 , level:"level-400" },
+  /* || end Tuesday */
+
+  /* || Wednesday (day 3) */
+  { id: 9, title: "Math", day: 3, startHour: 8, endHour: 11 , level:"level-100" },
+  { id: 10, title: "Programming", day: 3, startHour: 11, endHour: 13 , level:"level-200" },
+  { id: 11, title: "General computer science", day: 3, startHour: 14, endHour: 15 , level:"level-300" },
+  { id: 12, title: "Physics", day: 3, startHour: 15, endHour: 17 , level:"level-400" },
+  /* || end Wednesday */
+
+  /* || Thursday (day 4) */
+  { id: 13, title: "Math", day: 4, startHour: 8, endHour: 11 , level:"level-100" },
+  { id: 14, title: "Programming", day: 4, startHour: 11, endHour: 13 , level:"level-200" },
+  { id: 15, title: "General computer science", day: 4, startHour: 14, endHour: 15 , level:"level-300" },
+  { id: 16, title: "Physics", day: 4, startHour: 15, endHour: 17 , level:"level-400" },
+  /* || end Thursday */
+
+  /* || Friday (day 5) */
+  { id: 17, title: "Math", day: 5, startHour: 8, endHour: 11 , level:"level-100" },
+  { id: 18, title: "Programming", day: 5, startHour: 11, endHour: 13 , level:"level-200" },
+  { id: 19, title: "General computer science", day: 5, startHour: 14, endHour: 15 , level:"level-300" },
+  { id: 20, title: "Physics", day: 5, startHour: 15, endHour: 17 , level:"level-400" },
   /* || end Friday */
 ]

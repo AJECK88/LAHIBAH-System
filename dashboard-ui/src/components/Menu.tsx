@@ -118,19 +118,19 @@ const menuItems = [
 ];
  export function Menu() {
   return (
-    <div className="mt-4 text-sm">
+    <div className="mt-4 text-sm w-full">
        {menuItems.map( (e)=>(
-       
-         <div className="flex flex-col" key={e.title}>
+
+         <div className=" flex flex-col" key={e.title}>
           <span className="hidden lg:block text-gray-400 font-light my-2">{e.title}</span>
           {e.items.map(item => {
              if(item.visible.includes(role)) {
 
           return (
              <Link href={item.href} key={item.label} 
-             className="flex gap-2 focus:bg-gray-200 pl-4 items-center justify-center lg:justify-start text-gray-500 py-2 ">
+             className="flex gap-2 focus:bg-gray-200 pl-3 items-center w-full lg:justify-start text-gray-500 py-2 lg:py-3">
               <Image src={item.icon} alt="" width={20} height={20} />
-              <span className=" hidden lg:block">{item.label}</span>
+              <span className=" lg:block">{item.label}</span>
              </Link>
           )
           }

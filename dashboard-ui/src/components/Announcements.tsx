@@ -28,7 +28,7 @@ const Announcement = () =>{
     return(
         <div className="flex flex-col gap-2 bg-white p-4 rounded-xl">
          <div className="flex flex-row justify-between items-center">
-                  <h1 className="text-xl font-semibold my-1">Event</h1>
+                  <h1 className="text-xl font-semibold my-1">Announcements</h1>
                    <h1 className="text-sm text-gray-300">View all</h1>
                         </div>
                 {Announcements.map( (event) =>(

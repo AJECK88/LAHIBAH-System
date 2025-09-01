@@ -13,22 +13,10 @@
     height: inherit !important;
     width: 100% !important;
 }
-.perentOL {
-   font-size: 20px !important;
-   
- 
-}
 
- p{
-    font-size: 20px !important;
-    font-weight: 300 !important;
-    line-height: 1.5rem;
-    color: black !important;
-   
-}
 footer ul li{
   border-bottom: dotted ; 
-  padding-bottom: 1rem; 
+  padding-bottom: .5rem; 
 }
 .Menu{
   display: none;
@@ -72,7 +60,7 @@ abbr {
    header ul{
    position: absolute !important;
    right: 0 !important;
-   bottom: -247px;
+   bottom: -250px;
    background-color: #262323;
    display: none;
    color: white;

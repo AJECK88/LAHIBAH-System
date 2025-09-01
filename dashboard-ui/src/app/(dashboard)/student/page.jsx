@@ -44,7 +44,7 @@ const StudentPage = () => {
                     </div>
                   </div>
             </div>
-            <div className="lg:w-1/3 w-full bg-white rounded-xl flex flex-col gap-4">
+            <div className="lg:w-1/3 w-full bg-white rounded-xl flex flex-col gap-4 h-[600px]">
              <h1 className="text-sm bg-gray-100 p-4 font-semibold rounded-tl-xl rounded-tr-xl">Schedule: {"level 100"}</h1>
              <div className="p-4 "><BigCalendar  /></div>
             </div>
@@ -54,6 +54,7 @@ const StudentPage = () => {
                 <Announcement />
             </div>
         </div>
-    )
+
+)
 }
 export default StudentPage;

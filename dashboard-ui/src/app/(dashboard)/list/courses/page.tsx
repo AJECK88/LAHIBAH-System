@@ -45,7 +45,7 @@ const  SubjectsListpage = () => {
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                         <Link href={`/list/subjects/${subject.id}`} className="text-blue-500">
-                          <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
+                          <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/edit.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
                   {role === "admin" && (
                           <button className='w-7 h-7 flex items-center justify-center rounded-full  bg-red-500'><Image src="/delete.png" alt='' width={16} height={16} ></Image></button>

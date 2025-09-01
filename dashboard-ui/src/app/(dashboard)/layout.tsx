@@ -1,34 +1,67 @@
-import "../globals.css";
+"use client"
+import "../globals.css"
 import Image from "next/image"
-import type { Metadata } from "next";
+import type { Metadata } from "next"
 import Link from "next/link"
-import {Menu} from "../../components/Menu"
-import {Navber}from "../../components/navbar"
- export const metadata: Metadata = {
-  title: "LAHIBA School Management System",
-  description: "School Management System",
-};
+import { Menu } from "../../components/Menu"
+import { Navber } from "../../components/navbar"
+import { useEffect, useState, useRef } from "react"
+import NavButton from "@/components/NavbarButton"
+
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Close menu if user clicks outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
   return (
-  
-      <div className="h-screen flex ">
-      {/*The left */}
-      <div className="w-[14%] md:w-[8%] lg:w-[16%] ">
-        <Link href="" className="flex items-center justify-center lg:justify-start gap-2 pt-3" >
-         <Image src="/logo.png" alt="logo" width={32} height={32}/>
-         <span className=" hidden lg:block">LAHIBA</span>
-             </Link>
-       <Menu />
+    <div className="h-screen flex lg:pl-5">
+      {/* The left */}
+      <div className="md:w-[8%] lg:w-[16%] flex flex-col lg:items-start">
+      <Link
+  href=""
+  className="hidden lg:flex items-center justify-center lg:justify-start gap-2 pt-3 w-full"
+>
+  <Image src="/logo.png" alt="logo" width={32} height={32} />
+  <span className="hidden lg:block">LAHIBA</span>
+</Link>
+
+        {/* Sidebar */}
+        <div
+          ref={menuRef} 
+          className={`absolute z-50  bg-white w-[200px] lg:sticky h-full transition-all duration-500 
+            ${isMenuOpen ? "left-0" : "-left-[1000px]"}`}
+        >
+          <Menu />
+        </div>
       </div>
-      {/* The rigth */}
-      <div className="w-[86%] md:w-[92%] lg:w-[84%] xl:w-[86%] bg-[#F7F8FA] overflow-scroll">
-        <Navber />
-           {children}</div>
+
+      {/* The right */}
+      <div className="w-[100%] md:w-[92%] lg:w-[84%] xl:w-[86%] bg-[#F7F8FA] overflow-scroll">
+      <div className="flex justify-between items-center w-full py-4 px-2">
+  <NavButton setIsMenuOpen={setIsMenuOpen} />
+  <Navber />
+</div>
+        {children}
       </div>
-  
-  );
+    </div>
+  )
 }

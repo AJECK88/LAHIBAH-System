@@ -2,7 +2,7 @@ import Image from "next/image"
 export function Navber(){
 
   return(
- <div className="flex text-center justify-between p-4">
+ <div className="flex text-center justify-between w-full" >
   {/* Search Bar */}
   <div className=" hidden md:flex items-center justify-center gap-2 text-xs rounded-full ring-[1.5px] ring-gray-500 px-2" >
      <Image src = "/search.png" alt=" " width={14} height = {14} />
