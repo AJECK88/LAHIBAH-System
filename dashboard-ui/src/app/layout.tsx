@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
  export const metadata: Metadata = {
-  title: "Registration and Admission",
+  title: "LAHIBAH MANAGEMENT SYSTEM",
   description: "School Management System",
 };
 const inter = Inter({ subsets: ["latin"] });

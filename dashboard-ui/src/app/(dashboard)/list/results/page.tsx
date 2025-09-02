@@ -5,6 +5,7 @@ import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { examsData, resultsData, role,} from '@/lib/data';
 import { type } from 'os';
+import FormModel from '@/components/FormModel';
    type results = {
         id: string;
         subject: string;
@@ -91,7 +92,7 @@ const  resultsListpage = () => {
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                     <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/plus.png" alt="Add" width={14} height={14} /></button>
+                     <FormModel table="Result" type="Create" />
                      </div>
             </div>
             {/* || List  */}

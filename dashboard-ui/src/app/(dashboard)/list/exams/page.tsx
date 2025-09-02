@@ -5,6 +5,7 @@ import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { examsData, role, subjectsData} from '@/lib/data';
 import { type } from 'os';
+import FormModel from '@/components/FormModel';
    type subjects = {
         id: string;
         subject: string;
@@ -62,7 +63,7 @@ const  ExamListpage = () => {
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/edit.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
                   {role === "admin" && (
-                          <button className='w-7 h-7 flex items-center justify-center rounded-full  bg-red-500'><Image src="/delete.png" alt='' width={16} height={16} ></Image></button>
+                        <FormModel table="Exams" type="Delete" id={exam.id} />
                     )}
                     </div>
                 </td>
@@ -81,7 +82,7 @@ const  ExamListpage = () => {
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                     <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/plus.png" alt="Add" width={14} height={14} /></button>
+                     <FormModel table="Exams" type="Create" />
                      </div>
             </div>
             {/* || List  */}
