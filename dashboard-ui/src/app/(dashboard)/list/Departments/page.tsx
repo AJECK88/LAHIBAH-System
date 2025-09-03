@@ -48,8 +48,8 @@ const  DepartmentsListpage = () => {
                     
                   {role === "admin" && (
                      <>
-                    <FormModel table='announcement' type='Update' id={department.id} />
-                    <FormModel table='announcement' type='Delete' id={department.id} />
+                    <FormModel table='Department' type='Update' id={department.id} />
+                    <FormModel table='Department' type='Delete' id={department.id} />
                     </>
                     )}
                     </div>
@@ -69,7 +69,7 @@ const  DepartmentsListpage = () => {
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                    <FormModel type='Create' table='Department' />
+                      <FormModel type='Create' table='Department' />
                      </div>
             </div>
             {/* || List  */}

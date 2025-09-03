@@ -12,14 +12,16 @@
             loading: () => <h1>Loading...</h1>
        })
         const Courseform = dynamic(()=> import('@/components/Forms/Courseform'))
-          
+        const DepartmentForm = dynamic(()=> import('@/components/Forms/DepertmentForm'))
+
       const Forms:{
             [key:string]:(type: "Create" | "Update" , data?: any)=>JSX.Element;
  } = { 
        Teacher: (type, data) => <TeachersForms  type={type} data={data} />,
        Student: (type, data) => <StudentsForms  type={type} data={data} />,
        Parent: (type, date) =><ParentFoorem  type={type} data={date} />,
-       Course: (type, date) => <Courseform  type={type} data={date} />
+       Course: (type, date) => <Courseform  type={type} data={date} />,
+       Department: (type, date) => <DepartmentForm  type={type} data={date} />
  }
 
       
