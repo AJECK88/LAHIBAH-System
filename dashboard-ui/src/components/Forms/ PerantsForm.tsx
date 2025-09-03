@@ -21,17 +21,32 @@
           .max(15, { message: 'Phone Number must be at most 15 characters long' }),
           sex: z.enum(['male', 'female'], { message: 'sex is required' }),
           age: z.number().min( 22, { message: 'Age must be at least 22' }),
-        
+          img:z.instanceof(File, { message: 'Image is required' }),
           Address:z.string()
           .min(5, { message: 'Address must be at least 5 characters long' })
           .max(15, { message: 'Address must be at most 15 characters long' }),
-          BloodType :z.string()
-          .min(1,{message:'required'}),
-});
-  
-  type Input = z.infer<typeof schema>
+          studentName: z.string()
+          .min(1, { message: 'Student Name is required' }),
+          BloodType: z.string()
+          .min(1, { message: 'Blood Type is required' }),
+         dateOfBirth: z.date()
+         /* still to work on the date validation form  */
+/*   .max(new Date(), { message: "Invalid date (cannot be in the future)" })
+  .refine((date) => {
+    const today = new Date();
+    const minDate = new Date(
+      today.getFullYear() - 20,
+      today.getMonth(),
+      today.getDate()
+    );
+    return date <= minDate;
+  }, { message: "You must be at least 20 years old" }),
+         */ })
 
-          const TeachersForms = ( {type , data}:
+
+          type Input = z.infer<typeof schema>
+
+          const StudentsForms = ( {type , data}:
           {type : 
           | "Create"
           | "Update",
@@ -50,8 +65,10 @@
 
           })
           return (
+            /*  This form should be validated if and only there  the perant have a student in the school with a 
+             proof of the student name */
           <form className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4 " onSubmit={SubmiteData}>
-          <h1 className="text-2xl font-semibold self-start">Create A New Teacher</h1>
+          <h1 className="text-2xl font-semibold self-start">Create A New Student</h1>
           {/* Top */}
           <h2 className="text-gray-500 self-start tex-sm font-semibold">Authentification info</h2>
           <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
@@ -87,6 +104,21 @@
           />
 
           </div>
+          {/* Middle */}
+          <h1 className="font-semibold text-sm  text-gray-500  self-start">
+          Proofs of the student in the school
+          </h1>
+           <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
+          < Input 
+          type="text" 
+          name="studentName" 
+          id="studentName"
+          register={register}
+            Defaultvalue={data?.studentName} 
+            errors={ errors.studentName} 
+            label="Student Name"
+            Placeholder="Enter student name"/>
+            </div>
           <h2 className="self-start text-sm font-semibold text-gray-500">personal Info</h2>
           {/* Buttom */}
           <div className="grid lg:grid-cols-3 grid-cols-1 gap-4 justify-between  items-center ">
@@ -143,16 +175,7 @@
           label="Blood type" 
           Placeholder="A+" 
           />
-          <Input
-          type="date"
-          name="dateOfBirth"
-          id="dateOfBirth"
-          register={register}
-          Defaultvalue={data?.dateOfBirth}
-         
-          label="Date Of Birth" 
-          Placeholder=" date of birth" 
-          />
+      
           {/* row 3 */}
           <div className="flex flex-col w-full">
           <label htmlFor="">Gender</label>
@@ -163,11 +186,8 @@
           {errors.sex?.message && <span className="text-sm text-red-600 font-light">{errors.sex?.message.toString()}</span>}
           </div>
           <div className="flex flex-col lg:col-start-3 w-full">
-          <label className=" flex items-center" htmlFor="image">  <Image src="/upload.png" alt="" width={40} height={40} />
-          <span>Upload Image</span>
-          <input  type="file" id="image"  className="hidden w-full"/> 
-          </label>
-          
+         
+     
           </div>
           </div>
           <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">{type === "Create" ? "Create" : "Update"}</button>
@@ -175,5 +195,5 @@
           );
           };
 
-          export default TeachersForms;
+          export default StudentsForms;
 

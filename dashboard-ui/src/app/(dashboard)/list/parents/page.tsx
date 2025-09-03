@@ -55,7 +55,7 @@ const  ParentsListpage = () => {
                     <p className="text-xs text-gray-100 font-semibold ">{parent.email}</p>
                 </div>
                 </td>
-        
+
                 <td className="hidden md:table-cell"> {parent.students?.join(", ")}</td>
                 <td className="hidden md:table-cell">{parent.phone}</td>
                 <td className="hidden md:table-cell">{parent.address}</td>
@@ -65,8 +65,10 @@ const  ParentsListpage = () => {
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
                   {role === "admin" && (
-                        <FormModel table="Parent" type="Delete" id={parent.id} />
-                    )}
+                    <><FormModel table="Parent" type="Update" id={parent.id} />
+                      <FormModel table="Parent" type="Delete" id={parent.id} />
+                    </>
+                  )}
                     </div>
                 </td>
             </tr>

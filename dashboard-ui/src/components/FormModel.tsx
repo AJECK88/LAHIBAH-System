@@ -1,7 +1,27 @@
       "use client"
       import Image from "next/image";
-      import TeachersForms from "./Forms/TeachersForms";
-      import { useState } from "react";
+      import dynamic from "next/dynamic";
+      import { JSX, useState } from "react";
+import { date } from "zod";
+      const StudentsForms = dynamic(() => import("./Forms/StusdentForm"), { 
+            loading:() => <h1>Loading...</h1>
+       }); 
+       const TeachersForms = dynamic( () => import("@/components/Forms/TeachersForms"),{
+            loading :() => <h1>Loading...</h1>
+       })
+       const ParentFoorem = dynamic(() => import('@/components/Forms/ PerantsForm'),{
+            loading: () => <h1>Loading...</h1>
+       })
+          
+      const Forms:{
+            [key:string]:(type: "Create" | "Update" , data?: any)=>JSX.Element;
+ } = { 
+       Teacher: (type, data) => <TeachersForms  type={type} data={data} />,
+       Student: (type, data) => <StudentsForms  type={type} data={data} />,
+       Parent: (type, date) =><ParentFoorem  type={type} data={date} />
+ }
+
+      
       const FormModel = ({type ,table, data, id}:{
       table :
       "Teacher" 
@@ -23,18 +43,16 @@
       | "Update" ,
       data?: any,
       id?: string | number
-
-
-
-      }) => {
+  }) => {
       const size = type === "Create" ? "w-8 h-8" : "w-8 h-8"
-      const bgColor = 
+      const bgColor =
       type === "Create" ? "bg-green-100" :
-      type === "Update" ? "bg-blue-300" 
+      type === "Update" ? "bg-blue-300"
       : "bg-red-400"
       const [open , SetOpen] = useState (false)
+
       const Form = () => {
-      return type === "Delete" && id ? (
+       return type === "Delete" ? (
       <form action={""} className="flex flex-col gap-4">
       <div className=" flex flex-col gap-6 p-4">
       <div className="text-center font-semibold"><span className="font-bold">Warning!!:</span> All data related to this {table} will be lost. Are you sure you want to delete this {table}?</div>
@@ -42,10 +60,10 @@
       </div>
 
       </form>
-      ) : (
-      <TeachersForms  type="update" data={data}  />
-      )
-      };
+      ): Forms[table](type, data)
+
+      }
+  
       return (
       <>
       <button onClick={ ()=> SetOpen(true)
