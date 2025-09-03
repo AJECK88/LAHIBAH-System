@@ -4,7 +4,6 @@ import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { studentsData , role, parentsData} from '@/lib/data';
-import { type } from 'os';
 import FormModel from '@/components/FormModel';
    type Parent = {
         id: string;

@@ -1,9 +1,8 @@
       "use client"
       import Image from "next/image";
       import dynamic from "next/dynamic";
-      import { JSX, useState } from "react";
-import { date } from "zod";
-      const StudentsForms = dynamic(() => import("./Forms/StusdentForm"), { 
+      import { JSX, useState } from "react"
+      const StudentsForms = dynamic(() => import("@/components/Forms/StusdentForm"), { 
             loading:() => <h1>Loading...</h1>
        }); 
        const TeachersForms = dynamic( () => import("@/components/Forms/TeachersForms"),{
@@ -12,13 +11,15 @@ import { date } from "zod";
        const ParentFoorem = dynamic(() => import('@/components/Forms/ PerantsForm'),{
             loading: () => <h1>Loading...</h1>
        })
+        const Courseform = dynamic(()=> import('@/components/Forms/Courseform'))
           
       const Forms:{
             [key:string]:(type: "Create" | "Update" , data?: any)=>JSX.Element;
  } = { 
        Teacher: (type, data) => <TeachersForms  type={type} data={data} />,
        Student: (type, data) => <StudentsForms  type={type} data={data} />,
-       Parent: (type, date) =><ParentFoorem  type={type} data={date} />
+       Parent: (type, date) =><ParentFoorem  type={type} data={date} />,
+       Course: (type, date) => <Courseform  type={type} data={date} />
  }
 
       
@@ -30,10 +31,9 @@ import { date } from "zod";
       | "Result"
       | "Class" 
       | "Department"
-      |"Course"
       | "Attendance"
       | "announcement"
-      | "Courses"
+      | "Course"
       | "Assignments"
       | "Lessons"
       | "Exams",

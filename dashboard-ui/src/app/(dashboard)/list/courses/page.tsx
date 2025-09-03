@@ -47,8 +47,8 @@ const  SubjectsListpage = () => {
                     <div className="flex items-center gap-2 self-end" >
                   {role === "admin" && (
                     <>
-                        <FormModel table="Courses" type="Update" id={subject.id} />
-                        <FormModel table="Courses" type="Delete" id={subject.id} />
+                        <FormModel table="Course" type="Update" id={subject.id} />
+                        <FormModel table="Course" type="Delete" id={subject.id} />
                    </>
                     )}
                     </div>
@@ -68,7 +68,7 @@ const  SubjectsListpage = () => {
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                    <FormModel table="Courses" type="Create" />
+                    <FormModel table="Course" type="Create" />
                     </div>
             </div>
             {/* || List  */}
