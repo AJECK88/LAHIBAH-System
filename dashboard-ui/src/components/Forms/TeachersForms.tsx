@@ -51,7 +51,7 @@
           })
           return (
           <form className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4 " onSubmit={SubmiteData}>
-          <h1 className="text-2xl font-semibold self-start">Create A New Teacher</h1>
+          <h1 className="text-2xl font-semibold self-start">{type === "Create" ? "Create A New" : "Update"} Teacher</h1>
           {/* Top */}
           <h2 className="text-gray-500 self-start tex-sm font-semibold">Authentification info</h2>
           <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
