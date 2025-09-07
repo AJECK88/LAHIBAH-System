@@ -1,4 +1,11 @@
 {
   "/(dashboard)/admin/page": "app/(dashboard)/admin/page.js",
+  "/(dashboard)/list/exams/page": "app/(dashboard)/list/exams/page.js",
+  "/(dashboard)/list/students/[id]/page": "app/(dashboard)/list/students/[id]/page.js",
+  "/(dashboard)/list/students/page": "app/(dashboard)/list/students/page.js",
+  "/(dashboard)/list/teachers/[id]/page": "app/(dashboard)/list/teachers/[id]/page.js",
+  "/(dashboard)/list/teachers/page": "app/(dashboard)/list/teachers/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/page": "app/page.js"
 }
