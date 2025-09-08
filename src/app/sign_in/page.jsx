@@ -20,7 +20,8 @@ const Sign_In  = ()=>{
         <div className=" w-1/2 flex flex-col justify-start bg-gray-100 gap-4 m-auto p-5">
          <div className="flex items-center gap-2"><Image alt="" src={"/image/Lahiba.png"} width={30} height={30} /><h1>LAHIBA</h1></div>
           <div className=" flex flex-col  items-center justify-center gap-4">
-            <Image alt="" src={"/image/student.jpeg"} width={100} height={100} /> 
+            <Image alt="Student" src="/image/student.jpeg" width={100} height={100} />
+            <p>It&apos;s a good day</p>
              <form className="flex flex-col gap-4 w-full pl-4" action="">
                  <div className="relative">
                     <input className="border p-2 rounded w-full" type="text" name="name"  placeholder="" required />
