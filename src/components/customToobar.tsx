@@ -1,7 +1,8 @@
 import { ToolbarProps } from "react-big-calendar";
 import moment from "moment";
 
- function CustomToolbar({ label, onNavigate ,date }: ToolbarProps) {
+ function CustomToolbar(props: ToolbarProps) {
+      const { label, onNavigate ,date } = props;
       /* || next tooble button which will not be more than the current week */
       const startOfCurrentWeek = moment().startOf("week").add(6, "day"); // Monday
       const endOfCurrentWeek = moment().endOf("week").subtract(0, "day"); // Saturday

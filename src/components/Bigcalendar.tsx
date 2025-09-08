@@ -1,5 +1,5 @@
-  "use client"
-import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
+"use client"
+import { Calendar, momentLocalizer, View, Views, ToolbarProps } from 'react-big-calendar'
 import React from 'react'
 import { calendarEvents } from '@/lib/data'
 import CustomToolbar from '@/components/customToobar'
@@ -47,9 +47,9 @@ const events = generateWeeklyEvents();
         endAccessor="end"
         defaultView={Views.DAY}
         views={[Views.DAY]}
-         components={{
-           toolbar: CustomToolbar
-         }}
+        components={{
+          toolbar: CustomToolbar as React.ComponentType<ToolbarProps<CalendarEvent, object>>,
+        }}
         style={{ height: 600 }}
        min={new Date(1970, 1, 1, 8, 0)}  
         max={new Date(1970, 1, 1, 18, 0)}
@@ -59,3 +59,13 @@ const events = generateWeeklyEvents();
 }
 
 export default BigCalendar
+
+export type CalendarEvent = {
+  id: number;
+  title: string;
+  day: number;
+  startHour: number;
+  endHour: number;
+  start: Date;
+  end: Date;
+};
