@@ -7,7 +7,7 @@ const Sign_In  = ()=>{
         <div className="">
          <div><Image alt=" " src={"/Lahiba.png"} width={100} height={100} /><h1>LAHIBA</h1></div>
           <div className="">
-            <Image alt="" src={} width={100} height={100} /> 
+        
              <form action="">
                  <div className="">
                     <input type="text" name="name" />
