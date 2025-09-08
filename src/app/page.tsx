@@ -98,7 +98,7 @@ const handleMenuClick = () => {
         <h2 className="text-sm lg:text-[30px] font-semibold text-gray-900">REQUIREMENTS FOR ADMISSION INTO THE MASTER’S DEGREE PROGRAMME </h2>
         <ol className="w-full text-gray-500 flex flex-col gap-3 lg:text-2xl" style={{ listStyleType: "lower-alpha", listStylePosition: "inside", margin: 0, paddingLeft: 2,  }}>
           <h3 className=""> 1. Applicants should fill and submit the online admission application form at the following page click here</h3>
-          <li className="">Certified copy of Bachelor's Degree or Attestation of Results/Completion of Course (certified by the competent academic authorities)</li>
+          <li className="">Certified copy of Bachelor&apos;s Degree or Attestation of Results/Completion of Course (certified by the competent academic authorities)</li>
           <li className="">Certified copies of undergraduate academic transcripts (certified by the competent academic authorities),</li>
         <li className="">Certified copy of birth certificate,</li>
         <li className="">Letter of Motivation (max. 1 page)</li>
