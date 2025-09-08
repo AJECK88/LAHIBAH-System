@@ -129,16 +129,16 @@
                 <h1 className="text-lg font-semibold">Shortcuts</h1>
                 <div className="mt-4 flex gap-4 flex-wrap text-sm text-gray-500">
                 <Link href="/dashboard/teachers">
-                <div className="bg-gray-100 p-2 rounded-md">Teacher's classes</div>
+                <div className="bg-gray-100 p-2 rounded-md">Teacher&apos;s classes</div>
                 </Link>
                 <Link href="/dashboard/classes">
-                <div className="bg-gray-100 p-2 rounded-md">Teacher's student's</div>
+                <div className="bg-gray-100 p-2 rounded-md">Teacher&apos;s students</div>
                 </Link>
                 <Link href="/dashboard/subjects">
-                <div className="bg-gray-100 p-2 rounded-md">Teacher's exams</div>
+                <div className="bg-gray-100 p-2 rounded-md">Teacher&apos;s exams</div>
                 </Link>
                 <Link href="/dashboard/subjects">
-                <div className="bg-gray-100 p-2 rounded-md">Teacher's Assignments</div>
+                <div className="bg-gray-100 p-2 rounded-md">Teacher&apos;s Assignments</div>
                 </Link>
 
                 </div>
