@@ -1,4 +1,3 @@
-
 "use client"
 import React from 'react';
 import Image from "next/image";
@@ -81,9 +80,9 @@ const FinanceChart = () => {
     uvOpacity = 0.5;
   }
 
-  const handleMouseEnter = (payload/*: LegendPayload */) => {
+  const handleMouseEnter = (payload: any) => {
     setHoveringDataKey(payload.dataKey);
-  }
+  };
 
   const handleMouseLeave = () => {
     setHoveringDataKey(null);
