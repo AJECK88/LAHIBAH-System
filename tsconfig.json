@@ -15,33 +15,13 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "noEmit": true,
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "plugins": [{ "name": "next" }]
   },
-  "include": [
-    "next-env.d.ts", // ✅ only app code
-    "src" // ✅ Next.js required typings
-    ,
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next", // ✅ ignore Next.js build output
-    "dist",
-    "tailwind.config.ts"
-  ]
+  "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next", "dist", "tailwind.config.ts"]
 }
