@@ -3,19 +3,18 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import { studentsData , role} from '@/lib/data';
+import {role} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
-   type Student = {
-        id: string;
-        name: string;
-        photo:string;
-        studentId: string;
-        grade: string;
-        class: string;
-        phone: string;
-        address: string;
-    }
+import { Department, Grade, Student } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { count } from 'console';
+import { skip } from '@prisma/client/runtime/library';
+import { Items_Per_Page } from '../../Settings';
+import { Key } from 'react';
+import { promises } from 'dns';
+import { string } from 'zod/v4/core/regexes.cjs';
+   type StudentList  = Student & {department:Department, grade:Grade}
     const Columns = [
         {
             header:"Info",
@@ -28,8 +27,8 @@ import FormModel from '@/components/FormModel';
             
         },
             {
-            header:"Grade",
-            accessorKey:"grade",
+            header:"Department",
+            accessorKey:"department",
             className: "hidden md:table-cell"
             
         },
@@ -51,21 +50,19 @@ import FormModel from '@/components/FormModel';
             className: "hidden md:table-cell"
             
         }
-    ]
-    
-const  StudentListpage = () => {
+    ]  
 
-        const renderRow = (student: Student) => (
+       const renderRow = (student: StudentList) => (
             <tr key={student.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
-                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.photo} />
+                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.image || student.sex ==="Female"?"/FemaleIcon.png":"/maleIcon.png"} />
                 <div className="">
-                    <h3 className="font-semibold">{student.name}</h3>
-                    <p className="text-xs text-gray-100 font-semibold ">{student.class}</p>
+                    <h3 className="font-semibold">{student.firstName+" "+ student.lastName}</h3>
+                    <p className="text-xs text-gray-100 font-semibold ">{student.email}</p>
                 </div>
                 </td>
-                <td className="hidden md:table-cell">{student.studentId}</td>
-                <td className="hidden md:table-cell">{student.grade}</td>
-                <td className="hidden md:table-cell">{student.phone}</td>
+                <td className="hidden md:table-cell">{student.sex}</td>
+                <td className="hidden md:table-cell">{student.department.name}</td>
+                <td className="hidden md:table-cell">{student.phoneNumber}</td>
                 <td className="hidden md:table-cell">{student.address}</td>
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
@@ -82,6 +79,33 @@ const  StudentListpage = () => {
             </tr>
         )
 
+const  StudentListpage = async({
+    searchParams,
+}:{searchParams :Promise<{[key:string]:string|undefined}>
+
+})=> {
+      const params = await searchParams
+       const {page,...quoryParams} = params;
+       const p =page? parseInt(page):1
+
+        const[ studentData, count ]= await prisma.$transaction([
+            prisma.student.findMany(
+                {
+            include:{
+                department:true,
+                grade:true
+                 
+            }, 
+             take:Items_Per_Page,
+             skip : Items_Per_Page*(p-1)
+        }
+      
+         
+            ),
+            prisma.student.count()
+        ]
+        
+    )
     return (
         /* Student Page */
         /* Right hand side */
@@ -99,11 +123,14 @@ const  StudentListpage = () => {
             </div>
             {/* || List  */}
             <div className="">
-                <Table columns={Columns} renderRow ={renderRow} data={studentsData} />
+                <Table columns={Columns} renderRow ={renderRow} data={studentData} />
             </div>
             {/* || pagination */}
             <div className="w-full">
-                <Pagination />
+                <Pagination  
+                page={p}
+                count={count}
+                />
             </div>
         </div>
     )
