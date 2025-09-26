@@ -6,11 +6,9 @@ import Link from 'next/link';
  import FormModel from '@/components/FormModel';
 import { role, DepartmentsData} from '@/lib/data';
 import { type } from 'os';
-   type Department = {
-        id: string;
-        name: string;
-        supervisor: string;
-    }
+import { Department, Subject, Teacher } from '@prisma/client';
+import prisma from '@/lib/prisma';
+   type DepartmentList = Department & {supervisor:Teacher}
     const Columns = [
         {
             header:"Department",
@@ -29,10 +27,7 @@ import { type } from 'os';
             
         }
     ]
-    
-const  DepartmentsListpage = () => {
-
-        const renderRow = (department:Department ) => (
+    const renderRow = (department:DepartmentList) => (
 
             <tr key={department.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
@@ -41,8 +36,8 @@ const  DepartmentsListpage = () => {
                 </div>
                 </td>
 
-                <td className="hidden md:table-cell"> {department.supervisor}</td>
-
+       {/*    <td className="hidden md:table-cell"> {department.supervisor.firstName+ ' ' + department.supervisor.lastName}</td> */}
+         
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                     
@@ -56,7 +51,27 @@ const  DepartmentsListpage = () => {
                 </td>
             </tr>
         )
+const  DepartmentsListpage = async(
+    {searchParams
+    }:{searchParams:Promise<{[key:string]:string|undefined}>}
+    
+) => {
+     const [DepartmentData , count] =await prisma.$transaction([
+         prisma.department.findMany({
+        
+           select: {
+        id: true,
+        name: true,
+       
 
+        
+        },
+         }),
+         prisma.department.count()
+     ])
+    const params = await searchParams;
+    const {page ,...qouryParams} =params;
+    const p = page?parseInt(page):1;
     return (
         /* Student Page */
         /* Right hand side */
@@ -74,11 +89,14 @@ const  DepartmentsListpage = () => {
             </div>
             {/* || List  */}
             <div className="">
-                <Table columns={Columns} renderRow ={renderRow} data ={DepartmentsData} />
+                <Table columns={Columns} renderRow ={renderRow} data ={DepartmentData} />
             </div>
             {/* || pagination */}
             <div className="w-full">
-                <Pagination />
+                <Pagination 
+                  count={count}
+                  page={p}
+                 />
             </div>
         </div>
     )

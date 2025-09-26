@@ -1,12 +1,16 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = { devIndicators: false,
-    images: {
-        remotePatterns: [{
-                hostname: 'images.pexels.com',
-         
-            },
-        ],
-    }
- };
+const nextConfig = {
+  devIndicators: {
+    buildActivity: false,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
+    ],
+  },
+};
 
 export default nextConfig;

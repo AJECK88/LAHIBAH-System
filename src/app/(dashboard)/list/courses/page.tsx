@@ -6,11 +6,10 @@ import Link from 'next/link';
 import { role, subjectsData} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
-   type subjects = {
-        id: string;
-        name: string;
-        teachers: string[];
-    }
+import { Subject, Teacher } from '@prisma/client';
+import { count } from 'console';
+import prisma from '@/lib/prisma';
+   type subjectsList = Subject & {teachers:Teacher[]}/* || THE NEED TO BE A RELATIONSHIP WITH THE DEPARTMENT */
     const Columns = [
         {
             header:"Course Title",
@@ -29,10 +28,7 @@ import FormModel from '@/components/FormModel';
             
         }
     ]
-    
-const  SubjectsListpage = () => {
-
-        const renderRow = (subject:subjects ) => (
+    const renderRow = (subject:subjectsList) => (
 
             <tr key={subject.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
@@ -41,7 +37,7 @@ const  SubjectsListpage = () => {
                 </div>
                 </td>
 
-                <td className="hidden md:table-cell"> {subject.teachers?.join(", ")}</td>
+                <td className="hidden md:table-cell"> {subject.teachers.map(teacher => teacher.firstName + " " + teacher.lastName).join(", ")}</td>
 
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
@@ -55,7 +51,22 @@ const  SubjectsListpage = () => {
                 </td>
             </tr>
         )
-
+const  SubjectsListpage = async({
+searchParams
+}:{searchParams:Promise<{[key:string]:string|undefined}>
+ 
+}) => {
+   const [SubjectData , count]= await prisma.$transaction([
+        prisma.subject.findMany({
+            include:{
+                teachers:true
+            }
+        }),
+        prisma.subject.count()
+    ])
+      const params = await searchParams;
+      const {page, ...qouryParems} = params
+      const p = page? parseInt(page):1;
     return (
         /* Student Page */
         /* Right hand side */
@@ -73,11 +84,13 @@ const  SubjectsListpage = () => {
             </div>
             {/* || List  */}
             <div className="">
-                <Table columns={Columns} renderRow ={renderRow} data ={subjectsData} />
+                <Table columns={Columns} renderRow ={renderRow} data ={SubjectData} />
             </div>
             {/* || pagination */}
             <div className="w-full">
-                <Pagination />
+                <Pagination 
+                count={count}
+                page={p}/>
             </div>
         </div>
     )

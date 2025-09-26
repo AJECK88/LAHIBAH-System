@@ -5,14 +5,11 @@ import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { studentsData , role, parentsData} from '@/lib/data';
 import FormModel from '@/components/FormModel';
-   type Parent = {
-        id: string;
-        name: string;
-       students: string[];
-        phone: string;
-        email?: string;
-        address: string;
-    }
+import { Parent, Student } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { Items_Per_Page } from '../../Settings';
+import { Key } from 'react';
+   type ParentList  = Parent & {students:Student[]}
     const Columns = [
         {
             header:"Info",
@@ -43,20 +40,16 @@ import FormModel from '@/components/FormModel';
             
         }
     ]
-    
-const  ParentsListpage = () => {
-
-        const renderRow = (parent:Parent ) => (
+     const renderRow = (parent:ParentList ) => (
             <tr key={parent.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
                 <div className="">
-                    <h3 className="font-semibold">{parent.name}</h3>
-                    <p className="text-xs text-gray-100 font-semibold ">{parent.email}</p>
+                    <h3 className="font-semibold">{parent.firstName +" " +parent.lastName}</h3>
+                    <p className="text-xs text-gray-400 font-semibold ">{parent.email}</p>
                 </div>
                 </td>
-
-                <td className="hidden md:table-cell"> {parent.students?.join(", ")}</td>
-                <td className="hidden md:table-cell">{parent.phone}</td>
+                <td className="hidden md:table-cell"> {parent.students.map(student =>student.firstName+student.lastName).join(", ")}</td>
+                <td className="hidden md:table-cell">{parent.phoneNumber}</td>
                 <td className="hidden md:table-cell">{parent.address}</td>
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
@@ -73,6 +66,24 @@ const  ParentsListpage = () => {
             </tr>
         )
 
+const  ParentsListpage = async({
+   searchParams,
+}:{searchParams :Promise<{[key:string]:string|undefined }>
+
+}) => {
+    const params = await searchParams
+    const {page, ...quoryParams} =params
+    const p = page?parseInt(page):1;
+    const [parentsData , count] = await prisma.$transaction([
+           prisma.parent.findMany({
+            include:{
+                students:true
+            },
+            take:Items_Per_Page,
+            skip : Items_Per_Page*(p-1)
+           }),
+           prisma.parent.count()
+    ]) 
     return (
         /* Student Page */
         /* Right hand side */
@@ -94,7 +105,10 @@ const  ParentsListpage = () => {
             </div>
             {/* || pagination */}
             <div className="w-full">
-                <Pagination />
+                <Pagination 
+                count={count}
+                page={p}
+                />
             </div>
         </div>
     )

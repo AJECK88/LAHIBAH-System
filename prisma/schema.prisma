@@ -3,7 +3,6 @@ generator client {
   output   = "../generated/prisma"
 }
 
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -25,12 +24,13 @@ model Subject {
   classroom   Classroom[]
   exams       Exam[]
   results     Result[]
+  departmentId String?
+  department Department? @relation(fields: [departmentId], references: [id])
   timetables  Timetable[]
   grade       Grade?       @relation(fields: [gradeId], references: [id])
-  students    Student[]   
-  teachers    Teacher[]    
+  students    Student[]
+  teachers    Teacher[]
 }
-
 
 model Student {
   id           String       @id @default(cuid())
@@ -49,31 +49,31 @@ model Student {
   departmentId String
   gradeId      String?
   attendance   Attendance[]
-  matricule    String       @unique
+  matricule    String?
   fees         Fee[]
   results      Result[]
   department   Department   @relation(fields: [departmentId], references: [id])
   grade        Grade?       @relation(fields: [gradeId], references: [id])
   parent       Parent?      @relation(fields: [parentId], references: [id])
-  courses      Subject[]    
-
+  courses      Subject[]
 }
 
 model Teacher {
-  id          String    @id @default(cuid())
-  username    String    @unique
-  email       String    @unique
+  id          String      @id @default(cuid())
+  username    String      @unique
+  email       String      @unique
   password    String
   age         Int
   address     String
   bloodGroup  String?
-  phoneNumber String    @unique
+  phoneNumber String      @unique
   firstName   String
   sex         Usersex
   lastName    String
   image       String?
-  teachersId  String    @unique
+  teachersId  String      @unique
   courses     Subject[]
+  department  Department? @relation("DepartmentSupervisor")
 }
 
 model Parent {
@@ -96,11 +96,12 @@ model Grade {
   students Student[]
   courses  Subject[]
 }
-
 model Department {
   id            String         @id @default(cuid())
   name          String         @unique
-  supervisorId  String
+  supervisorId String?         @unique
+  supervisor   Teacher?       @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
+  subjects Subject[]
   announcements Announcement[]
   events        Event[]
   Student       Student[]

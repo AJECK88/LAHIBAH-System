@@ -6,14 +6,11 @@ import Link from 'next/link';
 import {announcementsData,  role,} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
-   type announcements = {
-        id: string;
-        title: string;
-        class: string;
-        teacher: string;
-        date: string;
-       
-    }
+import { count } from 'console';
+import prisma from '@/lib/prisma';
+import { Announcement, Department } from '@prisma/client';
+import { de } from 'zod/v4/locales';
+   type announcementsList = Announcement & {department:Department[]}
     const Columns = [
         {
             header:"Info",
@@ -32,6 +29,9 @@ import FormModel from '@/components/FormModel';
             header:"Date",
             accessorKey:"date",
             className: ""
+        },  {        header:"message",
+            accessorKey:"message",
+            className: ""
         },
     {
             header:"Actions",
@@ -40,18 +40,16 @@ import FormModel from '@/components/FormModel';
             
         }
     ]
-
-const  announcementsListpage = () => {
-
-    const renderRow = (announcement:announcements) => (
+   const renderRow = (announcement:announcementsList) => (
             <tr key={announcement.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
                 <div className="">
                     <h3 className="font-semibold">{announcement.title}</h3>
                 </div>
                 </td>
-                <td className="hidden md:table-cell"> {announcement.class}</td>
-                <td className=""> {announcement.date}</td>
+                <td className="hidden md:table-cell"> {announcement.department?.length >1?"General":announcement.department?.map(dep=>dep.name)}</td>
+                <td className=""> {announcement.date.toLocaleDateString()}</td>
+                <td className=""> {announcement.message}</td>
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                   {role === "admin" && (
@@ -64,6 +62,25 @@ const  announcementsListpage = () => {
                 </td>
             </tr>
         )
+const  announcementsListpage = async({
+    searchParams
+}:{
+    searchParams:Promise<{[key:string]:string|undefined}>
+}) => {
+     const [announcementsData , count]= await prisma.$transaction([
+        prisma.announcement.findMany({
+            include:{
+                 department:true
+            }
+        }),
+        prisma.announcement.count()
+         
+     ])
+     const Params = await searchParams;
+     const {page, ...qouryParams} = Params;
+     const p = page? parseInt(page):1;
+     
+ 
 
     return (
         /* Student Page */
@@ -86,7 +103,9 @@ const  announcementsListpage = () => {
             </div>
             {/* || pagination */}
             <div className="w-full">
-                <Pagination />
+                <Pagination 
+                count={count}
+                page={p}/>
             </div>
         </div>
     )

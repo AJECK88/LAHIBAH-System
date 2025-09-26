@@ -14,6 +14,7 @@ CREATE TABLE `Subject` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `gradeId` VARCHAR(191) NULL,
+    `departmentId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Subject_name_key`(`name`),
     PRIMARY KEY (`id`)
@@ -36,6 +37,7 @@ CREATE TABLE `Student` (
     `parentId` VARCHAR(191) NULL,
     `departmentId` VARCHAR(191) NOT NULL,
     `gradeId` VARCHAR(191) NULL,
+    `matricule` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Student_username_key`(`username`),
     UNIQUE INDEX `Student_email_key`(`email`),
@@ -98,9 +100,10 @@ CREATE TABLE `Grade` (
 CREATE TABLE `Department` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `supervisorId` VARCHAR(191) NOT NULL,
+    `supervisorId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Department_name_key`(`name`),
+    UNIQUE INDEX `Department_supervisorId_key`(`supervisorId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -249,6 +252,9 @@ CREATE TABLE `_StudentToSubject` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
+ALTER TABLE `Subject` ADD CONSTRAINT `Subject_departmentId_fkey` FOREIGN KEY (`departmentId`) REFERENCES `Department`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Subject` ADD CONSTRAINT `Subject_gradeId_fkey` FOREIGN KEY (`gradeId`) REFERENCES `Grade`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -259,6 +265,9 @@ ALTER TABLE `Student` ADD CONSTRAINT `Student_gradeId_fkey` FOREIGN KEY (`gradeI
 
 -- AddForeignKey
 ALTER TABLE `Student` ADD CONSTRAINT `Student_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `Parent`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Department` ADD CONSTRAINT `Department_supervisorId_fkey` FOREIGN KEY (`supervisorId`) REFERENCES `Teacher`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Classroom` ADD CONSTRAINT `Classroom_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Subject`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

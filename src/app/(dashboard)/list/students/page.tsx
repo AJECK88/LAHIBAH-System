@@ -6,14 +6,16 @@ import Link from 'next/link';
 import {role} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
-import { Department, Grade, Student } from '@prisma/client';
+import { Department, Grade, Prisma, Student } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { count } from 'console';
 import { skip } from '@prisma/client/runtime/library';
 import { Items_Per_Page } from '../../Settings';
 import { Key } from 'react';
+import { NoResultFound } from '@/components/NoResult';
 import { promises } from 'dns';
 import { string } from 'zod/v4/core/regexes.cjs';
+import { object } from 'zod';
    type StudentList  = Student & {department:Department, grade:Grade}
     const Columns = [
         {
@@ -57,7 +59,7 @@ import { string } from 'zod/v4/core/regexes.cjs';
                 <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.image || student.sex ==="Female"?"/FemaleIcon.png":"/maleIcon.png"} />
                 <div className="">
                     <h3 className="font-semibold">{student.firstName+" "+ student.lastName}</h3>
-                    <p className="text-xs text-gray-100 font-semibold ">{student.email}</p>
+                    <p className="text-xs text-gray-400 font-semibold ">{student.email}</p>
                 </div>
                 </td>
                 <td className="hidden md:table-cell">{student.sex}</td>
@@ -87,14 +89,33 @@ const  StudentListpage = async({
       const params = await searchParams
        const {page,...quoryParams} = params;
        const p =page? parseInt(page):1
+        /* || url params conditions */
+        const query: Prisma.StudentWhereInput ={};
+        if(quoryParams){
+            for(const [key , value] of Object.entries(quoryParams)){
+               if(value!== undefined && value !==""){
+                switch (key){
+                    case "search":
+                      query.OR =[{firstName :{ contains: value  }},
+                                 {lastName:{contains:value}}
 
+                      ] 
+                     
+                   break
+               
+            }
+        }
+        }
+       
+    }
         const[ studentData, count ]= await prisma.$transaction([
             prisma.student.findMany(
                 {
+              where:query,
             include:{
                 department:true,
                 grade:true
-                 
+                   
             }, 
              take:Items_Per_Page,
              skip : Items_Per_Page*(p-1)
@@ -102,7 +123,7 @@ const  StudentListpage = async({
       
          
             ),
-            prisma.student.count()
+            prisma.student.count({ where: query })
         ]
         
     )
@@ -122,15 +143,24 @@ const  StudentListpage = async({
                      </div>
             </div>
             {/* || List  */}
-            <div className="">
-                <Table columns={Columns} renderRow ={renderRow} data={studentData} />
-            </div>
+            <div className={`${count==0?' flex items-center justify-center mt-4 h-[90vh]':""}`}>
+             {count!==0 ? <Table columns={Columns} renderRow ={renderRow} data={studentData} />
+              :<NoResultFound 
+               Result='Student not Found !! please Input the right Name'/>
+         }
+               </div>
+            
+            
             {/* || pagination */}
-            <div className="w-full">
+            <div className="w-full">{ count!==0
+             ?
                 <Pagination  
                 page={p}
                 count={count}
-                />
+                /> 
+                :
+                ""
+                }
             </div>
         </div>
     )
