@@ -18,6 +18,7 @@ import { date } from "zod";
      )
         const DepartmentForm = dynamic(()=> import('@/components/Forms/DepertmentForm'))
         const AnnouncementForm = dynamic(()=> import('@/components/Forms/AnnouncementForm'))
+        const ExamForm  = dynamic( () => import('@/components/Forms/ExamForm'))
 
       const Forms:{
             [key:string]:(type: "Create" | "Update" , data?: any)=>JSX.Element;
@@ -27,7 +28,8 @@ import { date } from "zod";
        Parent: (type, data) =><ParentFoorem  type={type} data={data} />,
        Course: (type, data) => <Courseform  type={type} data={data} />,
        Department: (type, data) => <DepartmentForm  type={type} data={data} />,
-       announcement:(type, data) => <AnnouncementForm  type={type} data={data}/>
+       announcement:(type, data) => <AnnouncementForm  type={type} data={data}/>,
+       Exams  : (type, date)=> <ExamForm type={type} data={date} />
  }
 
       

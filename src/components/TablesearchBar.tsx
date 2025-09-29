@@ -21,7 +21,7 @@ const TableSearchBar = () => {
 
   return (
     <form
-      onSubmit={handleSubmit}
+      onKeyUp={handleSubmit}
       className="flex md:flex items-center justify-start gap-2 text-xs rounded-full ring-[1.5px] ring-gray-500 px-2"
     >
       <button type="submit">
