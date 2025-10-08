@@ -8,6 +8,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Usersex {
+  Male
+  Female
+}
+
 model Admin {
   id       String @id @default(cuid())
   userName String
@@ -15,46 +20,70 @@ model Admin {
   password String
 }
 
+model Department {
+  id           String         @id @default(cuid())
+  name         String         @unique
+  supervisorId String?        @unique
+  supervisor   Teacher?       @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
+
+  subjects      Subject[]
+  students      Student[]
+  announcements Announcement[]
+  events        Event[]
+}
+
+model Grade {
+  id       String    @id @default(cuid())
+  name     String    @unique
+
+  students Student[]
+  subjects Subject[]
+}
+
 model Subject {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique
-  gradeId     String?
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  gradeId      String?
+  departmentId String?
+
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
+  department  Department?  @relation(fields: [departmentId], references: [id])
+
   assignments Assignment[]
   attendance  Attendance[]
-  classroom   Classroom[]
+  classrooms  Classroom[]
   exams       Exam[]
   results     Result[]
-  departmentId String?
-  department Department? @relation(fields: [departmentId], references: [id])
   timetables  Timetable[]
-  grade       Grade?       @relation(fields: [gradeId], references: [id])
   students    Student[]
   teachers    Teacher[]
 }
 
 model Student {
-  id           String       @id @default(cuid())
-  username     String       @unique
-  email        String       @unique
+  id           String     @id @default(cuid())
+  username     String     @unique
+  email        String     @unique
   password     String
   age          Int
   address      String
-  phoneNumber  String       @unique
+  phoneNumber  String     @unique
   firstName    String
   lastName     String
   image        String?
   sex          Usersex
-  createdAt    DateTime     @default(now())
+  createdAt    DateTime   @default(now())
   parentId     String?
   departmentId String
   gradeId      String?
-  attendance   Attendance[]
   matricule    String?
+
+  department   Department  @relation(fields: [departmentId], references: [id])
+  grade        Grade?      @relation(fields: [gradeId], references: [id])
+  parent       Parent?     @relation(fields: [parentId], references: [id])
+
+  attendance   Attendance[]
   fees         Fee[]
   results      Result[]
-  department   Department   @relation(fields: [departmentId], references: [id])
-  grade        Grade?       @relation(fields: [gradeId], references: [id])
-  parent       Parent?      @relation(fields: [parentId], references: [id])
   courses      Subject[]
 }
 
@@ -68,10 +97,11 @@ model Teacher {
   bloodGroup  String?
   phoneNumber String      @unique
   firstName   String
-  sex         Usersex
   lastName    String
+  sex         Usersex
   image       String?
   teachersId  String      @unique
+
   courses     Subject[]
   department  Department? @relation("DepartmentSupervisor")
 }
@@ -87,30 +117,15 @@ model Parent {
   phoneNumber String    @unique
   firstName   String
   lastName    String
-  students    Student[]
-}
 
-model Grade {
-  id       String    @id @default(cuid())
-  name     String    @unique
-  students Student[]
-  courses  Subject[]
-}
-model Department {
-  id            String         @id @default(cuid())
-  name          String         @unique
-  supervisorId String?         @unique
-  supervisor   Teacher?       @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
-  subjects Subject[]
-  announcements Announcement[]
-  events        Event[]
-  Student       Student[]
+  students    Student[]
 }
 
 model Classroom {
   id       String  @id @default(cuid())
   name     String  @unique
   courseId Int
+
   course   Subject @relation(fields: [courseId], references: [id])
 }
 
@@ -121,6 +136,7 @@ model Event {
   endDate      DateTime
   description  String
   departmentId String?
+
   department   Department? @relation(fields: [departmentId], references: [id])
 }
 
@@ -131,6 +147,7 @@ model Exam {
   startDate DateTime
   endDate   DateTime
   courseId  Int
+
   course    Subject  @relation(fields: [courseId], references: [id])
   results   Result[]
 }
@@ -142,6 +159,7 @@ model Attendance {
   status    String
   courseId  Int
   studentId String
+
   course    Subject  @relation(fields: [courseId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
 }
@@ -152,6 +170,7 @@ model Assignment {
   startDate DateTime
   dueDate   DateTime
   courseId  Int
+
   course    Subject  @relation(fields: [courseId], references: [id])
 }
 
@@ -163,6 +182,7 @@ model Result {
   studentId String
   courseId  Int
   examId    Int?
+
   course    Subject  @relation(fields: [courseId], references: [id])
   exam      Exam?    @relation(fields: [examId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
@@ -174,6 +194,7 @@ model Timetable {
   startTime DateTime
   endTime   DateTime
   day       String
+
   course    Subject  @relation(fields: [courseId], references: [id])
 }
 
@@ -198,6 +219,7 @@ model Fee {
   amount    Float
   dueDate   DateTime
   status    String
+
   student   Student  @relation(fields: [studentId], references: [id])
 }
 
@@ -207,10 +229,6 @@ model Announcement {
   message      String
   date         DateTime
   departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
-}
 
-enum Usersex {
-  Male
-  Female
+  department   Department? @relation(fields: [departmentId], references: [id])
 }

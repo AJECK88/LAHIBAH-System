@@ -14,8 +14,6 @@ import { Items_Per_Page } from '../../Settings';
 import { Key } from 'react';
 import { NoResultFound } from '@/components/NoResult';
 import { promises } from 'dns';
-import { string } from 'zod/v4/core/regexes.cjs';
-import { object } from 'zod';
    type StudentList  = Student & {department:Department, grade:Grade}
     const Columns = [
         {

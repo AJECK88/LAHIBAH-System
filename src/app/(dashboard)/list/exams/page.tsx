@@ -9,7 +9,7 @@ import FormModel from '@/components/FormModel';
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
-   type  examList = Exam & {course:Subject} 
+   type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
     const Columns = [
         {
             header:"Course Title",
@@ -42,9 +42,9 @@ import { Items_Per_Page } from '../../Settings';
                 </div>
                 </td>
 
-                <td className="hidden md:table-cell"> {exam.title}</td>
-                <td className="hidden md:table-cell"> {exam.startDate.getTime()}</td>
-                <td className=""> {exam.endDate.toString()}</td>
+                <td className="hidden md:table-cell"> {exam.course.teachers.map(teacher => teacher.firstName + " " + teacher.lastName).join(", ")}</td>
+                <td className="hidden md:table-cell"> {exam.startDate.toLocaleTimeString()}</td>
+                <td className=""> {exam.endDate.toLocaleDateString()}</td>
                 <td className=" md:table-cell">
                    {/*  <div className="flex items-center gap-2 self-end" >
                         <Link href={`/list/subjects/${exam.id}`} className="text-blue-500">
@@ -68,7 +68,18 @@ const  ExamListpage = async(
    const[examData , count]= await prisma.$transaction([
       prisma.exam.findMany({
          include:{
-             course:true,
+             course:{
+                 include:{
+                     teachers:{
+                         select:{
+                             firstName:true,
+                             lastName:true,
+                         },
+                     },
+                
+                 },
+             },
+             
          },
          take:Items_Per_Page,
          skip:Items_Per_Page*(p-1)

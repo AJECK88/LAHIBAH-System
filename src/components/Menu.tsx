@@ -1,7 +1,8 @@
-"use client";
+
 import Link from "next/link";
 import Image from "next/image" 
-import { role } from "../lib/data";
+import { currentUser } from "@clerk/nextjs/server";
+
 const menuItems = [
   {
     title: "MENU",
@@ -16,7 +17,7 @@ const menuItems = [
         icon: "/teacher.png",
         label: "Teachers",
         href: "/list/teachers",
-        visible: ["admin", "teacher ","student"],
+        visible: ["admin", "teacher"],
       },
       {
         icon: "/student.png",
@@ -116,7 +117,9 @@ const menuItems = [
     ],
   },
 ];
- export function Menu() {
+ export  const   Menu =async () => {
+  const user = await currentUser(); 
+   const role =  user?.publicMetadata.role as string ;
   return (
     <div className="mt-4 text-sm w-full">
        {menuItems.map( (e)=>(

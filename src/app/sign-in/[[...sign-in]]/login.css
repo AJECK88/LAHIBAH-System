@@ -5,7 +5,7 @@ input:not(:placeholder-shown) + label
   
   top: 2px;
   z-index: 1;
-  background-color: aliceblue;
+  background-color: white;
 }
 /* || universal buttons */
 button{

@@ -4,20 +4,26 @@ import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { role, subjectsData} from '@/lib/data';
-import { type } from 'os';
 import FormModel from '@/components/FormModel';
-import { Subject, Teacher } from '@prisma/client';
-import { count } from 'console';
+import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
-   type subjectsList = Subject & {teachers:Teacher[]}/* || THE NEED TO BE A RELATIONSHIP WITH THE DEPARTMENT */
+import { Items_Per_Page } from '../../Settings';
+import FormsContainer from '@/components/FormsContainer';
+   type subjectsList = Subject & {teachers:Teacher[] , department:Department[]}/* || THE NEED TO BE A RELATIONSHIP WITH THE DEPARTMENT */
     const Columns = [
         {
             header:"Course Title",
             accessorKey:"info"
         },
         {
-            header:"Teachers",
+            header:"Teacher",
             accessorKey:"students",
+            className: "hidden md:table-cell"
+            
+        },
+            {
+            header:"Department",
+            accessorKey:"department",
             className: "hidden md:table-cell"
             
         },
@@ -38,13 +44,13 @@ import prisma from '@/lib/prisma';
                 </td>
 
                 <td className="hidden md:table-cell"> {subject.teachers.map(teacher => teacher.firstName + " " + teacher.lastName).join(", ")}</td>
-
+                <td>Default</td>
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                   {role === "admin" && (
                     <>
-                        <FormModel table="Course" type="Update" id={subject.id} />
-                        <FormModel table="Course" type="Delete" id={subject.id} />
+                        <FormsContainer table="Course" type="Update" id={subject.id} data={subject} />
+                        <FormsContainer table="Course" type="Delete" id={subject.id} data={subject}/>
                    </>
                     )}
                     </div>
@@ -56,17 +62,21 @@ searchParams
 }:{searchParams:Promise<{[key:string]:string|undefined}>
  
 }) => {
-   const [SubjectData , count]= await prisma.$transaction([
-        prisma.subject.findMany({
-            include:{
-                teachers:true
-            }
-        }),
-        prisma.subject.count()
-    ])
+  
       const params = await searchParams;
       const {page, ...qouryParems} = params
       const p = page? parseInt(page):1;
+       const [SubjectData , count]= await prisma.$transaction([
+        prisma.subject.findMany({
+            include:{
+                teachers:true,
+                
+            },
+            take: Items_Per_Page,
+            skip: Items_Per_Page*(p -1)
+          }),
+        prisma.subject.count()
+    ]) 
     return (
         /* Student Page */
         /* Right hand side */
@@ -79,7 +89,7 @@ searchParams
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                    <FormModel table="Course" type="Create" />
+                     <FormsContainer table="Course" type="Create" />
                     </div>
             </div>
             {/* || List  */}
