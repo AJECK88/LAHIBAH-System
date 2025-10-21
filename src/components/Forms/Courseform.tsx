@@ -15,7 +15,6 @@ import {
 } from "react"
 import { toast } from "react-toastify"
 import { useRouter } from "next/navigation"
-import { any } from "zod"
 
 const CourseForm = ({
   type,
@@ -42,18 +41,6 @@ const CourseForm = ({
     resolver: zodResolver(courseSchema),
   
   })
-
-  // Update the form defaults when editing data changes
-  useEffect(() => {
-    if (type === "Update" && data) {
- 
-      reset({
-        CourseName: data.name , 
-      })
-     
-    }
-  }, [data, type, reset])
-
   const [state, formAction] = useActionState(type==='Create'? CreateCourse: UpdateCourse, {
     successMessage: false,
     errorMessage: false,
@@ -75,6 +62,7 @@ const CourseForm = ({
       router.refresh()
     }
   }, [state, type, router, SetOpen])
+ // Update the form defaults when editing data changes
   useEffect(() => {
   if (type === "Update" && data) {
     reset({
@@ -109,9 +97,7 @@ const CourseForm = ({
           label="Course Name"
           Placeholder="Enter Course Name"
         />
-      {type === "Update" && (
-  <input type="hidden" {...register("id")} value={data?.id} />
-)}
+ 
 
          <div className="flex flex-col w-full">
         <label htmlFor="">Teacher</label>
