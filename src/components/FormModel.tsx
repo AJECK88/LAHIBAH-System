@@ -2,7 +2,7 @@
       import Image from "next/image";
       import dynamic from "next/dynamic";
       import { Dispatch, JSX, SetStateAction, startTransition, useActionState, useEffect, useState } from "react"
-import { deletCourse } from "@/lib/actions";
+import { deletCourse, deleteStudent } from "@/lib/actions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FormsContainerProps } from "./FormsContainer";
@@ -22,7 +22,7 @@ const deletActionMap: Record<
   (currentState: any, data: FormData) => Promise<{ successMessage: boolean; errorMessage: boolean }>
 > = {
   Teacher: deletCourse,
-  Student: deletCourse,
+  Student: deleteStudent,
   Parent: deletCourse,
   Course: deletCourse,
   Department: deletCourse,
@@ -54,20 +54,20 @@ const deletActionMap: Record<
       const Forms:{
             [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any)=>JSX.Element;
  } = { 
-       Teacher: ( SetOpen, type, data) => (
+       Teacher: ( SetOpen, type, data , relatedData) => (
        <TeachersForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData}/>
        ),
-       Student: ( SetOpen,type, data) => (
+       Student: ( SetOpen,type, data , relatedData) => (
       <StudentsForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData} />
        ),
        Parent: ( SetOpen,type, data) =>(
       <ParentFoorem  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
        ),
        Course: (  SetOpen,type, data, relatedData) => (
-       <Courseform  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
+       <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} hidden/>
       ),
        Department: ( SetOpen,type ,data) =>(
-             <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
+             <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/> 
        ),
        announcement:(SetOpen,type, data) => (
        <AnnouncementForm  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData}/>
@@ -93,11 +93,20 @@ const deletActionMap: Record<
           errorMessage: false,
         })
          const router = useRouter();
-         
+         const getSuccesMessage = (table:string)=>{
+           switch(table){
+          case "Course":
+          return `Course ${data.name} has been deleted!`;
+          case "Student":
+          return `Student has been deleted!`;
+             default:
+            return "Operation completed successfully!";
+           }
+          
+         }
           useEffect(() => {
             if (state.successMessage) {
-              toast(
-                `Course ${data.name} has been deleted `,
+            toast(getSuccesMessage(table),
                 { type: "success" }
               )
               SetOpen(false)
@@ -106,7 +115,7 @@ const deletActionMap: Record<
           }, [state, type, router, SetOpen])
              return type === "Delete" ? (
       <form action={formAction} className="flex flex-col gap-4">
-       <input type="hidden" name="id" defaultValue={id} />
+   
 
       <div className=" flex flex-col gap-6 p-4">
       <div className="text-center font-semibold"><span className="font-bold">Warning!!:</span> All data related to this {table} will be lost. Are you sure you want to delete this {table}?</div>

@@ -5,7 +5,11 @@ import BigCalendar from "@/components/Bigcalendar";
 import Image from "next/image";
 import Link  from "next/link";
 import "react-big-calendar/lib/css/react-big-calendar.css"
-const StudentPage = () => {
+import { currentUser } from "@clerk/nextjs/server";
+const StudentPage = async () => {
+    const user = await currentUser()
+          const userName = user?.fullName;
+          
     return (
         /* Student Page */
         /* Right hand side */
@@ -14,7 +18,7 @@ const StudentPage = () => {
             <div className=" flex gap-4 flex-col lg:flex-row">
                 <div className="flex p-6  w-full lg:w-2/3 bg-white rounded-xl mb-2 items-center h-[220px]">
                     <div className=" flex flex-col justify-between">
-                    <h1 className="text-2xl font-bold mb-2">Welcome back, {"Sammual"}!</h1>
+                    <h1 className="text-2xl font-bold mb-2">Welcome back, {userName}!</h1>
                     <p className="text-gray-600 hidden text-sm lg:block">Welcome back! We're here to support you on your 
                         learning journey. Dive into your classes and keep progressing 
                         towards your goals.</p>

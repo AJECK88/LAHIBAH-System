@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -21,10 +20,10 @@ model Admin {
 }
 
 model Department {
-  id           String         @id @default(cuid())
-  name         String         @unique
-  supervisorId String?        @unique
-  supervisor   Teacher?       @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
+  id           String   @id @default(cuid())
+  name         String   @unique
+  supervisorId String?  @unique
+  supervisor   Teacher? @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
 
   subjects      Subject[]
   students      Student[]
@@ -33,21 +32,21 @@ model Department {
 }
 
 model Grade {
-  id       String    @id @default(cuid())
-  name     String    @unique
+  id   String @id @default(cuid())
+  name String @unique
 
   students Student[]
   subjects Subject[]
 }
 
 model Subject {
-  id           Int          @id @default(autoincrement())
-  name         String       @unique
+  id           Int     @id @default(autoincrement())
+  name         String  @unique
   gradeId      String?
   departmentId String?
 
-  grade       Grade?       @relation(fields: [gradeId], references: [id])
-  department  Department?  @relation(fields: [departmentId], references: [id])
+  grade      Grade?      @relation(fields: [gradeId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 
   assignments Assignment[]
   attendance  Attendance[]
@@ -76,68 +75,68 @@ model Student {
   departmentId String
   gradeId      String?
   matricule    String?
+  DateOfBirth  DateTime?
+  department   Department @relation(fields: [departmentId], references: [id])
+  grade        Grade?     @relation(fields: [gradeId], references: [id])
+  parent       Parent?    @relation(fields: [parentId], references: [id])
 
-  department   Department  @relation(fields: [departmentId], references: [id])
-  grade        Grade?      @relation(fields: [gradeId], references: [id])
-  parent       Parent?     @relation(fields: [parentId], references: [id])
-
-  attendance   Attendance[]
-  fees         Fee[]
-  results      Result[]
-  courses      Subject[]
+  attendance Attendance[]
+  fees       Fee[]
+  results    Result[]
+  courses    Subject[]
 }
 
 model Teacher {
-  id          String      @id @default(cuid())
-  username    String      @unique
-  email       String      @unique
+  id          String  @id @default(cuid())
+  username    String  @unique
+  email       String  @unique
   password    String
   age         Int
   address     String
   bloodGroup  String?
-  phoneNumber String      @unique
+  phoneNumber String  @unique
   firstName   String
   lastName    String
   sex         Usersex
   image       String?
-  teachersId  String      @unique
+  teachersId  String  @unique
 
-  courses     Subject[]
-  department  Department? @relation("DepartmentSupervisor")
+  courses    Subject[]
+  department Department? @relation("DepartmentSupervisor")
 }
 
 model Parent {
-  id          String    @id @default(cuid())
-  username    String    @unique
-  email       String    @unique
+  id          String  @id @default(cuid())
+  username    String  @unique
+  email       String  @unique
   password    String
   age         Int
   sex         Usersex
   address     String
-  phoneNumber String    @unique
+  phoneNumber String  @unique
   firstName   String
   lastName    String
 
-  students    Student[]
+  students Student[]
 }
 
 model Classroom {
-  id       String  @id @default(cuid())
-  name     String  @unique
+  id       String @id @default(cuid())
+  name     String @unique
   courseId Int
 
-  course   Subject @relation(fields: [courseId], references: [id])
+  course Subject @relation(fields: [courseId], references: [id])
 }
 
 model Event {
-  id           String      @id @default(cuid())
-  name         String      @unique
+  id           String   @id @default(cuid())
+  name         String   @unique
   startDate    DateTime
   endDate      DateTime
   description  String
   departmentId String?
 
-  department   Department? @relation(fields: [departmentId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 }
 
 model Exam {
@@ -148,8 +147,8 @@ model Exam {
   endDate   DateTime
   courseId  Int
 
-  course    Subject  @relation(fields: [courseId], references: [id])
-  results   Result[]
+  course  Subject  @relation(fields: [courseId], references: [id])
+  results Result[]
 }
 
 model Attendance {
@@ -160,8 +159,8 @@ model Attendance {
   courseId  Int
   studentId String
 
-  course    Subject  @relation(fields: [courseId], references: [id])
-  student   Student  @relation(fields: [studentId], references: [id])
+  course  Subject @relation(fields: [courseId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model Assignment {
@@ -171,7 +170,7 @@ model Assignment {
   dueDate   DateTime
   courseId  Int
 
-  course    Subject  @relation(fields: [courseId], references: [id])
+  course Subject @relation(fields: [courseId], references: [id])
 }
 
 model Result {
@@ -183,9 +182,9 @@ model Result {
   courseId  Int
   examId    Int?
 
-  course    Subject  @relation(fields: [courseId], references: [id])
-  exam      Exam?    @relation(fields: [examId], references: [id])
-  student   Student  @relation(fields: [studentId], references: [id])
+  course  Subject @relation(fields: [courseId], references: [id])
+  exam    Exam?   @relation(fields: [examId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model Timetable {
@@ -195,7 +194,7 @@ model Timetable {
   endTime   DateTime
   day       String
 
-  course    Subject  @relation(fields: [courseId], references: [id])
+  course Subject @relation(fields: [courseId], references: [id])
 }
 
 model Notification {
@@ -220,15 +219,15 @@ model Fee {
   dueDate   DateTime
   status    String
 
-  student   Student  @relation(fields: [studentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
 }
 
 model Announcement {
-  id           String      @id @default(cuid())
+  id           String   @id @default(cuid())
   title        String
   message      String
   date         DateTime
   departmentId String?
 
-  department   Department? @relation(fields: [departmentId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
 }

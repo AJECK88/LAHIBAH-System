@@ -34,6 +34,19 @@ const FormsContainer = async( {
 
    if(type !== "Delete"){
     switch(table){
+       
+        case "Student":
+          const StudentDepartmant = await prisma.department.findMany(
+            {
+              select:{
+                id:true,
+                name:true,
+              }
+            }
+          )
+           relatedData={departments:StudentDepartmant}
+            
+        break;
         case "Course" :
           const SubjectTeachers =  await prisma.teacher.findMany(
               {
@@ -47,12 +60,10 @@ const FormsContainer = async( {
 
             )
             relatedData ={teachers :SubjectTeachers}
+            
         
        break;
-        
-        case "Attendance":
-
-        break;
+       
     }
    }
      return (
