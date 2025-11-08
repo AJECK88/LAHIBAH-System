@@ -236,7 +236,7 @@ import { useRouter } from "next/navigation";
   }))}
   defaultValue={
     data?.Courses?.map((t: any) => ({
-      value:t.name,
+      value:t.id,
       label:t.name,
     })) || []
         }

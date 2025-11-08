@@ -554,7 +554,7 @@ const TeachersForms = ({ type, data, SetOpen, relatedData })=>{
                                                 label: t.name
                                             })),
                                         defaultValue: data?.Courses?.map((t)=>({
-                                                value: t.name,
+                                                value: t.id,
                                                 label: t.name
                                             })) || [],
                                         onChange: (selected)=>{

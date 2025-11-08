@@ -585,7 +585,7 @@ const TeachersForms = (param)=>{
                                                 label: t.name
                                             })),
                                         defaultValue: (data === null || data === void 0 ? void 0 : (_data_Courses = data.Courses) === null || _data_Courses === void 0 ? void 0 : _data_Courses.map((t)=>({
-                                                value: t.name,
+                                                value: t.id,
                                                 label: t.name
                                             }))) || [],
                                         onChange: (selected)=>{
