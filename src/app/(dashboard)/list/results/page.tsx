@@ -100,9 +100,9 @@ const  resultsListpage = () => {
                 <Table columns={Columns} renderRow ={renderRow} data ={resultsData} />
             </div>
             {/* || pagination */}
-            <div className="w-full">
+          {/*   <div className="w-full">
                 <Pagination />
-            </div>
+            </div> */}
         </div>
     )
 }

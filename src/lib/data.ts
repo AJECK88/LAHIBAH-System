@@ -1,8 +1,4 @@
-// TEMPORARY DATA
-
-import { time } from "console";
-import { start } from "repl";
-
+// TEMPORARY DATA FOR TESTING PURPOSES
 export let role = "admin"
 
 export const teachersData = [

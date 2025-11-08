@@ -1,11 +1,23 @@
 "use client"
 import Link from "next/link"
 import Image from "next/image"
-import React from "react"
+import React, { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useUser } from "@clerk/nextjs"
 
 const Homepage = () => {
   const [Menu, setMenuOpen] = React.useState(true);
-
+  const { isSignedIn, user, isLoaded } = useUser()
+     const route = useRouter() 
+      
+     useEffect(()=>{
+      if(isSignedIn && user){
+         const role=user?.publicMetadata.role;
+       if(role){
+           route.push(`/${role}`)
+        }
+      }
+     },[user, route ,isSignedIn])
   const handleMenuClick = () => {
     const siteBar = document.querySelector(".Sitbar");
     if (siteBar) {
@@ -37,7 +49,7 @@ const Homepage = () => {
               <Link href="">Help</Link>
             </li>
             <li className="hover:text-amber-300 hover:underline">
-              <Link href="/admin">Login</Link>
+              <Link href="/sign-in">Login</Link>
             </li>
           </ul>
         </nav>

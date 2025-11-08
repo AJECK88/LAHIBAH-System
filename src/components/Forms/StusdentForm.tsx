@@ -1,192 +1,352 @@
-          "use client"
-          import { date, z } from "zod";
-          import { zodResolver } from "@hookform/resolvers/zod";
-          import Input from "@/components/input";
-          import Image from "next/image";
-          import { useForm } from "react-hook-form";
-          const schema = z.object({
-          UserName: z.string()
-          .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(20, { message: 'Name must be at most 20 characters long' }),
-          email: z.string().email({ message: 'Invalid email address' }),
-          password: z.string()
-          .min(4, { message: 'Password must be at least 4 characters long' })
-          .max(8, { message: 'Password must be at most 8 characters long' }),
-          FirstName:z.string()
-          .min(1 , { message: 'First Name must be at least 1 character long' }),
-          LastName:z.string()
-          .min(1 , { message: 'Last Name must be at least 1 character long' }),
-          phoneNumber: z.string()
-          .min(9, { message: 'Phone Number must be at least 10 characters long' })
-          .max(15, { message: 'Phone Number must be at most 15 characters long' }),
-          sex: z.enum(['male', 'female'], { message: 'sex is required' }),
-          age: z.number().min( 22, { message: 'Age must be at least 22' }),
-          img:z.instanceof(File, { message: 'Image is required' }),
-          Address:z.string()
-          .min(5, { message: 'Address must be at least 5 characters long' })
-          .max(15, { message: 'Address must be at most 15 characters long' }),
-          BloodType :z.string()
-          .min(1,{message:'required'}),
-         dateOfBirth: z.date()
-         /* still to work on the date validation form  */
-/*   .max(new Date(), { message: "Invalid date (cannot be in the future)" })
-  .refine((date) => {
-    const today = new Date();
-    const minDate = new Date(
-      today.getFullYear() - 20,
-      today.getMonth(),
-      today.getDate()
-    );
-    return date <= minDate;
-  }, { message: "You must be at least 20 years old" }),
-         */ })
+"use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Dispatch, SetStateAction, startTransition, useActionState, useEffect, useState } from "react";
+import Input from "@/components/input";
+import { StudentSchema, studentSchma } from "@/lib/FormValidationSchima";
+import { CreatStudent, UpdateStudent } from "@/lib/actions";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+ 
 
-          type Input = z.infer<typeof schema>
+/**
+ * ✅ StudentsForms Component
+ * Handles both creation and updating of student data.
+ * Includes form validation using Zod + React Hook Form.
+ */ 
+const StudentsForms = ({
+  type,
+  data,
+  SetOpen,
+  relatedData,
+}: {
+  type: "Create" | "Update";
+   data?: any ,
+   relatedData?:any;
+  SetOpen: Dispatch<SetStateAction<boolean>>
+ 
+})=> { 
 
-          const StudentsForms = ( {type , data}:
-          {type : 
-          | "Create"
-          | "Update",
-          data?: any
-          }) => {
-          const {
-          register,
-          handleSubmit,
-          formState: { errors },
-          } = useForm<Input>({
-          resolver: zodResolver(schema),
+  
+  const Router = useRouter()
+  /**
+   * 🎯 Initialize form handling with zod validation
+   */
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<StudentSchema>({
+    resolver: zodResolver(studentSchma),
+  });
 
-          });
-          const SubmiteData = handleSubmit( (data) =>{
+  /**
+   * 📦 Preview image state
+   */
+  const [preview, setPreview] = useState<string | null>(null);
+
+  /**
+   *  Handle file input change for previewing uploaded image
+   */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  /**
+   * 🔁 When updating, pre-fill the form with existing data
+   */
+
+  /* || Using react Formaction to check if the form is sumited  */
+  const [state, formAction] = useActionState( type==="Create"? CreatStudent:UpdateStudent, {
+     successMessage: false,
+     errorMessage: false,
+   }) 
+
+  /**
+   * 📁 Handle form submission (stub)
+   * This can be extended to send data to your backend.
+   */  
+const onSubmit = handleSubmit((formData) => {
+  startTransition(() => {
+    formAction(formData);
+  });
+});
+
+    useEffect(() => {
+      if (state.successMessage) {
+        toast(
+          `Sudent has been ${type === "Create" ? "created" : "updated"} successfully`,
+          { type: "success" }
+        )
+        SetOpen(false)
+        Router.refresh()
+      }
+    }, [state, type, Router, SetOpen])
+  /**
+   *  Extract department list from relatedData (fallback to empty)
+   */
+  const departments = relatedData?.departments ?? [];
+    /* || Updating the form default when editing data changes */
+      useEffect(()=>{
+        console.log("update id loading", data);
+
+    let formattedDate = "";
+    if (data.DateOfBirth) {
+      const parsedDate = new Date(data.DateOfBirth);
+      if (!isNaN(parsedDate.getTime())) {
+        // Only format valid date
+        formattedDate = parsedDate.toISOString().split("T")[0]; 
+      }
+    }
+         if(type === "Update" && data){
           
+          reset({
+            UserName: data.username,
+            Address: data.address,
+            age: data.age,
+            email: data.email,
+            password: data.password,
+            FirstName: data.firstName,
+            LastName: data.lastName,
+            phoneNumber: data.phoneNumber,        
+            dateOfBirth: formattedDate,
+            sex: data.sex,
+            MatriculeNo: data.matricule,
+            department: data.department.id,
+            id: data.id,
+         })
+         }
+      }, [data, type, reset] )
+  /**
+   * JSX Render
+   */
+  return (
+    <form
+      className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4"
+      onSubmit={onSubmit}
+    >
+      {/* Title Section */}
+      <h1 className="text-2xl font-semibold self-start">
+        {type === "Create" ? "Create A New" : "Update"} Student
+      </h1>
 
-          })
-          return (
-          <form className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4 " onSubmit={SubmiteData}>
-          <h1 className="text-2xl font-semibold self-start">{type === "Create" ? "Create A New" : "Update"      } Student</h1>
-          {/* Top */}
-          <h2 className="text-gray-500 self-start tex-sm font-semibold">Authentification info</h2>
-          <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
+      {/* Authentication Info Section */}
+      <h2 className="text-gray-500 self-start text-sm font-semibold">
+        Authentication Info
+      </h2>
 
-          < Input 
-          type="text" 
-          name="UserName" 
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-5 w-full">
+
+        <Input
+          type="text"
+          name="UserName"
           id="UserName"
           register={register}
-            Defaultvalue={data?.UserName} 
-            errors={ errors.UserName} 
-            label="UserName"
-            Placeholder="Enter username"/>
-          < Input
-            type="email"
-            id="email"
-            name="email"
-            register={register}
-            Defaultvalue={data?.email}
-            errors={ errors.email}
-            label="Email"
-            Placeholder="example@gmail.com" />
+          errors={errors.UserName}
+          label="UserName"
+          Placeholder="Enter username"
+        />
 
-          < Input 
+        <Input
+          type="email"
+          id="email"
+          name="email"
+          register={register}
+          errors={errors.email}
+          label="Email"
+          Placeholder="example@gmail.com"
+        />
+
+        <Input
           name="password"
           id="password"
           type="password"
-          register={register} 
-          Defaultvalue={data?.password} 
-          errors={ errors.password} 
-          label="Password" 
-          Placeholder=" password"
-          />
+          register={register}
+          errors={errors.password}
+          label="Password"
+          Placeholder="Password"
+        />
+      </div>
 
-          </div>
-          <h2 className="self-start text-sm font-semibold text-gray-500">personal Info</h2>
-          {/* Buttom */}
-          <div className="grid lg:grid-cols-3 grid-cols-1 gap-4 justify-between  items-center ">
-          {/* row 1 */} 
-          < Input 
+      {/* Personal Info Section */}
+      <h2 className="self-start text-sm font-semibold text-gray-500">
+        Personal Info
+      </h2>
+
+      <div className="grid lg:grid-cols-3 grid-cols-1 gap-4 w-full">
+        {/* Row 1 */}
+        <Input
           type="text"
           name="FirstName"
           id="FirstName"
-          register={register} 
-          Defaultvalue={data?.FirstName} 
-          errors={ errors.FirstName}
+          register={register}
+          errors={errors.FirstName}
           label="First Name"
-          Placeholder=" first name"
-          />
+          Placeholder="First name"
+        />
 
-          <Input
+        <Input
           type="text"
           name="LastName"
           id="LastName"
           register={register}
-          Defaultvalue={data?.LastName}
-          errors={ errors.LastName} 
-          label="Last Name" 
-          Placeholder=" last name" 
-          />
-          < Input 
-          type="number" 
+          errors={errors.LastName}
+          label="Last Name"
+          Placeholder="Last name"
+        />
+
+        <Input
+          type="number"
           name="phoneNumber"
           id="phoneNumber"
-          register={register} 
-          Defaultvalue={data?.phoneNumber} 
-          errors={ errors.phoneNumber}  
-          label="Phone" 
-          Placeholder=" phone number"/>
+          register={register}
+          errors={errors.phoneNumber}
+          label="Phone"
+          Placeholder="Phone number"
+        />
 
-          {/* row 2 */}
-          <Input
+        {/* Row 2 */}
+        <Input
           type="text"
           name="Address"
           id="Address"
           register={register}
-          Defaultvalue={data?.Address}
-          errors={ errors.Address} 
-          label="Address" 
-          Placeholder=" address" 
-          />
-          <Input
+          errors={errors.Address}
+          label="Address"
+          Placeholder="Address"
+        />
+
+                <Input
           type="text"
-          name="BloodType"
-          id="BloodType"
+          name="MatriculeNo"
+          id="MatriculeNo"
           register={register}
-          Defaultvalue={data?.BloodType}
-          errors={ errors.BloodType} 
-          label="Blood type" 
-          Placeholder="A+" 
-          />
-          <Input
+          errors={errors.MatriculeNo}
+          label="Matricule N°"
+          Placeholder="MatriculeNo"
+        />
+          
+
+        <Input
           type="date"
           name="dateOfBirth"
           id="dateOfBirth"
           register={register}
-          Defaultvalue={data?.dateOfBirth}
-          errors={ errors.dateOfBirth} 
-          label="Date Of Birth" 
-          Placeholder=" date of birth" 
-          />
-          {/* row 3 */}
-          <div className="flex flex-col w-full">
-          <label htmlFor="">Gender</label>
-          <select className="h-[40px] border-2 border-amber-100 w-full p-2 " {...register('sex')} defaultValue="male">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
+          errors={errors.dateOfBirth}
+          label="Date of Birth"
+          Placeholder="Date of birth"
+        />
+        {/* Row 3 */}
+        {/* Gender Selection */}
+        <div className="flex flex-col w-full">
+          <label htmlFor="sex">Gender</label>
+          <select
+            className="h-[40px] border-2 border-amber-100 w-full p-2"
+            {...register("sex")}
+          
+          >
+          <option value="">Select Sex</option>
+           <option value="Male">Male</option> 
+           <option value="Female">Female</option> 
           </select>
-          {errors.sex?.message && <span className="text-sm text-red-600 font-light">{errors.sex?.message.toString()}</span>}
-          </div>
-          <div className="flex flex-col lg:col-start-3 w-full">
-          <label className=" flex items-center" htmlFor="image">  <Image src="/upload.png" alt="" width={40} height={40} />
-          <span>Upload Image</span>
-          <input  type="file" id="image"  className="hidden w-full"/> 
-          </label>
-          {errors.img?.message && <span className="text-sm text-red-600 font-light">{errors.img?.message.toString()}</span>}
-          </div>
-          </div>
-          <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">{type === "Create" ? "Create" : "Update"}</button>
-          </form>
-          );
-          };
+          {errors.sex?.message && (
+            <span className="text-sm text-red-600 font-light">
+              {errors.sex?.message.toString()}
+            </span>
+          )}
+        </div>
+         <Input
+           type="number"
+          name="age"
+          id="age"
+          register={register}
+          errors={errors.age}
+          label="Age"
+          Placeholder="Age"
+        />
+       {/*  || updating default date */}
+      {type === "Update" && (
+  <input type="hidden" {...register("id")} value={data?.id} />
+)}
+        {/* Department + Image Upload Section */}
+        <div className="flex flex-col lg:col-start-3 w-full">
+          {/* Department Select */}
+          <div className="flex flex-col w-full">
+            <label htmlFor="department">Department</label>
+            <select
+              id="department"
+              {...register("department")}
+              className="h-[40px] border-2 border-amber-100 w-full p-2"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select department
+              </option>
+              {departments.map((d: any) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
 
-          export default StudentsForms;
+            {errors.department && (
+              <span className="text-sm text-red-500">
+                {errors.department.message}
+              </span>
+            )}
 
+        </div>
+    
+          {/* Image Upload */}
+         
+          <div>
+            <label
+              htmlFor="image"
+              className="flex items-center gap-2 cursor-pointer p-2"
+            >
+              {preview ? (
+                <Image
+                  src={preview}
+                  alt="Preview"
+                  width={40}
+                  height={40}
+                  className="mt-2 rounded"
+                />
+              ) : (
+                <Image src="/upload.png" alt="Upload icon" width={40} height={40} />
+              )}
+              <span>Upload Image</span>
+            </label>
+            <input
+              id="image"
+              type="file"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Submit Button */}
+
+      <button type="submit" className="bg-blue-500 hover:bg-blue-600 font-semibold py-2 px-4 rounded-sm w-full text-white">
+        
+        {type === "Create" ? "Create" : "Update"}
+      </button>
+      {state.errorMessage && (
+        <span className="text-red-500">
+          Try again something went wrong!.
+        </span>
+      )}
+
+    </form>
+  );
+};
+
+export default StudentsForms;

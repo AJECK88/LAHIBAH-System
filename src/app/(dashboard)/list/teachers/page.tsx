@@ -7,9 +7,10 @@ import { role } from '@/lib/data';
 import { teachersData } from '@/lib/data';
 import { Items_Per_Page } from '../../Settings';
 import prisma from '@/lib/prisma';
-import { Teacher, Subject } from '@prisma/client';
+import { Teacher, Subject, Prisma } from '@prisma/client';
 import FormModel from '@/components/FormModel';
 import { promises } from 'dns';
+import { NoResultFound } from '@/components/NoResult';
 type TeacherList = Teacher & { courses: Subject[] }
 
 
@@ -96,16 +97,34 @@ const  TeacherListpage = async({
         const {page, ...queryParams} = Params
         /* || checking if page ex */
        const p = page ? parseInt(page) :1;
-      
+      /* || uRL SEARCHE CONDITION */
+       const query:Prisma.TeacherWhereInput={}
+       if(queryParams){
+        for( const [key, value] of Object.entries(queryParams)){
+            if(value !== undefined  && value !== 
+                ""
+             ){
+                switch(key){
+                    case "search":
+                        query.OR= [
+                            {lastName:{contains:value}},
+                            {firstName:{contains:value}}
+                    ]
+                }
+             }
+        }
+
+       }
    const [teachers , count ]= await prisma.$transaction([
     prisma.teacher.findMany({
+where:query,
 include:{
    courses:true
 },
   take :Items_Per_Page,
   skip: Items_Per_Page*(p-1)
 }),
-  prisma.teacher.count()
+  prisma.teacher.count({where:query})
 
 ]);
  
@@ -126,16 +145,21 @@ include:{
                      </div>
             </div>
             {/* || List  */}
-            <div className="">
-
-         
-         <Table columns={Columns} renderRow={renderRow} data={teachers} />
-         
+            <div className={`${count== 0?' flex items-center justify-center mt-4 h-[90vh]':""}`}>
+           { count !==0? <Table columns={Columns} renderRow={renderRow} data={teachers} />
+          :<NoResultFound Result='Teacher not Found !! please Input the right Name'/> 
+        }
             </div>
             {/* || pagination */}
-            <div className="w-full">
-                <Pagination page={p} count={count} />
-
+            <div className="w-full">{ count!==0
+             ?
+                <Pagination  
+                page={p}
+                count={count}
+                /> 
+                :
+                ""
+                }
             </div>
         </div>
     )

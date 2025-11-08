@@ -115,8 +115,8 @@ const SingleTeacherPage = () => {
                 <div className="bg-white p-4 rounded-md ">
                     <h1 className="text-lg font-semibold">Shortcuts</h1>
                    <div className="mt-4 flex gap-4 flex-wrap text-sm text-gray-500">
-                      <Link href="/dashboard/classes">
-                          <div className="bg-gray-100 p-2 rounded-md">Student&apos;s classes</div>
+                      <Link href={`/list/teachers?departmentId=${1}`}>
+                          <div className="bg-gray-100 p-2 rounded-md">Student&apos;s Teachers</div>
                       </Link>
                       <Link href="/dashboard/subjects">
                           <div className="bg-gray-100 p-2 rounded-md">Student&apos;s exams</div>

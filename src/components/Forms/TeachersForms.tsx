@@ -4,50 +4,47 @@
           import Input from "@/components/input";
           import Image from "next/image";
           import { useForm } from "react-hook-form";
-          const schema = z.object({
-          UserName: z.string()
-          .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(20, { message: 'Name must be at most 20 characters long' }),
-          email: z.string().email({ message: 'Invalid email address' }),
-          password: z.string()
-          .min(4, { message: 'Password must be at least 4 characters long' })
-          .max(8, { message: 'Password must be at most 8 characters long' }),
-          FirstName:z.string()
-          .min(1 , { message: 'First Name must be at least 1 character long' }),
-          LastName:z.string()
-          .min(1 , { message: 'Last Name must be at least 1 character long' }),
-          phoneNumber: z.string()
-          .min(9, { message: 'Phone Number must be at least 10 characters long' })
-          .max(15, { message: 'Phone Number must be at most 15 characters long' }),
-          sex: z.enum(['male', 'female'], { message: 'sex is required' }),
-          age: z.number().min( 22, { message: 'Age must be at least 22' }),
-        
-          Address:z.string()
-          .min(5, { message: 'Address must be at least 5 characters long' })
-          .max(15, { message: 'Address must be at most 15 characters long' }),
-          BloodType :z.string()
-          .min(1,{message:'required'}),
-});
-  
-  type Input = z.infer<typeof schema>
+          import { Dispatch, SetStateAction, useEffect } from "react";
+import { teacherSchema, TeacherSchema } from "@/lib/FormValidationSchima";
+         
 
-          const TeachersForms = ( {type , data}:
-          {type : 
+          const TeachersForms = ( 
+            { type ,
+               data,  
+               SetOpen,
+               relatedData,
+                
+        }:{
+            type : 
           | "Create"
           | "Update",
-          data?: any
+          data?: any;
+           relatedData?:any;
+           SetOpen: Dispatch<SetStateAction<boolean>>
           }) => {
           const {
           register,
           handleSubmit,
+          reset,
           formState: { errors },
-          } = useForm<Input>({
-          resolver: zodResolver(schema),
+          } = useForm<TeacherSchema>({
+          resolver: zodResolver(teacherSchema),
 
           });
           const SubmiteData = handleSubmit( (data) =>{
           
-
+           useEffect(() => {
+           if (type === "Update" && data) {
+             reset({
+               FirstName: data.FirstName,
+               LastName:data.LastName,
+              
+               /* department: data.department?.map((t: any) => t.id) || [] */
+             })
+           }
+         }, [data, type, reset])
+         
+                 const department= relatedData?.teachers?? []
           })
           return (
           <form className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4 " onSubmit={SubmiteData}>
@@ -61,7 +58,6 @@
           name="UserName" 
           id="UserName"
           register={register}
-            Defaultvalue={data?.UserName} 
             errors={ errors.UserName} 
             label="UserName"
             Placeholder="Enter username"/>
@@ -70,7 +66,6 @@
             id="email"
             name="email"
             register={register}
-            Defaultvalue={data?.email}
             errors={ errors.email}
             label="Email"
             Placeholder="example@gmail.com" />
@@ -80,7 +75,6 @@
           id="password"
           type="password"
           register={register} 
-          Defaultvalue={data?.password} 
           errors={ errors.password} 
           label="Password" 
           Placeholder=" password"
@@ -95,8 +89,7 @@
           type="text"
           name="FirstName"
           id="FirstName"
-          register={register} 
-          Defaultvalue={data?.FirstName} 
+          register={register}  
           errors={ errors.FirstName}
           label="First Name"
           Placeholder=" first name"
@@ -107,7 +100,6 @@
           name="LastName"
           id="LastName"
           register={register}
-          Defaultvalue={data?.LastName}
           errors={ errors.LastName} 
           label="Last Name" 
           Placeholder=" last name" 
@@ -116,8 +108,7 @@
           type="number" 
           name="phoneNumber"
           id="phoneNumber"
-          register={register} 
-          Defaultvalue={data?.phoneNumber} 
+          register={register}  
           errors={ errors.phoneNumber}  
           label="Phone" 
           Placeholder=" phone number"/>
@@ -128,7 +119,6 @@
           name="Address"
           id="Address"
           register={register}
-          Defaultvalue={data?.Address}
           errors={ errors.Address} 
           label="Address" 
           Placeholder=" address" 
@@ -138,7 +128,6 @@
           name="BloodType"
           id="BloodType"
           register={register}
-          Defaultvalue={data?.BloodType}
           errors={ errors.BloodType} 
           label="Blood type" 
           Placeholder="A+" 
@@ -148,7 +137,7 @@
           name="dateOfBirth"
           id="dateOfBirth"
           register={register}
-          Defaultvalue={data?.dateOfBirth}
+         
          
           label="Date Of Birth" 
           Placeholder=" date of birth" 
@@ -163,10 +152,26 @@
           {errors.sex?.message && <span className="text-sm text-red-600 font-light">{errors.sex?.message.toString()}</span>}
           </div>
           <div className="flex flex-col lg:col-start-3 w-full">
-          <label className=" flex items-center" htmlFor="image">  <Image src="/upload.png" alt="" width={40} height={40} />
-          <span>Upload Image</span>
-          <input  type="file" id="image"  className="hidden w-full"/> 
-          </label>
+      <label
+  htmlFor="image"
+  className="flex items-center gap-2 cursor-pointer border p-2 rounded-lg hover:bg-gray-100"
+>
+  <Image src="/upload.png" alt="Upload icon" width={40} height={40} />
+  <span>Upload Image</span>
+</label>
+
+<input
+  type="file"
+  id="image"
+  className="hidden"
+  onChange={(e) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      console.log("Selected file:", file.name)
+    }
+  }}
+/>
+
           
           </div>
           </div>

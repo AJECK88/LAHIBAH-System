@@ -19,11 +19,6 @@ const Sign_In  = ()=>{
                  </div>
                  <button type="submit">Login</button>
              </form>
-             <h3>Login as:</h3>
-             <div className="">
-                <button className="">Student</button>
-                <button className="">Teacher</button>
-             </div>
           </div>
 
         </div>
