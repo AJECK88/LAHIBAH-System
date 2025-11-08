@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///home/danti/Desktop/LAHIBAH-System/src/app/sign-in/%5B%5B...sign-in%5D%5D/login.css"],"sourcesContent":["input :valid + label,\ninput:focus + label,\ninput:not(:placeholder-shown) + label\n{\n  \n  top: 2px;\n  z-index: 1;\n  background-color: white;\n}\n/* || universal buttons */\nbutton{\n    cursor: pointer;\n}\n#login_as button:active{\n    outline: none;\n    box-shadow: -52px 116px 86px -82px rgba(0,0,0,0.88) inset;\n}\nform button[type=\"submit\"]:focus {\n    outline: none;\n    box-shadow: -52px 116px 86px -82px rgba(0,0,0,0.88) inset;\n}\n"],"names":[],"mappings":"AAAA;;;;;;AAUA;;;;AAGA","debugId":null}}]
-}
