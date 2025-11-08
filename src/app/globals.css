@@ -1,0 +1,87 @@
+ @import"tailwindcss";
+@tailwind utilities;
+.react-calendar {
+ width: 100% !important;
+ border:none !important;
+ font-family: 'Inter', sans-serif !important;
+}
+
+.perentOL li::marker{
+    color: black !important;
+    font-weight: 300 !important;
+    font-size: 1rem !important;
+    height: inherit !important;
+    width: 100% !important;
+}
+
+footer ul li{
+  border-bottom: dotted ; 
+  padding-bottom: .5rem; 
+}
+.Menu{
+  display: none;
+}
+.active{
+  display: block;
+}
+.react-calendar__month-view__weekdays__weekday{
+  color: rgb(230, 215, 12) !important;
+  font-weight: 900;
+}
+.react-calendar__tile--now{
+  background-color: blueviolet !important;
+  border-radius: 10px !important;
+}
+.react-calendar__tile--active {
+  background: rgb(41, 41, 117) !important;
+ box-shadow: -3px 6px 9px -6px rgba(0,0,0,0.68) !important;
+  border-radius: 10px !important;
+  color: white !important;
+}
+abbr {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+
+.rbc-events-container > div:nth-child(even){
+  text-align: center !important;
+  background-color: rgb(207, 135, 2) !important;
+  margin-top: 1rem !important;
+}
+.rbc-events-container > div:nth-child(odd){
+   background: rgb(41, 41, 117) !important;
+    text-align: center !important;
+   
+
+}
+
+@media all and (max-width: 1024px) {
+   header ul{
+   position: absolute !important;
+   right: 0 !important;
+   bottom: -250px;
+   background-color: #262323;
+   display: none;
+   color: white;
+   padding: 1rem;
+   } 
+   ul li{
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
+      border-bottom: solid white 1px;
+      padding: .5rem;
+      font-weight: 500;
+   
+   }
+      header ul li:hover{ 
+      color: orange;
+      }
+    .Menu{
+    display: block;
+
+  }
+  }
+ 
+  
+

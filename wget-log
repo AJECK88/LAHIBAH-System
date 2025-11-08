@@ -1,0 +1,4 @@
+--2025-09-08 06:01:29--  https://repo1.maven.org/maven2/com/madgag/bfg/1.14.0/bfg-1.14.0.jar
+Resolving repo1.maven.org (repo1.maven.org)... 199.232.196.209, 199.232.192.209, 2a04:4e42:4d::209, ...
+Connecting to repo1.maven.org (repo1.maven.org)|199.232.196.209|:443... connected.
+Unable to establish SSL connection.
