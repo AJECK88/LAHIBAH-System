@@ -16,7 +16,6 @@ CREATE TABLE `Department` (
     `supervisorId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Department_name_key`(`name`),
-    UNIQUE INDEX `Department_supervisorId_key`(`supervisorId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -95,7 +94,6 @@ CREATE TABLE `Parent` (
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `age` INTEGER NOT NULL,
     `sex` ENUM('Male', 'Female') NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,

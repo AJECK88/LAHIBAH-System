@@ -2,7 +2,7 @@
       import Image from "next/image";
       import dynamic from "next/dynamic";
       import { Dispatch, JSX, SetStateAction, startTransition, useActionState, useEffect, useState } from "react"
-import { deletCourse, deleteStudent, deleteTeacher } from "@/lib/actions";
+import { deletCourse, DeleteDepartment, deleteParent, deleteStudent, deleteTeacher } from "@/lib/actions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FormsContainerProps } from "./FormsContainer";
@@ -13,10 +13,6 @@ const deletActionMap: Record<
   | "Course"
   | "Department"
   | "announcement"
-  | "Exams"
-  | "Result"
-  | "Class"
-  | "Attendance"
   | "Assignments"
   | "Lessons",
   (currentState: any, data: FormData) => Promise<{ successMessage: boolean; errorMessage: boolean }>
@@ -24,9 +20,10 @@ const deletActionMap: Record<
 
   Teacher: deleteTeacher,
   Student: deleteStudent,
-  /* Parent: deleteParent, */
+  Parent: deleteParent,
   Course: deletCourse,
- /*  Department: deleteDepartment,
+  Department: DeleteDepartment,
+/*
   announcement: deleteAnnouncement,
   Exams: deleteExam,
   Result: deleteResult,
@@ -43,7 +40,7 @@ const deletActionMap: Record<
        const TeachersForms = dynamic( () => import("@/components/Forms/TeachersForms"),{
             loading :() => <h1>Loading...</h1>
        })
-       const ParentFoorem = dynamic(() => import('@/components/Forms/ PerantsForm'),{
+       const ParentForm = dynamic(() => import('@/components/Forms/ PerantsForm'),{
             loading: () => <h1>Loading...</h1>
        })
         const Courseform = dynamic(()=> import('@/components/Forms/Courseform'),
@@ -62,13 +59,13 @@ const deletActionMap: Record<
        Student: ( SetOpen,type, data , relatedData) => (
       <StudentsForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData} />
        ),
-       Parent: ( SetOpen,type, data) =>(
-      <ParentFoorem  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
+       Parent: ( SetOpen,type, data , relatedData) =>(
+      <ParentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
        ),
        Course: (  SetOpen,type, data, relatedData) => (
        <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} hidden/>
       ),
-       Department: ( SetOpen,type ,data) =>(
+       Department: ( SetOpen,type ,data ,relatedData) =>(
              <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/> 
        ),
        announcement:(SetOpen,type, data) => (
@@ -104,6 +101,16 @@ const deletActionMap: Record<
           return `Student has been deleted!`;
           case "Teacher":
           return `Teacher has been deleted!`;
+          case "Department":
+          return `Department ${data.name} has been deleted!`;
+          case "Parent":
+          return `Parent has been deleted!`;
+          case "announcement":
+          return `Announcement has been deleted!`;
+          case "Assignments":
+          return `Assignment has been deleted!`;
+          case "Lessons":
+          return `Lesson has been deleted!`;
              default:
             return "Operation completed successfully!";
            }

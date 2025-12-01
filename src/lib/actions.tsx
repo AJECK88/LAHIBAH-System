@@ -1,11 +1,9 @@
 "use server"
-
-import { revalidatePath } from "next/cache";
-import { CourseSchema, StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
-import prisma from "./prisma"
-import { tr } from "zod/locales";
 import { currentUser } from "@clerk/nextjs/server";
-import { Console } from "console";
+import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
+import prisma from "./prisma"
+import { success } from "zod";
+import { c } from "node_modules/@clerk/elements/dist/step-z-Bm-lcH.mjs";
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
@@ -182,11 +180,10 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          }
          
       }) 
-      console.log("Teacher created successfully");
        return { successMessage:true , errorMessage:false };
     }
        catch(error){ 
-        console.error("Error creating teacher:", error);  
+
         return( { successMessage:false , errorMessage:true } );   
        }
     
@@ -233,7 +230,8 @@ export const deleteTeacher = async(
    currentState:currentState,
     data:FormData
 )=>{
-  console.log("deleting teacher with data:", data);
+
+
  const id = data.get("id") as string
   try{
     await prisma.teacher.delete({
@@ -242,9 +240,162 @@ export const deleteTeacher = async(
       }
     })
     return{ successMessage:true , errorMessage:false}
+
   } 
  catch(error){
         return{ successMessage:false , errorMessage:true
  }
 }
 }
+
+/* || The parent section to Create , delet , and update */
+ export const CreateParent = async(
+  currentState :currentState,
+  data : ParentSchema
+)=>{
+  try{
+     await prisma.parent.create({
+       data:{
+          firstName:data.FirstName, 
+          lastName:data.LastName,
+          email:data.email,
+          phoneNumber:data.phoneNumber,
+          address:data.Address,
+          username:data.UserName,
+          password:data.password,
+          sex:data.sex,
+          students:{
+            connect: data.studentName?.split(",").map((studentId:string) =>({id:studentId.trim()}))
+          }
+        }
+      })
+      return { successMessage:true , errorMessage:false };
+    } catch(error){
+      console.log(error +" << error from creating parent ");
+      return { successMessage:false , errorMessage:true     
+       } 
+  }
+}
+
+export const UpdateParent = async(
+  currentState :currentState,
+  data : ParentSchema
+)=>{
+  try{
+     await prisma.parent.update({
+       where:{
+          id:(data.id)
+       },
+       data:{
+          firstName:data.FirstName, 
+          lastName:data.LastName,
+          email:data.email,
+          phoneNumber:data.phoneNumber,
+          address:data.Address,
+          username:data.UserName,
+          sex:data.sex,
+          password:data.password, 
+          students:{
+            set:[],
+            connect: data.studentName?.split(",").map((student:string)=> ({id:student.trim()}))
+          }
+        }
+      })
+      return { successMessage:true , errorMessage:false };
+    } catch(error){
+      return { successMessage:false , errorMessage:true } 
+  }
+       }
+export const  deleteParent = async(
+   currentState:currentState,
+   data: FormData,
+)=>{
+   const  id = data.get("id") as string
+
+   try{
+    await prisma.parent.delete({
+      where:{
+        id:(id)
+      }
+    })
+
+ return{ successMessage:true , errorMessage:false}
+   }
+    
+   catch(error){
+
+      return {successMessage:false , errorMessage:true}
+   }
+}
+/* || End */
+
+
+/* || Creating , updating and Deleting Depertment function Action */
+export const CreateDepartment = async(
+   currentState:currentState,
+   data:DepartmentSchema,
+
+  )=>{
+    try{
+    await prisma.department.create({
+       data:{
+        name:data.DepartmentName,
+        id: data.id,
+        supervisor:{
+          connect : {id:data.Supervisor}
+       }
+      }
+    })
+    return { successMessage:false , errorMessage:true } 
+  }catch(error){
+     return{ successMessage:true , errorMessage:false}
+  }
+ 
+
+}
+ export const UpdateDepartment =async(
+   currentState:currentState,
+   data:DepartmentSchema,
+
+)=>{
+try {
+  await prisma.department.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      name: data.DepartmentName,
+      supervisor: {
+        connect: { id: data.Supervisor },
+      },
+    },
+  });
+
+  return { successMessage: true, errorMessage: false };
+} catch (error) {
+  console.log(error);
+  return { successMessage: false, errorMessage: true };
+}
+
+}
+export const DeleteDepartment = async(
+   currentState:currentState,
+   data:FormData
+)=>{
+   const id = data.get("id") as string
+     try{
+     await prisma.department.delete({
+       where:{
+        id:id
+       }
+     })
+     return{ successMessage:true , errorMessage:false}
+   
+   }
+   catch(error){
+      return { successMessage:false , errorMessage:true } 
+
+   }
+}
+/* || End */
+

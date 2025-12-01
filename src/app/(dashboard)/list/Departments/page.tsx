@@ -8,6 +8,7 @@ import { role, DepartmentsData} from '@/lib/data';
 import { type } from 'os';
 import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
+import FormsContainer from '@/components/FormsContainer';
    type DepartmentList = Department & {supervisor:Teacher}
     const Columns = [
         {
@@ -35,16 +36,17 @@ import prisma from '@/lib/prisma';
                     <h3 className="font-semibold">{department.name}</h3>
                 </div>
                 </td>
-
-       {/*    <td className="hidden md:table-cell"> {department.supervisor.firstName+ ' ' + department.supervisor.lastName}</td> */}
+             <td className="hidden md:table-cell"> 
+                    { department.supervisor?.firstName !==undefined ||department.supervisor?.lastName!==undefined?
+                     department.supervisor?.firstName+ ' ' + department.supervisor?.lastName :"-----------"}</td> 
          
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                     
                   {role === "admin" && (
                      <>
-                    <FormModel table='Department' type='Update' id={department.id} />
-                    <FormModel table='Department' type='Delete' id={department.id} />
+                    <FormsContainer table='Department' type='Update' id={department.id}  data={department}/>
+                    <FormsContainer table='Department' type='Delete' id={department.id} data={department} />
                     </>
                     )}
                     </div>
@@ -62,6 +64,7 @@ const  DepartmentsListpage = async(
            select: {
         id: true,
         name: true,
+        supervisor: true,
        
 
         
@@ -84,7 +87,7 @@ const  DepartmentsListpage = async(
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                      <FormModel type='Create' table='Department' />
+                      <FormsContainer type='Create' table='Department' />
                      </div>
             </div>
             {/* || List  */}

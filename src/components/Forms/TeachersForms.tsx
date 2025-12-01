@@ -57,7 +57,6 @@ import { useRouter } from "next/navigation";
     { successMessage:false , errorMessage:false }
   )
    const SubmiteData = handleSubmit( (formData) =>{
-     console.log("you Just submitted ", formData)
       startTransition(() => {
        formAction(formData)
     })
@@ -83,7 +82,6 @@ import { useRouter } from "next/navigation";
         
       }
     }
-     console.log("good" + formatedDate)
           reset({
         UserName:data.username,
         Address:data.address,
@@ -230,12 +228,12 @@ import { useRouter } from "next/navigation";
       border: "2px solid #fef3c7"
     }),
   }}
-  options={Course.map((t: any) => ( console.log(t),{
+  options={Course.map((t: any) => ({
     value:t.id,
     label:t.name,
   }))}
   defaultValue={
-    data?.Courses?.map((t: any) => ({
+    data?.Courses?.map((t: any) => ( console.log(t),{
       value:t.id,
       label:t.name,
     })) || []
@@ -244,7 +242,7 @@ import { useRouter } from "next/navigation";
     setValue("Courses", selected.map((s: any) => s.value))
   }}
 />
-{errors.Courses&&<span className="text-red"></span>}
+{errors.Courses&&<span className="text-red">Select a Course</span>}
 </div>
 
           </div> 

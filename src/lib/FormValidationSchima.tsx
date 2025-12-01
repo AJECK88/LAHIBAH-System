@@ -47,6 +47,7 @@ import { max } from "moment";
  
  
      export type StudentSchema = z.infer<typeof studentSchma>;
+
      /* || Auth for TeacherSchema validation */
        export const teacherSchema = z.object({
                UserName: z.string()
@@ -79,3 +80,40 @@ import { max } from "moment";
      });
        
       export type TeacherSchema = z.infer<typeof teacherSchema>
+
+      /* || Auth for ParentSchema validation */
+            export   const parentschema = z.object({
+          UserName: z.string()
+          .min(3, { message: 'Name must be at least 3 characters long' })
+          .max(20, { message: 'Name must be at most 20 characters long' }),
+          email: z.string().email({ message: 'Invalid email address' }),
+          password: z.string()
+          .min(4, { message: 'Password must be at least 4 characters long' })
+          .max(8, { message: 'Password must be at most 8 characters long' }),
+          FirstName:z.string()
+          .min(1 , { message: 'First Name must be at least 1 character long' }),
+          LastName:z.string()
+          .min(1 , { message: 'Last Name must be at least 1 character long' }),
+          phoneNumber: z.string()
+          .min(9, { message: 'Phone Number must be at least 10 characters long' })
+          .max(15, { message: 'Phone Number must be at most 15 characters long' }),
+          sex: z.enum(['Male', 'Female'], { message: 'sex is required' }),
+          Address:z.string()
+          .min(5, { message: 'Address must be at least 5 characters long' })
+          .max(15, { message: 'Address must be at most 15 characters long' }),
+          studentName: z.string()
+          .min(1, { message: 'Student Name is required' }),
+          BloodType: z.string()
+          .min(1, { message: 'Blood Type is required' }),
+          id:z.string().optional()
+ })
+    export  type ParentSchema = z.infer<typeof parentschema>
+
+     export  const departmentschema = z.object({
+          DepartmentName: z.string()
+          .min(3, { message: 'Name must be at least 3 characters long' })
+          .max(20, { message: 'Name must be at most 20 characters long' }),
+           Supervisor: z.string().optional(),
+           id:z.string().optional(),
+         })
+        export  type DepartmentSchema = z.infer<typeof departmentschema>
