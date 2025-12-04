@@ -14,14 +14,16 @@
 
           type Input = z.infer<typeof schema>
 
-          const AnnouncementForm = ( {type , data}:
+          const AnnouncementForm = ( {type , data, relatedData ,SetOpen}:
           {type : 
           | "Create"
           | "Update",
           data?: any
+          relatedData: any
+          SetOpen:React.Dispatch<React.SetStateAction<boolean>>
           }) => {
           const {
-          register,
+          register, 
           handleSubmit,
           formState: { errors },
           } = useForm<Input>({
@@ -44,7 +46,6 @@
           name="AnnouncementTitle" 
           id="AnnouncementTitle"
           register={register}
-            Defaultvalue={data?.AnnouncementTitle} 
             errors={ errors.AnnouncementTitle} 
             label="Title"
             Placeholder="subject"/>
@@ -58,7 +59,7 @@
 
 
           </div>
-          <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">{type === "Create" ? "Create" : "Update"}</button>
+          <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">Send</button>
           </form>
           );
           };

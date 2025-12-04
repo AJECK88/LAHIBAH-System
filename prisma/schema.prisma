@@ -223,7 +223,7 @@ model Announcement {
   id           String   @id @default(cuid())
   title        String
   message      String
-  date         DateTime
+  date         DateTime @default(now())
   departmentId String?
 
   department Department? @relation(fields: [departmentId], references: [id])

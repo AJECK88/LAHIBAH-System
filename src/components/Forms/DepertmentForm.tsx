@@ -94,7 +94,7 @@ import prisma from "@/lib/prisma";
             <select
               id="department"
               {...register("Supervisor")}
-              className="h-[40px] border-2 border-amber-100 w-full p-2"
+              className="h-10 border-2 border-amber-100 w-full p-2"
                 defaultValue=""
             >
               <option value="" disabled>

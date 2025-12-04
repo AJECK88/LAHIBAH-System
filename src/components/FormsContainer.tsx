@@ -77,8 +77,10 @@ const FormsContainer = async( {
        case "Parent":
          const Students = await prisma.student.findMany(
             {
+              where:{
+                parentId: null  // fetch students without a parent,
+              },
               select:{
-                id:true,
                 firstName:true,
                 lastName:true,
               }

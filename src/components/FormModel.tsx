@@ -68,7 +68,7 @@ const deletActionMap: Record<
        Department: ( SetOpen,type ,data ,relatedData) =>(
              <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/> 
        ),
-       announcement:(SetOpen,type, data) => (
+       announcement:(SetOpen,type, data , relatedData) => (
        <AnnouncementForm  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData}/>
       ),
        Exams  : (SetOpen,type, date)=>(
@@ -142,10 +142,15 @@ const deletActionMap: Record<
   
       return (
       <>
+      {
+      table==="announcement" && type==="Create" ?
+      <button onClick={ ()=> SetOpen(true)}className="text-white bg-blue-400 rounded-sm font-bold w-2xs h-10 text-center flex items-center justify-center cursor-pointer hover:bg-blue-600"> Add New Announcemnet </button>
+      :
       <button onClick={ ()=> SetOpen(true)
       } className={`${size} flex items-center justify-center rounded-full ${bgColor}`}>
       <Image src={`/${type}.png`} alt="" height={14} width={14} />
       </button>
+      }
       {open && (
       <div className="absolute inset-0 bg-black/60 z-50 flex justify-center p-2 items-center overflow-scroll">
       {/* Modal */}
