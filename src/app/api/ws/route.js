@@ -1,3 +1,5 @@
+import { title } from "process";
+
 // src/app/api/ws/route.js
 export const config = { runtime: "nodejs" };
 
@@ -28,11 +30,11 @@ export async function GET(req) {
     });
 
     // Broadcast function
-    socket.server.broadcast = (msg) => {
+    socket.server.broadcast = (...msg ) => {
       console.log("Broadcasting:", msg);
       wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: "announcement", message: msg }));
+          client.send(JSON.stringify({ type: "announcement", message , title , date, time ,id}) );
         }
       });
     };

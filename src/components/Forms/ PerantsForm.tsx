@@ -195,7 +195,7 @@ import { useRouter } from "next/navigation";
           {/* row 3 */}
           <div className="flex flex-col w-full">
           <label htmlFor="">Gender</label>
-          <select className="h-[40px] border-2 border-amber-100 w-full p-2 " {...register('sex')}>
+          <select className="h-10 border-2 border-amber-100 w-full p-2 " {...register('sex')}>
            <option>select sex</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>

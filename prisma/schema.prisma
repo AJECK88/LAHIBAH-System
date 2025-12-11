@@ -222,7 +222,7 @@ model Fee {
 model Announcement {
   id           String   @id @default(cuid())
   title        String
-  message      String
+  message      String @db.Text
   date         DateTime @default(now())
   departmentId String?
 

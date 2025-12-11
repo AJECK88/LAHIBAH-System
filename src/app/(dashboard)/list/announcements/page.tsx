@@ -1,23 +1,14 @@
+
 import Image from 'next/image';
-import Pagination from '@/components/pagination'
-import Table from '@/components/table'
-import Link from 'next/link';
- import TablesearchBar from '@/components/TablesearchBar'
-import {announcementsData,  role,} from '@/lib/data';
-import { type } from 'os';
-import FormModel from '@/components/FormModel';
-import { count } from 'console';
 import prisma from '@/lib/prisma';
-import { Announcement, Department } from '@prisma/client';
-import AnnouncementsPage from '@/components/AnnouncementMessage';
-import { de } from 'zod/v4/locales';
 import FormsContainer from '@/components/FormsContainer';
-const  announcementsListpage = async({
-    searchParams
-}:{
+import AnnouncementsPage from '@/components/AnnouncementMessage';
+
+ export const  AnnouncementsListpage = async({
+  
+}:{ 
     searchParams:Promise<{[key:string]:string|undefined}>
 }) => {
-    
    const AnnouncementMessage =  await prisma.announcement.findMany({
       select:{
      id:true,
@@ -26,6 +17,7 @@ const  announcementsListpage = async({
      message:true,
       }
    }) 
+   
   return (
     <div className='h-full  bg-white p-4 flex flex-col gap-4 m-2'>
       <h1 className='font-extrabold text-gray-700'>Announcement </h1>
@@ -39,12 +31,14 @@ const  announcementsListpage = async({
         </div>
 </div>
         <FormsContainer  type={'Create'} table={"announcement"} />
-      </div>
+      </div> 
       <AnnouncementsPage
         AnnouncementData={AnnouncementMessage}
       />
+
     </div>
+
     </div>
   ) 
 }
-export default announcementsListpage;
+export default AnnouncementsListpage;

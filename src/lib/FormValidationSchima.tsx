@@ -117,3 +117,14 @@ import { max } from "moment";
            id:z.string().optional(),
          })
         export  type DepartmentSchema = z.infer<typeof departmentschema>
+
+    export  const  announcementschema  = z.object({
+          AnnouncementTitle: z.string()
+          .min(3, { message: 'Title must be at least 3 characters long' }),
+          AnnouncementMessage: z.string()
+          .min(30, { message: 'This Information is require "words most be more than 20"' }),
+           id:z.string().optional(),
+         })
+
+
+     export     type AnnouncementSchema = z.infer<typeof announcementschema>

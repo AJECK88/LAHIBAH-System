@@ -398,4 +398,45 @@ export const DeleteDepartment = async(
    }
 }
 /* || End */
+ /* || Announcement action  */
+ const CreateAnnouncement = async(
+   currentState:currentState,
+   data:any
+ )=>{
+   try{
+      await prisma.announcement.create({
+        data:{
+          title:data.AnnouncementTitle,
+          message:data.AnnouncementMessage,
+          date:data.date,
+         
+        }
+      })
+      return { successMessage:true , errorMessage:false}
+   }catch(error){
+      return { successMessage:false , errorMessage:true }
+   }
+ }
+ export { CreateAnnouncement } 
+ 
+ const DeleteAnnouncement = async(
+   currentState:currentState,
+   data:FormData
+)=>{
+   const id = data.get("id") as string
+     try{
+     await prisma.announcement.delete({
+       where:{
+        id:(id)
+       }
+     })
+     return{ successMessage:true , errorMessage:false}
+   
+   }
+   catch(error){
+      return { successMessage:false , errorMessage:true } 
 
+   }
+}
+export { DeleteAnnouncement } 
+ /* || End */

@@ -2,7 +2,7 @@
       import Image from "next/image";
       import dynamic from "next/dynamic";
       import { Dispatch, JSX, SetStateAction, startTransition, useActionState, useEffect, useState } from "react"
-import { deletCourse, DeleteDepartment, deleteParent, deleteStudent, deleteTeacher } from "@/lib/actions";
+import { deletCourse, DeleteAnnouncement, DeleteDepartment, deleteParent, deleteStudent, deleteTeacher } from "@/lib/actions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FormsContainerProps } from "./FormsContainer";
@@ -23,8 +23,8 @@ const deletActionMap: Record<
   Parent: deleteParent,
   Course: deletCourse,
   Department: DeleteDepartment,
-/*
-  announcement: deleteAnnouncement,
+  announcement: DeleteAnnouncement,
+  /*
   Exams: deleteExam,
   Result: deleteResult,
   Class: deleteClass,
@@ -143,8 +143,10 @@ const deletActionMap: Record<
       return (
       <>
       {
-      table==="announcement" && type==="Create" ?
+      table==="announcement" ? type==="Create" ?
       <button onClick={ ()=> SetOpen(true)}className="text-white bg-blue-400 rounded-sm font-bold w-2xs h-10 text-center flex items-center justify-center cursor-pointer hover:bg-blue-600"> Add New Announcemnet </button>
+      : 
+      <button className="text-white hover:bg-blue-400 w-full flex items-center justify-between pl-3 pr-3 rounded-sm"> <Image src={"/Delete.png"} alt="." height={20} width={20}/> <span className="pl-2">delete</span></button>
       :
       <button onClick={ ()=> SetOpen(true)
       } className={`${size} flex items-center justify-center rounded-full ${bgColor}`}>
