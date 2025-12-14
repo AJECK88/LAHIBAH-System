@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher , auth} from '@clerk/nextjs/server'
 import { routeAccessMap } from './app/(dashboard)/Settings'
 import { NextResponse } from 'next/server';
  const MatcherRole = Object.keys(routeAccessMap).map((route , soure) => ({
@@ -6,10 +6,12 @@ import { NextResponse } from 'next/server';
    allowedRoles: routeAccessMap[route],
    
  }));
- console.log(MatcherRole)
+
 export default clerkMiddleware(async (auth, req) => {
-  const { sessionClaims }= await Promise.resolve(auth());
-   const role = (sessionClaims?.metadata as {role?:string})?.role ;
+  const {sessionClaims }= await (auth());
+  if(sessionClaims){
+  const role = (sessionClaims?.metaData as {role ? : string | undefined}).role
+ 
    for (const { Matcher, allowedRoles } of MatcherRole) {
     if( Matcher(req) && !allowedRoles.includes(role!)){
      
@@ -18,6 +20,7 @@ export default clerkMiddleware(async (auth, req) => {
    }
   
   }
+}
 });
 export const config = {
   matcher: [
@@ -26,4 +29,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-}
+} 

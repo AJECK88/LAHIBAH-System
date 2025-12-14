@@ -5,7 +5,6 @@ export  async function  Navber()  {
  const user = await currentUser(); 
    const role =  user?.publicMetadata.role as string ;
    const UserName =user?.fullName as string ;
-   console.log(UserName)
   return(
  <div className="flex text-center justify-between w-full" >
   {/* Search Bar */}

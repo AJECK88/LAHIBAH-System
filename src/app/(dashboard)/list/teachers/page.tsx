@@ -11,6 +11,8 @@ import { Teacher, Subject, Prisma } from '@prisma/client';
 import FormModel from '@/components/FormModel';
 import { promises } from 'dns';
 import { NoResultFound } from '@/components/NoResult';
+import FormsContainer from '@/components/FormsContainer';
+import { date } from 'zod';
 type TeacherList = Teacher & { courses: Subject[] }
 
 
@@ -77,8 +79,8 @@ type TeacherList = Teacher & { courses: Subject[] }
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
                   {role === "admin" && (
-                    <>  <FormModel table="Teacher" type="Update" id={teacher.id} />
-                        <FormModel table="Teacher" type="Delete" id={teacher.id} />
+                    <>  <FormsContainer table="Teacher" type="Update" id={teacher.id} data={teacher}/>
+                        <FormsContainer table="Teacher" type="Delete" id={teacher.id}  data={teacher}/>
                         
                     </>
                     )}
@@ -141,7 +143,7 @@ include:{
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                      <FormModel table="Teacher" type="Create" />
+                      <FormsContainer table="Teacher" type="Create"  />
                      </div>
             </div>
             {/* || List  */}

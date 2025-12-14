@@ -6,28 +6,31 @@ import "./login.css"
 import React, { useEffect } from "react"
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { role } from '@/lib/data'
 
-const Sign_In  = ()=>{
-const { isSignedIn, user, isLoaded } = useUser()
+const Sign_In  =  ()=>{
+const { isSignedIn, user, isLoaded } = useUser();
   const [passWordset , passWordFunction] =React.useState(false);
    const handlePasswordToggle = () => {
       passWordFunction(!passWordset);
    };
    /* || reseting the default of the form  */
-   const HandleForm = (event)=>{
+ /*   const HandleForm = (event)=>{
       
      
+   } */
+ const router = useRouter()
+  useEffect(() => {
+   if(user){
+    const role = user?.publicMetadata.role;
+    router.push(`/${role}`)
    }
-    const route = useRouter() 
-    
-   useEffect(()=>{
-    if(isSignedIn && user){
-       const role=user?.publicMetadata.role;
-     if(role){
-         route.push(`/${role}`)
-      }
-    }
-   },[user, route ,isSignedIn])
+  } ,[user , router])
+ 
+
+
+
+
   
  return (
 

@@ -10,14 +10,21 @@ import { ToastContainer } from "react-toastify";
 const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return ( 
-    <ClerkProvider>
+}) {
+  return (
     <html lang="en">
-      <body className={inter.className}>{children}    <ToastContainer position="bottom-right" theme="light" className={"text-black"} /></body>
+      <body className={inter.className}>
+        <ClerkProvider>
+          {children}
+          <ToastContainer
+            position="bottom-right"
+            theme="light"
+            className="text-black"
+          />
+        </ClerkProvider>
+      </body>
     </html>
-    </ClerkProvider>
   );
 }
