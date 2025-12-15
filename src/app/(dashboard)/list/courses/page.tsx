@@ -16,7 +16,7 @@ import { userrole } from '@/components/user';
     const renderRow = async(subject:subjectsList) =>{
 
     const userRole = await userrole();
-    console.log(userRole)
+  
     
     return    (
 
