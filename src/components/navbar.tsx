@@ -2,7 +2,7 @@ import { UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image"
 export  async function  Navber()  {
- const user = await currentUser(); 
+   const user = await currentUser();
    const role =  user?.publicMetadata.role as string ;
    const UserName =user?.fullName as string ;
   return(
@@ -28,7 +28,7 @@ export  async function  Navber()  {
      </div>
  {/*     <Image src={"/avatar.png"} alt="" width={ 36} height={36} className="rounded-full" /> */}
 
-     <UserButton  />
+{/*      <UserButton  /> */}
    </div>
  </div>
   );

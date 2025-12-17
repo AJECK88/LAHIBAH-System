@@ -162,6 +162,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
   try {
    await prisma.teacher.create({
          data:{
+          id:data.id,
          username:data.UserName,
          address:data.Address,
          email:data.email,
@@ -183,6 +184,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
        return { successMessage:true , errorMessage:false };
     }
        catch(error){ 
+        console.log(error)
 
         return( { successMessage:false , errorMessage:true } );   
        }

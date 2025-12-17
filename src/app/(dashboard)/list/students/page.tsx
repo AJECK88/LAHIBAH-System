@@ -4,16 +4,11 @@ import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import {role} from '@/lib/data';
-import { type } from 'os';
-import FormModel from '@/components/FormModel';
 import { Department, Grade, Prisma, Student } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { count } from 'console';
-import { skip } from '@prisma/client/runtime/library';
 import { Items_Per_Page } from '../../Settings';
 import { Key } from 'react';
 import { NoResultFound } from '@/components/NoResult';
-import { promises } from 'dns';
 import FormsContainer from '@/components/FormsContainer';
    type StudentList  = Student & {department:Department, grade:Grade}
     const Columns = [

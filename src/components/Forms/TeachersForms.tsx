@@ -273,6 +273,11 @@ import { useRouter } from "next/navigation";
                       onChange={handleFileChange}
                     />
                   </div>
+                   {state.errorMessage && (
+        <span className="text-red-500">
+          Try again something went wrong!.
+        </span>
+      )}
           </div>
           <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">{type === "Create" ? "Create" : "Update"}</button>
           </form>
