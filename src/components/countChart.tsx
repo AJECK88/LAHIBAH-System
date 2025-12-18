@@ -2,6 +2,7 @@
 "use client"
 import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
 import Image from  "next/image"
+import Link from 'next/link';
 
 const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFemale: number }) => {
   const total = GenderMale + GenderFemale;
@@ -9,7 +10,6 @@ const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFe
   const  maleGegree =(GenderMale/total)*360
   const psFelame = (GenderFemale/total)*100
    const  psMale =(GenderMale/total)*100
-    console.log(GenderFemale , GenderMale)
   const data = [
   {
     name: 'Tatal',
@@ -35,7 +35,7 @@ const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFe
         {/* title */}
         <div className="flex justify-between items-center">
            <h2>Students</h2>
-           <Image src={"/moreDark.png"} alt=''width={20} height={20}/> 
+           <Link  href={'list/students'} > <Image src={"/moreDark.png"} alt=''width={20} height={20}/> </Link>
         </div>
 
         {/* Chart */}
@@ -57,17 +57,17 @@ const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFe
       <div className="w-full flex flex-row  gap-4 items-center justify-center ">
 
         {/* Boys info */}
-       <div className='flex flex-col gap-1'>
-         <div className='w-3 h-3  rounded-full  bg-blue-700 '/>
+       <div className='flex flex-col gap-1 items-center'>
+         <div className='w-3 h-3  rounded-full  bg-sky-200 '/>
         <h1 className='font-bold'>{GenderMale}</h1>
-        <h2 className='text-xs text-gray-300 '>Boys({psMale + "%"})</h2>
+        <h2 className='text-xs text-gray-300 '>Boys({Number(psMale.toFixed()) + "%"})</h2>
   </div>
 
        {/* Girls info */}
-        <div className='flex flex-col gap-1'>
-        <div className='w-3 h-3  rounded-full bg-amber-500 '/>
+        <div className='flex flex-col gap-1 items-center'>
+        <div className='w-3 h-3  rounded-full bg-amber-200 '/>
         <h1 className='font-bold'>{GenderFemale}</h1>
-        <h2 className='text-xs text-gray-300'>Girls({psFelame + "%"})</h2>
+        <h2 className='text-xs text-gray-300'>Girls({Number(psFelame.toFixed(2))+ "%"})</h2>
    </div>
        
       </div>
