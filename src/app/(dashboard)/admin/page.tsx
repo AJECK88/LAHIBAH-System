@@ -7,11 +7,21 @@ import Announcement from "@/components/Announcements";
 import prisma from "@/lib/prisma";
 
 
-const AdminPage = () => {
+const AdminPage = async() => {
   const NumberStudents = prisma.student.count()
-  const NumberParents =prisma.parent.count()
-  const NumberTechers = prisma.teacher.count()
+  const NumberParents = prisma.parent.count()
+  const NumberTechers =prisma.teacher.count()
   const NumberAdmin = prisma.admin.count()
+   const NumberFemaleStudents = await prisma.student.count({
+     where:{
+   sex :"Female"
+     }
+   })
+    const NumberMaleStudents = await prisma.student.count({
+     where:{
+   sex :"Male"
+     }
+   })
 
  return (
     <div className="p-1 lg:p-2 flex gap-4 lg:flex-row  flex-col">
@@ -27,7 +37,7 @@ const AdminPage = () => {
       {/* Middle chart */}
       <div className="flex flex-col lg:flex-row gap-4">
       <div className="flex lg:w-1/3 h-[400px] ">
-      <CountChart />
+      <CountChart GenderFemale ={NumberFemaleStudents} GenderMale= {NumberMaleStudents} />
       </div>
        <div className="flex lg:w-2/3 h-[400px]">
         <AttendanceChart />

@@ -2,25 +2,32 @@
 "use client"
 import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
 import Image from  "next/image"
-const data = [
+
+const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFemale: number }) => {
+  const total = GenderMale + GenderFemale;
+  const femaleDegree = (GenderFemale / total) * 360;
+  const  maleGegree =(GenderMale/total)*360
+  const psFelame = (GenderFemale/total)*100
+   const  psMale =(GenderMale/total)*100
+    console.log(GenderFemale , GenderMale)
+  const data = [
   {
     name: 'Tatal',
-    count: 103,
+    count: total,
     fill: 'white',
   },
     {
     name: 'Boys',
-    count:68,
+    count:maleGegree,
     fill: '#C3EBFA',
   },
   {
     name:'Girl',
-    count: 45,
+    count: femaleDegree,
     fill: '#FAE27C',
   },
 
 ];
-const CountChart  =  () => {
  
     return (
        <div className=' bg-white  rounded-xl w-full h-full  flex flex-col justify-between pr-5 pl-5 pt-2 pb-2'>
@@ -52,15 +59,15 @@ const CountChart  =  () => {
         {/* Boys info */}
        <div className='flex flex-col gap-1'>
          <div className='w-3 h-3  rounded-full  bg-blue-700 '/>
-        <h1 className='font-bold'>1240</h1>
-        <h2 className='text-xs text-gray-300 '>Boys({50 + "%"})</h2>
+        <h1 className='font-bold'>{GenderMale}</h1>
+        <h2 className='text-xs text-gray-300 '>Boys({psMale + "%"})</h2>
   </div>
 
        {/* Girls info */}
         <div className='flex flex-col gap-1'>
         <div className='w-3 h-3  rounded-full bg-amber-500 '/>
-        <h1 className='font-bold'>1240</h1>
-        <h2 className='text-xs text-gray-300'>Girls({50 + "%"})</h2>
+        <h1 className='font-bold'>{GenderFemale}</h1>
+        <h2 className='text-xs text-gray-300'>Girls({psFelame + "%"})</h2>
    </div>
        
       </div>
