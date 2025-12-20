@@ -7,10 +7,10 @@ const ParantPage = () => {
       {/* Left */}
       <div className="w-full lg:w-2/3 flex flex-col gap-8">
       {/* Usercards*/}
-       <Usercarsd type="Parents"/>
+      {/*  <Usercarsd type="Parents"/>
         <Usercarsd type="Students"/>
         <Usercarsd type="Teachers"/>
-        <Usercarsd type="staft"/>
+        <Usercarsd type="staft"/ */}
       </div>
       {/* right */}
       <div className="w-full lg:w-1/3 flex flex-col rounded-2xl gap-8"> 

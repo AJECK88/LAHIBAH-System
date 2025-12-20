@@ -6,9 +6,18 @@ import Image from "next/image";
 import Link  from "next/link";
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 const StudentPage = async () => {
     const user = await currentUser()
           const userName = user?.fullName;
+          const AnnouncementData = await prisma.announcement.findMany({
+           
+            orderBy: {
+              date: 'desc', // soonest first
+            },
+            take: 3,
+          })
+          
           
     return (
         /* Student Page */
@@ -19,7 +28,7 @@ const StudentPage = async () => {
                 <div className="flex p-6  w-full lg:w-2/3 bg-white rounded-xl mb-2 items-center h-[220px]">
                     <div className=" flex flex-col justify-between">
                     <h1 className="text-2xl font-bold mb-2">Welcome back, {userName}!</h1>
-                    <p className="text-gray-600 hidden text-sm lg:block">Welcome back! We're here to support you on your 
+                    <p className="text-gray-600 hidden text-sm lg:block"> We're here to support you 
                         learning journey. Dive into your classes and keep progressing 
                         towards your goals.</p>
                     </div>
@@ -55,7 +64,7 @@ const StudentPage = async () => {
             </div>
             <div className="p-4 bg-white w-full lg:w-1/3 h-full md:w-auto">
                 <EventCalendar />
-                <Announcement />
+                <Announcement AnnouncementData={AnnouncementData}/>
             </div>
         </div>
 

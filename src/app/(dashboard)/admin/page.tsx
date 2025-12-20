@@ -23,6 +23,17 @@ const AdminPage = async() => {
      }
    })
 
+ const today = new Date()
+
+const AnnouncementData = await prisma.announcement.findMany({
+ 
+  orderBy: {
+    date: 'desc', // soonest first
+  },
+  take: 3,
+})
+
+
  return (
     <div className="p-1 lg:p-2 flex gap-4 lg:flex-row  flex-col">
       {/* Left */}
@@ -51,7 +62,7 @@ const AdminPage = async() => {
       {/* right */}
        <div className="w-full lg:w-1/3 flex flex-col rounded-2xl gap-2"> 
       <EventCalendar /> 
-       <Announcement/>
+       <Announcement AnnouncementData={AnnouncementData}/>
       </div>
       </div>
  )

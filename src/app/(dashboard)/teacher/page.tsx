@@ -1,8 +1,16 @@
-import EventCalendar from "../../../components/EventCalender";
-import Announcement from "../../../components/Announcements";
+import EventCalendar from "@/components/EventCalender";
+import Announcement from "@/components/Announcements";
 import BigCalendar from "@/components/TeacherBigCalelndar";
 import Image from "next/image";
-const StudentPage = () => {
+import prisma from "@/lib/prisma";
+const StudentPage = async() => {
+    const AnnouncementData = await prisma.announcement.findMany({
+ 
+  orderBy: {
+    date: 'desc', // soonest first
+  },
+  take: 3,
+})
     return (
         /* Student Page */
         /* Right hand side */
@@ -113,7 +121,7 @@ const StudentPage = () => {
             </div>
             <div className="p-4 bg-white shadow-md w-1/3 h-full">
                 <EventCalendar />
-                <Announcement />
+                <Announcement AnnouncementData={AnnouncementData}/>
             </div>
         </div>
     )

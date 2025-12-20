@@ -1,12 +1,12 @@
 
 "use client"
-import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
+import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 import Image from  "next/image"
 import Link from 'next/link';
 
 const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFemale: number }) => {
   const total = GenderMale + GenderFemale;
-  const femaleDegree = (GenderFemale / total) * 360;
+  const femaleDegree = (GenderFemale/total)*360;
   const  maleGegree =(GenderMale/total)*360
   const psFelame = (GenderFemale/total)*100
    const  psMale =(GenderMale/total)*100
