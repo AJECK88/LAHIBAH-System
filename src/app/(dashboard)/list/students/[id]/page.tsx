@@ -1,11 +1,52 @@
+
 import Announcement from "@/components/Announcements";
 import BigCalendar from "@/components/Bigcalendar";
 import PerformanceChart from "@/components/TeeachersPerformance";
 import Link from "next/dist/client/link";
 import "react-big-calendar/lib/css/react-big-calendar.css"
-
+import { headers } from 'next/headers'
 import Image from "next/image"
-const SingleTeacherPage = () => {
+import prisma from "@/lib/prisma";
+
+const SingleStuentPage = async(
+    {params}:{params:{id:string}}
+) => {
+      console.log(params.id)
+ const StudentArray = await prisma.student.findMany({
+    where:{
+        id :params.id
+    },
+    select:{
+        address:true,
+        age:true,
+        attendance:true,
+        DateOfBirth:true,
+        email:true,
+        firstName:true,
+        image:true,
+        lastName:true,
+        matricule:true,
+        fees:true,
+        phoneNumber:true,
+        department:true,
+        sex:true,
+        
+
+    }
+    
+  })
+  const Student =StudentArray[0]
+ if (!Student.DateOfBirth) {
+  return <p>Date of birth not available</p>
+}
+
+const formattedDate = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "2-digit",
+  year: "numeric",
+}).format(new Date(Student.DateOfBirth))
+
+ 
     return (
 
         <div className="lg:flex  gap-4 m-2 lg:flex-row md:flex-col sm:flex-col" >
@@ -17,18 +58,35 @@ const SingleTeacherPage = () => {
                       {/* || users  infor card */}
                  <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4 " >
                     <div className="w-1/3" >
-                    <Image
-                    src=  "https://images.pexels.com/photos/1102341/pexels-photo-1102341.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                    
+                    {Student.image ==null
+                        ?
+                        Student.sex =="Female"
+                        ?
+                        <Image src=  "/FemaleIcon.png"
                     alt="User Avatar"
                      width={144} 
                      height={144} 
                      className=" w-36 h-36  object-cover rounded-full " />
+                     : 
+                     <Image src=  "/maleIcon.png"
+                    alt="User Avatar"
+                     width={144} 
+                     height={144} 
+                     className=" w-36 h-36  object-cover rounded-full " />
+                     : <Image src=  "/maleIcon.png"
+                    alt="User Avatar"
+                     width={144} 
+                     height={144} 
+                     className=" w-36 h-36  object-cover rounded-full " />
+                    }
+                    
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4 ">
-                    <h1 className="text-xl  font-semibold">James Bama Ge</h1>
-                    <p className="text-sm text-gray-500">lorem ipsum , olor sit amet consevtetur adipisicing elit.</p>
-                    <div className=" flex items-center justify-between gap-2 flex-wrap text-xs font-medium   ">
-                        <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
+                    <h1 className="text-xl  font-semibold">{Student.firstName +" " + Student.lastName}</h1>
+                    <p className="text-sm text-gray-500">{"Depertment of" + " " + Student.department.name}</p>
+                    <div className=" flex items-center  gap-3 flex-wrap text-xs font-medium border-2 border-amber-100 p-2">
+                       {/*  <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                             <Image
                                 src="/blood.png"
                                 alt="User Avatar"
@@ -36,8 +94,8 @@ const SingleTeacherPage = () => {
                                 height={8}
                                 className=" w-8 h-8 "
                             />
-                            <span className="ml-1">B+</span>
-                        </div>
+                            <span className="ml-1">{Student.}</span>
+                        </div> */}
                            <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                             <Image
                                 src="/date.png"
@@ -46,9 +104,9 @@ const SingleTeacherPage = () => {
                                 height={1}
                                 className=" w-8 h-8 "
                             />
-                            <span className="ml-1">january 2025</span>
+                            <span className="ml-1">{formattedDate}</span>
                         </div>
-                           <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
+                           <Link  href={`mailto:${Student.email}`} className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                             <Image
                                 src="/mail2.png"
                                 alt=""
@@ -56,8 +114,8 @@ const SingleTeacherPage = () => {
                                 height={14}
                                 className=" w-8 h-8 "
                             />
-                            <span className="ml-1">user@example.com</span>
-                        </div>
+                            <span className="ml-1 font-semibold text-black">{Student.email}</span>
+                        </Link>
                            <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                             <Image
                                 src="/phone.png"
@@ -66,7 +124,7 @@ const SingleTeacherPage = () => {
                                 height={14}
                                 className=" w-8 h-8"
                             />
-                            <span className="ml-1">68 2031531</span>
+                            <span className="ml-1">{Student.phoneNumber}</span>
                         </div>
                         </div>
                     </div>
@@ -137,4 +195,4 @@ const SingleTeacherPage = () => {
     );
 };
 
-export default SingleTeacherPage;
+export default SingleStuentPage;

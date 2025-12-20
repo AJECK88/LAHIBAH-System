@@ -22,9 +22,8 @@ model Admin {
 model Department {
   id           String   @id @default(cuid())
   name         String   @unique
-  supervisorId String?  @unique
-  supervisor   Teacher? @relation("DepartmentSupervisor", fields: [supervisorId], references: [id])
-
+  supervisorId  String?
+  supervisor    Teacher? @relation("DepartmentSupervisor", fields: [supervisorId], references: [id] ,onDelete: SetNull)
   subjects      Subject[]
   students      Student[]
   announcements Announcement[]
@@ -91,7 +90,6 @@ model Teacher {
   username    String  @unique
   email       String  @unique
   password    String
-  age         Int
   address     String
   bloodGroup  String?
   phoneNumber String  @unique
@@ -100,9 +98,9 @@ model Teacher {
   sex         Usersex
   image       String?
   teachersId  String  @unique
-
+  DateOfBirth DateTime?
   courses    Subject[]
-  department Department? @relation("DepartmentSupervisor")
+  department Department[] @relation("DepartmentSupervisor")
 }
 
 model Parent {
@@ -110,7 +108,6 @@ model Parent {
   username    String  @unique
   email       String  @unique
   password    String
-  age         Int
   sex         Usersex
   address     String
   phoneNumber String  @unique
@@ -225,8 +222,8 @@ model Fee {
 model Announcement {
   id           String   @id @default(cuid())
   title        String
-  message      String
-  date         DateTime
+  message      String @db.Text
+  date         DateTime @default(now())
   departmentId String?
 
   department Department? @relation(fields: [departmentId], references: [id])

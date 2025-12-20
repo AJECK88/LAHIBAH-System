@@ -8,6 +8,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
  export  const role = User
   export const userrole = async () => {
   const { sessionClaims } = await auth(); 
-  const userRole = (sessionClaims?.metadata as { role?: string })?.role;
-  return userRole || "guest";
+  const userRole = (sessionClaims?.metaData as { role?: string })?.role; 
+   console.log(userRole)
+  return userRole;
 };

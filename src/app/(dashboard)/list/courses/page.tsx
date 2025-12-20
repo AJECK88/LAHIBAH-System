@@ -8,7 +8,7 @@ import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { Items_Per_Page } from '../../Settings';
 import FormsContainer from '@/components/FormsContainer';
-import { userrole } from '@/components/user';
+import { role, userrole } from '@/components/user';
 
    type subjectsList = Subject & {teachers:Teacher[] , department:Department[]}
  
@@ -16,7 +16,7 @@ import { userrole } from '@/components/user';
     const renderRow = async(subject:subjectsList) =>{
 
     const userRole = await userrole();
-    console.log(userRole)
+  
     
     return    (
 
@@ -47,7 +47,7 @@ searchParams
 }:{searchParams:Promise<{[key:string]:string|undefined}>
  
 }) => {
-    const userRole = await userrole();
+    const userRole = await role();
        const Columns = [
         {
             header:"Course Title",

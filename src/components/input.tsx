@@ -1,8 +1,6 @@
   "use client"
 
 import { FieldError } from "react-hook-form"
-import { Label } from "recharts"
-import { boolean, string } from "zod"
 
  const Input = ({type , register , errors ,name , label,  id  , hidden,inputProps ,Placeholder}:
     {type?:string

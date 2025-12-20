@@ -4,66 +4,75 @@
           import Input from "@/components/input";
           import Image from "next/image";
           import { useForm } from "react-hook-form";
-          const schema = z.object({
-          UserName: z.string()
-          .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(20, { message: 'Name must be at most 20 characters long' }),
-          email: z.string().email({ message: 'Invalid email address' }),
-          password: z.string()
-          .min(4, { message: 'Password must be at least 4 characters long' })
-          .max(8, { message: 'Password must be at most 8 characters long' }),
-          FirstName:z.string()
-          .min(1 , { message: 'First Name must be at least 1 character long' }),
-          LastName:z.string()
-          .min(1 , { message: 'Last Name must be at least 1 character long' }),
-          phoneNumber: z.string()
-          .min(9, { message: 'Phone Number must be at least 10 characters long' })
-          .max(15, { message: 'Phone Number must be at most 15 characters long' }),
-          sex: z.enum(['male', 'female'], { message: 'sex is required' }),
-          age: z.number().min( 22, { message: 'Age must be at least 22' }),
-          img:z.instanceof(File, { message: 'Image is required' }),
-          Address:z.string()
-          .min(5, { message: 'Address must be at least 5 characters long' })
-          .max(15, { message: 'Address must be at most 15 characters long' }),
-          studentName: z.string()
-          .min(1, { message: 'Student Name is required' }),
-          BloodType: z.string()
-          .min(1, { message: 'Blood Type is required' }),
-         dateOfBirth: z.date()
-         /* still to work on the date validation form  */
-/*   .max(new Date(), { message: "Invalid date (cannot be in the future)" })
-  .refine((date) => {
-    const today = new Date();
-    const minDate = new Date(
-      today.getFullYear() - 20,
-      today.getMonth(),
-      today.getDate()
-    );
-    return date <= minDate;
-  }, { message: "You must be at least 20 years old" }),
-         */ })
-
-
-          type Input = z.infer<typeof schema>
-
-          const StudentsForms = ( {type , data}:
+import { Dispatch, SetStateAction, startTransition, useActionState, useEffect } from "react";
+import { parentschema, ParentSchema } from "@/lib/FormValidationSchima";
+import Select from "react-select";
+import { CreateParent, UpdateParent } from "@/lib/actions";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+          const ParentForms = ( {
+            type ,
+             data,
+             SetOpen,
+             relatedData
+            }:
           {type : 
-          | "Create"
-          | "Update",
-          data?: any
+          | "Create"| "Update",
+            data?: any
+           SetOpen: Dispatch<SetStateAction<boolean>>
+            relatedData?:any
           }) => {
           const {
           register,
+          reset,
+          setValue,
           handleSubmit,
           formState: { errors },
-          } = useForm<Input>({
-          resolver: zodResolver(schema),
+          } = useForm<ParentSchema>({
+          resolver: zodResolver(parentschema),
 
           });
-          const SubmiteData = handleSubmit( (data) =>{
-          
-
+           const Route = useRouter();
+           /* || Using react Formaction to check if the form is sumited  */
+            const [state ,FormAction ] = useActionState(type === "Create" ? CreateParent: UpdateParent,{
+             successMessage:false,
+             errorMessage:false
+               
           })
+          const SubmiteData = handleSubmit( (formData) =>{
+            startTransition(()=>{
+              FormAction(formData)
+            })
+          })
+           useEffect(()=>{
+             if(state.successMessage){
+               toast(`Perant have been ${type ==="Create"?'Create':"Update"} successfully`),
+               {type : "success"}
+               SetOpen(false);
+               Route.refresh()
+             }
+             
+           })
+            useEffect(()=>{
+          if (type === "Update" && data) {
+              reset({ 
+                UserName: data.username ,
+                email: data.email,
+                password: data.password ,
+                FirstName: data.firstName,
+                LastName: data.lastName,
+                phoneNumber: data.phoneNumber,
+                Address: data.address,
+                sex: data.sex,
+                id: data.id,
+                studentName:data.students?.map((t: any) => t.id )||[],
+               BloodType: data.bloodType,
+              })
+            }
+            }, [data, reset, type])
+          
+          const students = relatedData?.Students || [];
+           
           return (
             /*  This form should be validated if and only there  the perant have a student in the school with a 
              proof of the student name */
@@ -78,7 +87,6 @@
           name="UserName" 
           id="UserName"
           register={register}
-            Defaultvalue={data?.UserName} 
             errors={ errors.UserName} 
             label="UserName"
             Placeholder="Enter username"/>
@@ -87,7 +95,6 @@
             id="email"
             name="email"
             register={register}
-            Defaultvalue={data?.email}
             errors={ errors.email}
             label="Email"
             Placeholder="example@gmail.com" />
@@ -97,7 +104,6 @@
           id="password"
           type="password"
           register={register} 
-          Defaultvalue={data?.password} 
           errors={ errors.password} 
           label="Password" 
           Placeholder=" password"
@@ -106,18 +112,33 @@
           </div>
           {/* Middle */}
           <h1 className="font-semibold text-sm  text-gray-500  self-start">
-          Proofs of the student in the school
+           Proofs of the student in the LAHIBA
           </h1>
            <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
-          < Input 
-          type="text" 
-          name="studentName" 
-          id="studentName"
-          register={register}
-            Defaultvalue={data?.studentName} 
-            errors={ errors.studentName} 
-            label="Student Name"
-            Placeholder="Enter student name"/>
+ 
+ <Select
+  isMulti
+  styles={{
+    control: (base) => ({
+      ...base,
+      border: "2px solid #fef3c7"
+    }),
+  }}
+  options={students.map((t: any) =>({
+    value:t.id,
+    label:t.firstName + " " + t.lastName,
+  }))}
+  defaultValue={
+    data?.studens?.map((t: any) => ( console.log(t),{
+      value:t.id,
+      label:`${t.firstName} ${t.lastName}`,
+    })) || []
+        }
+  onChange={(selected) => {
+    setValue("studentName", selected.map((s) => s.value).join(","))
+  }}
+/>
+{errors.studentName&&<span className="text-red-500">Select a Course</span>}
             </div>
           <h2 className="self-start text-sm font-semibold text-gray-500">personal Info</h2>
           {/* Buttom */}
@@ -127,8 +148,7 @@
           type="text"
           name="FirstName"
           id="FirstName"
-          register={register} 
-          Defaultvalue={data?.FirstName} 
+          register={register}  
           errors={ errors.FirstName}
           label="First Name"
           Placeholder=" first name"
@@ -139,7 +159,6 @@
           name="LastName"
           id="LastName"
           register={register}
-          Defaultvalue={data?.LastName}
           errors={ errors.LastName} 
           label="Last Name" 
           Placeholder=" last name" 
@@ -149,7 +168,6 @@
           name="phoneNumber"
           id="phoneNumber"
           register={register} 
-          Defaultvalue={data?.phoneNumber} 
           errors={ errors.phoneNumber}  
           label="Phone" 
           Placeholder=" phone number"/>
@@ -160,7 +178,6 @@
           name="Address"
           id="Address"
           register={register}
-          Defaultvalue={data?.Address}
           errors={ errors.Address} 
           label="Address" 
           Placeholder=" address" 
@@ -170,7 +187,6 @@
           name="BloodType"
           id="BloodType"
           register={register}
-          Defaultvalue={data?.BloodType}
           errors={ errors.BloodType} 
           label="Blood type" 
           Placeholder="A+" 
@@ -179,9 +195,10 @@
           {/* row 3 */}
           <div className="flex flex-col w-full">
           <label htmlFor="">Gender</label>
-          <select className="h-[40px] border-2 border-amber-100 w-full p-2 " {...register('sex')} defaultValue="male">
-          <option value="male">Male</option>
-          <option value="female">Female</option>
+          <select className="h-10 border-2 border-amber-100 w-full p-2 " {...register('sex')}>
+           <option>select sex</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
           </select>
           {errors.sex?.message && <span className="text-sm text-red-600 font-light">{errors.sex?.message.toString()}</span>}
           </div>
@@ -195,5 +212,4 @@
           );
           };
 
-          export default StudentsForms;
-
+          export default ParentForms

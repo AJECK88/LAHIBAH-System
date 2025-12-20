@@ -40,7 +40,7 @@ export default function RootLayout({
   href=""
   className="hidden lg:flex items-center justify-center lg:justify-start gap-2 pt-3 w-full"
 >
-  <Image src="/logo.png" alt="logo" width={32} height={32} />
+  <Image src="/image/Lahiba.png" alt="logo" width={32} height={32} />
   <span className="hidden lg:block">LAHIBA</span>
 </Link>
 

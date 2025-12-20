@@ -94,9 +94,9 @@ const onSubmit = handleSubmit((formData) => {
   const departments = relatedData?.departments ?? [];
     /* || Updating the form default when editing data changes */
       useEffect(()=>{
-        console.log("update id loading", data);
-
-    let formattedDate = "";
+ 
+         if(type === "Update" && data){
+             let formattedDate = "";
     if (data.DateOfBirth) {
       const parsedDate = new Date(data.DateOfBirth);
       if (!isNaN(parsedDate.getTime())) {
@@ -104,7 +104,6 @@ const onSubmit = handleSubmit((formData) => {
         formattedDate = parsedDate.toISOString().split("T")[0]; 
       }
     }
-         if(type === "Update" && data){
           
           reset({
             UserName: data.username,

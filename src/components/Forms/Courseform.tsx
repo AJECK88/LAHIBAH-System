@@ -104,6 +104,12 @@ const CourseForm = ({
  
 <Select
   isMulti
+  styles={{
+    control: (base) => ({
+      ...base,
+      border: "2px solid #fef3c7"
+    }),
+  }}
   options={teachers.map((t: any) => ({
     value: t.id,
     label: `${t.firstName} ${t.lastName}`,

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image" 
 import { currentUser } from "@clerk/nextjs/server";
+import { role } from "./user";
 
 const menuItems = [
   {
@@ -10,7 +11,7 @@ const menuItems = [
       {
         icon: "/home.png",
         label: "Home",
-        href: "/",
+        href: `/`,
         visible: ["admin", "teacher", "student", "parent"],
       },
       {
@@ -118,9 +119,9 @@ const menuItems = [
   },
 ];
  export  const   Menu =async () => {
-  const user = await currentUser(); 
-   const role =  user?.publicMetadata.role as string ;
-  return (
+  const user = await currentUser();
+ const  role = user?.publicMetadata.role as string ;
+  return ( 
     <div className="mt-4 text-sm w-full">
        {menuItems.map( (e)=>(
 
@@ -130,7 +131,7 @@ const menuItems = [
              if(item.visible.includes(role)) {
 
           return (
-             <Link href={item.href} key={item.label} 
+             <Link href={ item.label=="Home"? item.href+role:item.href} key={item.label} 
              className="flex gap-2 focus:bg-gray-200 pl-3 items-center w-full lg:justify-start text-gray-500 py-2 lg:py-3">
               <Image src={item.icon} alt="" width={20} height={20} />
               <span className=" lg:block">{item.label}</span>

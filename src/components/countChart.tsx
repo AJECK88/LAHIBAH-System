@@ -2,25 +2,32 @@
 "use client"
 import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
 import Image from  "next/image"
-const data = [
+import Link from 'next/link';
+
+const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFemale: number }) => {
+  const total = GenderMale + GenderFemale;
+  const femaleDegree = (GenderFemale / total) * 360;
+  const  maleGegree =(GenderMale/total)*360
+  const psFelame = (GenderFemale/total)*100
+   const  psMale =(GenderMale/total)*100
+  const data = [
   {
     name: 'Tatal',
-    count: 103,
+    count: total,
     fill: 'white',
   },
     {
     name: 'Boys',
-    count:68,
+    count:maleGegree,
     fill: '#C3EBFA',
   },
   {
     name:'Girl',
-    count: 45,
+    count: femaleDegree,
     fill: '#FAE27C',
   },
 
 ];
-const CountChart  =  () => {
  
     return (
        <div className=' bg-white  rounded-xl w-full h-full  flex flex-col justify-between pr-5 pl-5 pt-2 pb-2'>
@@ -28,7 +35,7 @@ const CountChart  =  () => {
         {/* title */}
         <div className="flex justify-between items-center">
            <h2>Students</h2>
-           <Image src={"/moreDark.png"} alt=''width={20} height={20}/> 
+           <Link  href={'list/students'} > <Image src={"/moreDark.png"} alt=''width={20} height={20}/> </Link>
         </div>
 
         {/* Chart */}
@@ -50,17 +57,17 @@ const CountChart  =  () => {
       <div className="w-full flex flex-row  gap-4 items-center justify-center ">
 
         {/* Boys info */}
-       <div className='flex flex-col gap-1'>
-         <div className='w-3 h-3  rounded-full  bg-blue-700 '/>
-        <h1 className='font-bold'>1240</h1>
-        <h2 className='text-xs text-gray-300 '>Boys({50 + "%"})</h2>
+       <div className='flex flex-col gap-1 items-center'>
+         <div className='w-3 h-3  rounded-full  bg-sky-200 '/>
+        <h1 className='font-bold'>{GenderMale}</h1>
+        <h2 className='text-xs text-gray-300 '>Boys({Number(psMale.toFixed()) + "%"})</h2>
   </div>
 
        {/* Girls info */}
-        <div className='flex flex-col gap-1'>
-        <div className='w-3 h-3  rounded-full bg-amber-500 '/>
-        <h1 className='font-bold'>1240</h1>
-        <h2 className='text-xs text-gray-300'>Girls({50 + "%"})</h2>
+        <div className='flex flex-col gap-1 items-center'>
+        <div className='w-3 h-3  rounded-full bg-amber-200 '/>
+        <h1 className='font-bold'>{GenderFemale}</h1>
+        <h2 className='text-xs text-gray-300'>Girls({Number(psFelame.toFixed(2))+ "%"})</h2>
    </div>
        
       </div>

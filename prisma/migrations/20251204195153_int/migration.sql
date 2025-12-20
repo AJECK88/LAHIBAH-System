@@ -16,7 +16,6 @@ CREATE TABLE `Department` (
     `supervisorId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Department_name_key`(`name`),
-    UNIQUE INDEX `Department_supervisorId_key`(`supervisorId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -72,7 +71,6 @@ CREATE TABLE `Teacher` (
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `age` INTEGER NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `bloodGroup` VARCHAR(191) NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,
@@ -81,6 +79,7 @@ CREATE TABLE `Teacher` (
     `sex` ENUM('Male', 'Female') NOT NULL,
     `image` VARCHAR(191) NULL,
     `teachersId` VARCHAR(191) NOT NULL,
+    `DateOfBirth` DATETIME(3) NULL,
 
     UNIQUE INDEX `Teacher_username_key`(`username`),
     UNIQUE INDEX `Teacher_email_key`(`email`),
@@ -95,7 +94,6 @@ CREATE TABLE `Parent` (
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `age` INTEGER NOT NULL,
     `sex` ENUM('Male', 'Female') NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,
@@ -228,7 +226,7 @@ CREATE TABLE `Announcement` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `message` VARCHAR(191) NOT NULL,
-    `date` DATETIME(3) NOT NULL,
+    `date` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `departmentId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)

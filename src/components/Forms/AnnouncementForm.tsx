@@ -4,33 +4,60 @@
           import Input from "@/components/input";
           import Image from "next/image";
           import { useForm } from "react-hook-form";
-          const schema = z.object({
-          AnnouncementTitle: z.string()
-          .min(3, { message: 'Title must be at least 3 characters long' }),
-          AnnouncementMessage: z.string()
-          .min(30, { message: 'This Information is require "words most be more than 20"' }),
-         })
-
-
-          type Input = z.infer<typeof schema>
-
-          const AnnouncementForm = ( {type , data}:
+import { announcementschema, AnnouncementSchema } from "@/lib/FormValidationSchima";
+import { startTransition, useActionState } from "react";
+import { CreateAnnouncement } from "@/lib/actions";
+          const AnnouncementForm =( {type , data, relatedData ,SetOpen}:
           {type : 
           | "Create"
           | "Update",
           data?: any
+          relatedData: any
+          SetOpen:React.Dispatch<React.SetStateAction<boolean>>
           }) => {
           const {
-          register,
+          register, 
           handleSubmit,
           formState: { errors },
-          } = useForm<Input>({
-          resolver: zodResolver(schema),
+          } = useForm<AnnouncementSchema>({
+          resolver: zodResolver(announcementschema),
 
           });
-          const SubmiteData = handleSubmit( (data) =>{
-          
+            const formattedDate = new Intl.DateTimeFormat("en-US", {
+            month: "long",
+            day: "2-digit",
+            year: "numeric",
+          }).format(new Date());
+                  const formattedTime = new Date().toLocaleTimeString();
 
+           const [state , FormAction]= useActionState(CreateAnnouncement ,{          
+            successMessage:false,
+             errorMessage:false
+            })
+          const SubmiteData =  handleSubmit ( async (formData) =>{
+            startTransition(()=>{
+              FormAction(formData)
+            })
+          const res = await fetch('http://localhost:3000/api/announc', {
+            method:"POST",
+            headers: {
+              "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+            message: formData.AnnouncementMessage,
+            title: formData.AnnouncementTitle,
+            date: formattedDate,
+            time: formattedTime,
+        }),
+           
+          })
+          const result = await res.json();
+          if(res.ok){
+            console.log("Announcement Created Successfully"  + res)
+            SetOpen(false)
+          }else{
+            console.log("Failed to create Announcement")
+          }
           })
           return (
           <form className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4 " onSubmit={SubmiteData}>
@@ -44,7 +71,6 @@
           name="AnnouncementTitle" 
           id="AnnouncementTitle"
           register={register}
-            Defaultvalue={data?.AnnouncementTitle} 
             errors={ errors.AnnouncementTitle} 
             label="Title"
             Placeholder="subject"/>
@@ -58,7 +84,7 @@
 
 
           </div>
-          <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">{type === "Create" ? "Create" : "Update"}</button>
+          <button className="bg-blue-300 hover:bg-blue-400 font-semibold py-2 px-4 rounded-sm w-full text-white">Send</button>
           </form>
           );
           };
