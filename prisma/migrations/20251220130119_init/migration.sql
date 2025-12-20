@@ -225,7 +225,7 @@ CREATE TABLE `Fee` (
 CREATE TABLE `Announcement` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
-    `message` VARCHAR(191) NOT NULL,
+    `message` TEXT NOT NULL,
     `date` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `departmentId` VARCHAR(191) NULL,
 
