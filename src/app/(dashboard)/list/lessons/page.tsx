@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { role, subjectsData} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
+import FormsContainer from '@/components/FormsContainer';
    type Lesson = {
         id: string;
         name: string;
@@ -47,8 +48,8 @@ const  LessonsListpage = () => {
                     <div className="flex items-center gap-2 self-end" >
                   {role === "admin" && (
                       <>
-                          <FormModel table="Lessons" type="Update" id={lesson.id} />
-                          <FormModel table="Lessons" type="Delete" id={lesson.id} />
+                          <FormsContainer table="Lesson" type="Update" id={lesson.id} />
+                          <FormsContainer table="Lesson" type="Delete" id={lesson.id} />
                     </>
                     )}
                     </div>
@@ -68,7 +69,7 @@ const  LessonsListpage = () => {
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                     <FormModel table="Lessons" type="Create" />
+                     <FormsContainer table="Lesson" type="Create" />
                      </div>
             </div>
             {/* || List  */}

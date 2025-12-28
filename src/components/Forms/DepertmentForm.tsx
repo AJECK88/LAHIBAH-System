@@ -57,7 +57,7 @@ import prisma from "@/lib/prisma";
               SetOpen(false)
               Route.refresh()
              }
-          },[state, SetOpen, type])
+          },[state, Route ,SetOpen, type])
           const teachers = relatedData?.teachers || [];
           useEffect( ()=> {
              if(type === "Update" && data){ 
@@ -69,7 +69,7 @@ import prisma from "@/lib/prisma";
                 }
               )
              }
-          }, [data, type, setValue])
+          }, [data, type, setValue , Route , reset])
 
         
 

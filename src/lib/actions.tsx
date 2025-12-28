@@ -1,9 +1,7 @@
 "use server"
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
-import { success } from "zod";
-import { c } from "node_modules/@clerk/elements/dist/step-z-Bm-lcH.mjs";
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
@@ -76,6 +74,20 @@ export const deletCourse = async(
   /* || student section to update , create and delete */
  export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
   try{
+     const client = await clerkClient();
+
+    const clerkId = await client.users.createUser({
+      username: data.UserName,
+
+      emailAddress: [data.email],
+      password: data.password,
+      firstName: data.FirstName,
+      lastName: data.LastName,
+      publicMetadata: {
+        role: "student",
+      },
+     skipPasswordChecks: true, 
+    });
       await prisma.student.create({
          data:{
          username:data.UserName,
@@ -89,6 +101,7 @@ export const deletCourse = async(
          DateOfBirth:new Date(data.dateOfBirth),
          sex:data.sex,
          matricule:data.MatriculeNo,
+         id:clerkId.id,
          department:{
            connect:{id:data.department}
          } 
@@ -96,6 +109,9 @@ export const deletCourse = async(
          }
          
       }) 
+      
+   
+
        return { successMessage:true , errorMessage:false };
     }
     catch(error){
@@ -106,8 +122,22 @@ export const deletCourse = async(
   currentState:currentState,
   data : FormData
 )=>{
-  const id = data.get("id") as string
+    const client = await clerkClient();
+    const id = data.get("id") as string
+
+
+
   try{
+       // 1️⃣ Find student
+  const student = await prisma.student.findUnique({
+    where: { id:id },
+  });
+   
+  if (!student || !student.id) {
+    throw new Error("Student not found or not linked to Clerk");
+  }
+    await client.users.deleteUser(student.id);
+
      await prisma.student.delete({
      where: {
      id: (id),
@@ -159,10 +189,21 @@ export const  UpdateStudent = async(
 /* || end */
 /* || Teacher section to create , update and delete */
 export const CreatTeache = async(currentState :currentState , data:TeacherSchema)=>{
+        const client = await clerkClient();
   try {
+    const clerkId = await client.users.createUser({
+      username: data.UserName,
+      emailAddress: [data.email],
+      password: data.password,
+      firstName: data.FirstName,
+      lastName: data.LastName,
+      publicMetadata: {
+        role: "teacher",
+      },
+     skipPasswordChecks: true, 
+    });
    await prisma.teacher.create({
          data:{
-          id:data.id,
          username:data.UserName,
          address:data.Address,
          email:data.email,
@@ -173,7 +214,8 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          sex:data.sex,
          DateOfBirth:new Date(data.dateOfBirth),
          bloodGroup:data.BloodType,
-         teachersId  :data.teachersId,
+         teachersId :data.teachersId,
+         id:clerkId.id,
          courses:{
            connect: data.Courses?.map((courseId:any) => ({ id: courseId })),
          } 
@@ -195,7 +237,9 @@ export const UpdateTeache = async (
   , data:TeacherSchema
 
 ) =>{
+      
   try{
+
     await prisma.teacher.update({
       where:{
         id:(data.id)
@@ -235,7 +279,18 @@ export const deleteTeacher = async(
 
 
  const id = data.get("id") as string
+ const client = await clerkClient();
   try{
+             // 1️⃣ Find teacher
+  const teacher = await prisma.teacher.findUnique({
+    where: { id:id },
+  });
+   
+  if (!teacher || !teacher.id) {
+    throw new Error("Student not found or not linked to Clerk");
+  }
+    await client.users.deleteUser(teacher.id);
+
     await prisma.teacher.delete({
       where:{
         id:(id)
@@ -255,7 +310,19 @@ export const deleteTeacher = async(
   currentState :currentState,
   data : ParentSchema
 )=>{
+   const client = await clerkClient();
   try{
+    const clerkId = await client.users.createUser({
+      username: data.UserName,
+      emailAddress: [data.email],
+      password: data.password,
+      firstName: data.FirstName,
+      lastName: data.LastName,
+      publicMetadata: {
+        role: "teacher",
+      },
+     skipPasswordChecks: true, 
+    });
      await prisma.parent.create({
        data:{
           firstName:data.FirstName, 
@@ -266,6 +333,7 @@ export const deleteTeacher = async(
           username:data.UserName,
           password:data.password,
           sex:data.sex,
+          id:clerkId.id,
           students:{
             connect: data.studentName?.split(",").map((studentId:string) =>({id:studentId.trim()}))
           }
@@ -313,8 +381,19 @@ export const  deleteParent = async(
    data: FormData,
 )=>{
    const  id = data.get("id") as string
+   const client = await clerkClient();
 
    try{
+  // 1️⃣ Find student
+  const parent = await prisma.parent.findUnique({
+    where: { id:id },
+  });
+   
+  if (!parent || !parent.id) {
+    throw new Error("Prarent not found or not linked to Clerk");
+  }
+    await client.users.deleteUser(parent.id);
+    
     await prisma.parent.delete({
       where:{
         id:(id)
@@ -322,10 +401,9 @@ export const  deleteParent = async(
     })
 
  return{ successMessage:true , errorMessage:false}
-   }
+}
     
    catch(error){
-
       return {successMessage:false , errorMessage:true}
    }
 }

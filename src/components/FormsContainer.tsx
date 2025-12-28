@@ -5,18 +5,14 @@ import { tuple } from "zod";
 
 export type FormsContainerProps =  {
       table :
-      "Teacher" 
-      | "Student"
-      | "Parent" 
-      | "Result"
-      | "Class" 
-      | "Department"
-      | "Attendance"
-      | "announcement"
-      | "Course"
-      | "Assignments"
-      | "Lessons"
-      | "Exams",
+   "Teacher"
+  | "Student"
+  | "Parent"
+  | "Course"
+  | "Department"
+  | "announcement"
+  |  "Lesson",
+  
       type : 
       "Create" 
       | "Delete" 
@@ -81,6 +77,7 @@ const FormsContainer = async( {
                 parentId: null  // fetch students without a parent,
               },
               select:{
+                id:true,
                 firstName:true,
                 lastName:true,
                 

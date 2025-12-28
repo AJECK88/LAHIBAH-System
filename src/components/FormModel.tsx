@@ -1,11 +1,13 @@
       "use client"
       import Image from "next/image";
       import dynamic from "next/dynamic";
-      import { Dispatch, JSX, SetStateAction, startTransition, useActionState, useEffect, useState } from "react"
+      import { Dispatch, JSX, SetStateAction, startTransition, useActionState, useCallback, useEffect, useState } from "react"
 import { deletCourse, DeleteAnnouncement, DeleteDepartment, deleteParent, deleteStudent, deleteTeacher } from "@/lib/actions";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FormsContainerProps } from "./FormsContainer";
+import { d } from "node_modules/@clerk/elements/dist/step-MsK0UT__";
+import { de } from "zod/v4/locales";
 const deletActionMap: Record<
   | "Teacher"
   | "Student"
@@ -13,8 +15,7 @@ const deletActionMap: Record<
   | "Course"
   | "Department"
   | "announcement"
-  | "Assignments"
-  | "Lessons",
+  | "Lesson",
   (currentState: any, data: FormData) => Promise<{ successMessage: boolean; errorMessage: boolean }>
 > = {
 
@@ -30,7 +31,8 @@ const deletActionMap: Record<
   Class: deleteClass,
   Attendance: deleteAttendance,
   Assignments: deleteAssignment,
-  Lessons: deleteLesson, */
+  */
+  Lesson: deletCourse, 
 
 }
 
@@ -49,6 +51,7 @@ const deletActionMap: Record<
         const DepartmentForm = dynamic(()=> import('@/components/Forms/DepertmentForm'))
         const AnnouncementForm = dynamic(()=> import('@/components/Forms/AnnouncementForm'))
         const ExamForm  = dynamic( () => import('@/components/Forms/ExamForm'))
+        const LessonForm = dynamic( () => import('@/components/Forms/LessonForm'))
 
       const Forms:{
             [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any)=>JSX.Element;
@@ -71,9 +74,10 @@ const deletActionMap: Record<
        announcement:(SetOpen,type, data , relatedData) => (
        <AnnouncementForm  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData}/>
       ),
-       Exams  : (SetOpen,type, date)=>(
-             <ExamForm type={type} data={date}  SetOpen={SetOpen} relatedData={relatedData}/>
-       )
+      Lesson:(SetOpen , type , data , relatedData) =>(
+         <LessonForm type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} />
+      )
+
  }
 
       
@@ -93,7 +97,7 @@ const deletActionMap: Record<
         })
         formAction
          const router = useRouter();
-         const getSuccesMessage = (table:string)=>{
+         const getSuccesMessage =useCallback((table:string)=>{
            switch(table){
           case "Course":
           return `Course ${data.name} has been deleted!`;
@@ -116,7 +120,7 @@ const deletActionMap: Record<
            }
           
          }
-
+       ,[data?.name] )
         
           useEffect(() => {
             if (state.successMessage) {
@@ -126,7 +130,8 @@ const deletActionMap: Record<
               SetOpen(false)
               router.refresh()
             }
-          }, [state, type, router, SetOpen])
+          }, [state,  router, getSuccesMessage ])
+          
              return type === "Delete" ? (
       <form action={formAction} className="flex flex-col gap-4">
      <input type="hidden" name="id" value={data?.id} />

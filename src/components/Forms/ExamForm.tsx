@@ -45,7 +45,6 @@
           name="DepartmentName" 
           id="DepartmentName"
           register={register}
-            Defaultvalue={data?.DepartmentName} 
             errors={ errors.DepartmentName} 
             label="Department Name"
             Placeholder="Enter Department Name"/>
@@ -54,7 +53,6 @@
             id="Supervisor"
             name="Supervisor"
             register={register}
-            Defaultvalue={data?.Supervisor}
             errors={ errors.Supervisor}
             label="Supervisor"
             Placeholder="Enter Supervisor Name" />
