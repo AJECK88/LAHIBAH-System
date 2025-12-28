@@ -1,4 +1,4 @@
-import { broadcast } from "@/app/server/ws.js";
+import { broadcast } from "server/ws";
 import { id } from "zod/locales";
 
 export async function POST(req) {

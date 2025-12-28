@@ -37,7 +37,7 @@
     "src",
     ".next/types/**/*.ts",
     "src/middleware.ts"
-, "src/app/server"  ],
+, "server", "api"  ],
   "exclude": [
     "node_modules",
     ".next",

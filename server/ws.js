@@ -1,11 +1,9 @@
-import { time } from "console";
-import { WebSocketServer } from "ws";
-import { id } from "zod/locales";
 
+import { WebSocketServer } from "ws";
 let wss;
 
 if (!global.wss) {
-  global.wss = new WebSocketServer({ port: 3002 });
+  global.wss = new WebSocketServer({ port: 3001 });
   console.log("WebSocket server running on ws://localhost:3001");
 
   global.wss.on("connection", (ws) => {
