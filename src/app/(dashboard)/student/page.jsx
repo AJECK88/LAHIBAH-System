@@ -8,6 +8,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 const StudentPage = async () => {
+  /*  */
     const user = await currentUser()
           const userName = user?.fullName;
           const AnnouncementData = await prisma.announcement.findMany({
