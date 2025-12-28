@@ -4,7 +4,16 @@
                 import FormModel from "@/components/FormModel";
                 import Link from "next/dist/client/link";
                 import Image from "next/image"
-                const SingleTeacherPage = () => {
+              import prisma from "@/lib/prisma";
+                const SingleTeacherPage = async() => {
+                const AnnouncementData = await prisma.announcement.findMany({
+
+                  orderBy: {
+                  date: 'desc', // soonest first
+                      },
+                  take: 3,
+           })
+
                 return (
 
                 <div className="lg:flex  gap-4 m-2 lg:flex-row md:flex-col sm:flex-col" >
@@ -145,7 +154,7 @@
 
                 </div >
                 <PerformanceChart />
-                <Announcement />
+                <Announcement AnnouncementData={AnnouncementData}/>
 
                 </div>
 

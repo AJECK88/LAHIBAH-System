@@ -46,7 +46,14 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 }).format(new Date(Student.DateOfBirth))
 
+ const AnnouncementData = await prisma.announcement.findMany({
  
+  orderBy: {
+    date: 'desc', // soonest first
+  },
+  take: 3,
+})
+
     return (
 
         <div className="lg:flex  gap-4 m-2 lg:flex-row md:flex-col sm:flex-col" >
@@ -187,7 +194,7 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
 
                 </div >
                   <PerformanceChart />
-                <Announcement />
+                <Announcement AnnouncementData={AnnouncementData} />
               
                 </div>
 

@@ -5,7 +5,7 @@ import { id } from "zod/locales";
 let wss;
 
 if (!global.wss) {
-  global.wss = new WebSocketServer({ port: 3001 });
+  global.wss = new WebSocketServer({ port: 3002 });
   console.log("WebSocket server running on ws://localhost:3001");
 
   global.wss.on("connection", (ws) => {
