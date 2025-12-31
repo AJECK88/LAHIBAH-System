@@ -125,7 +125,7 @@ const menuItems = [
     <div className="mt-4 text-sm w-full">
        {menuItems.map( (e)=>(
 
-         <div className=" flex flex-col" key={e.title}>
+         <div className=" flex flex-col pl-2" key={e.title}>
           <span className="hidden lg:block text-gray-400 font-light my-2">{e.title}</span>
           {e.items.map(item => {
              if(item.visible.includes(role)) {
