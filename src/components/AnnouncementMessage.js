@@ -58,15 +58,15 @@ export default  function  AnnouncementsPage(
         const formattedTime = new Date(msg.date).toLocaleTimeString();
 
         return (
-        <div key={i} className="border bg-white border-gray-200 mb-4 pb-4 flex flex-row gap-4 items-center  justify-between p-2 rounded-sm shadow-md relative">
-          <div className="pl-2"> <div className="text-sm text-black  mb-2">{formattedDate}</div>
+        <div key={i} className="border bg-white border-gray-200 mb-4 pb-4 md:flex flex-row  gap-4 items-center  justify-between p-2 rounded-sm shadow-md relative">
+          <div className="pl-2 flex md:flex-col justify-between"> <div className="text-sm text-black  mb-2">{formattedDate}</div>
           <div className="text-sm text-gray-500 mb-2">{formattedTime}</div>
           </div>
-          <div className="w-2/3">
+          <div className="w-full md:w-2/3">
           <h3 className="font-semibold text-xl text-gray-700">{msg.title}</h3>
           <p className="text-gray-700">{msg.message}</p>
 </div> 
-<div className="flex ">
+<div className="flex justify-between items-center md:items-center md:w-fit w-full  mt-4">
 <button className="border-blue-400  text-blue-400 border-2 p-1 h-fit rounded-md hover:bg-white">details</button>
    <div className="relative group inline-block">
   {/* Image (acts as the hover trigger) */}

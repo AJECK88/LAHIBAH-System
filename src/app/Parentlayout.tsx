@@ -54,7 +54,7 @@ export default function ClientLayout({
           {Navbar}
         </div>
 
-        <div className="p-2">{children}</div>
+        <div className="md:p-2">{children}</div>
       </main>
     </div>
   )
