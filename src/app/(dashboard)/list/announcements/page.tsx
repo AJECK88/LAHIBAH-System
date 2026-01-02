@@ -24,10 +24,10 @@ import AnnouncementsPage from '@/components/AnnouncementMessage';
     <div className='bg-gray-200 p-1 h-full w-full flex flex-col gap-4'>
       <div className='flex justify-between items-center bg-white shadow-md p-2 h-25'>
         <div className='flex gap-4 p-4 items-center'>
-        <Image src={'/announcementM .png'} className='rounded-3xl  p-1' alt={"announcement"} height={70} width={70}></Image>
+        <Image src={'/announcementM .png'} className='rounded-3xl p-1' alt={"announcement"} height={70} width={70}></Image>
         <div className=''>
-          <h1 className="font-semibold text-gray-500">Creat announcement</h1>
-          <p className="text-sm text-gray-900">notisfy all student</p>
+          <h1 className="hidden md:block font-semibold text-gray-500">Create announcement</h1>
+          <p className="text-sm sm:font-semibold text-gray-900">notisfy all student</p>
         </div>
 </div>
         <FormsContainer  type={'Create'} table={"announcement"} />
