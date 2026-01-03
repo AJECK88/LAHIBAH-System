@@ -3,13 +3,13 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import { studentsData , role, parentsData} from '@/lib/data';
 import FormModel from '@/components/FormModel';
 import { Parent, Student } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { Items_Per_Page } from '../../Settings';
 import { Key } from 'react';
 import FormsContainer from '@/components/FormsContainer';
+import { role } from '@/components/user';
    type ParentList  = Parent & {students:Student[]}
     const Columns = [
         {
@@ -41,7 +41,10 @@ import FormsContainer from '@/components/FormsContainer';
             
         }
     ]
-     const renderRow = (parent:ParentList ) => (
+     const renderRow = async (parent:ParentList ) =>
+        {
+        const roles = await role();
+     return (
             <tr key={parent.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
                 <div className="">
@@ -57,7 +60,7 @@ import FormsContainer from '@/components/FormsContainer';
                       {/*   <Link href={`/list/student/${parent.id}`} className="text-blue-500">
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link> */}
-                  {role === "admin" && (
+                  {roles === "admin" && (
                     <><FormsContainer table="Parent" type="Update" id={parent.id}  data={parent}/>
                       <FormsContainer table="Parent" type="Delete" id={parent.id} data={parent}/>
                     </>
@@ -66,7 +69,7 @@ import FormsContainer from '@/components/FormsContainer';
                 </td>
             </tr>
         )
-
+    }
 const  ParentsListpage = async({
    searchParams,
 }:{searchParams :Promise<{[key:string]:string|undefined }>
@@ -85,6 +88,7 @@ const  ParentsListpage = async({
            }),
            prisma.parent.count()
     ]) 
+     const roles = await role();
     return (
         /* Student Page */
         /* Right hand side */
@@ -97,7 +101,7 @@ const  ParentsListpage = async({
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                   <FormsContainer table="Parent" type="Create" />
+                  {roles === "admin" && <FormsContainer table="Parent" type="Create" />}
                  </div>
             </div>
             {/* || List  */}
