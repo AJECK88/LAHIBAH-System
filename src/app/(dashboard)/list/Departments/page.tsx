@@ -3,12 +3,11 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
- import FormModel from '@/components/FormModel';
-import { role, DepartmentsData} from '@/lib/data';
 import { type } from 'os';
 import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import FormsContainer from '@/components/FormsContainer';
+import { role } from '@/components/user';
    type DepartmentList = Department & {supervisor:Teacher}
     const Columns = [
         {
@@ -28,7 +27,9 @@ import FormsContainer from '@/components/FormsContainer';
             
         }
     ]
-    const renderRow = (department:DepartmentList) => (
+    const renderRow = async (department:DepartmentList) => {
+         const roles =  await role();
+         return(
 
             <tr key={department.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'>
@@ -43,7 +44,7 @@ import FormsContainer from '@/components/FormsContainer';
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                     
-                  {role === "admin" && (
+                  {roles === "admin" && (
                      <>
                     <FormsContainer table='Department' type='Update' id={department.id}  data={department}/>
                     <FormsContainer table='Department' type='Delete' id={department.id} data={department} />
@@ -52,7 +53,7 @@ import FormsContainer from '@/components/FormsContainer';
                     </div>
                 </td>
             </tr>
-        )
+        )}
 const  DepartmentsListpage = async(
     {searchParams
     }:{searchParams:Promise<{[key:string]:string|undefined}>}
