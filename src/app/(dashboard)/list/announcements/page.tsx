@@ -3,6 +3,7 @@ import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import FormsContainer from '@/components/FormsContainer';
 import AnnouncementsPage from '@/components/AnnouncementMessage';
+import { role } from '@/components/user';
 
  export const  AnnouncementsListpage = async({
   
@@ -17,7 +18,7 @@ import AnnouncementsPage from '@/components/AnnouncementMessage';
      message:true,
       }
    }) 
-   
+   const roles = await role();
   return (
     <div className='h-full  bg-white p-4 flex flex-col gap-4 m-2'>
       <h1 className='font-extrabold text-gray-700'>Announcement </h1>
@@ -25,12 +26,12 @@ import AnnouncementsPage from '@/components/AnnouncementMessage';
       <div className='flex justify-between items-center bg-white shadow-md p-2 h-25'>
         <div className='flex gap-4 p-4 items-center'>
         <Image src={'/announcementM .png'} className='rounded-3xl p-1' alt={"announcement"} height={70} width={70}></Image>
-        <div className=''>
+        { roles === "admin" ?<div className=''>
           <h1 className="hidden md:block font-semibold text-gray-500">Create announcement</h1>
           <p className="text-sm sm:font-semibold text-gray-900">notisfy all student</p>
-        </div>
+        </div> : "All Announcements"}
 </div>
-        <FormsContainer  type={'Create'} table={"announcement"} />
+        {roles === "admin" && <FormsContainer  type={'Create'} table={"announcement"} />}
       </div> 
       <AnnouncementsPage
         AnnouncementData={AnnouncementMessage}
