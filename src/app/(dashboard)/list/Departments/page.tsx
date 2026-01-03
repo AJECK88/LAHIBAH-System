@@ -75,6 +75,7 @@ const  DepartmentsListpage = async(
     const params = await searchParams;
     const {page ,...qouryParams} =params;
     const p = page?parseInt(page):1;
+    const roles = await role();
     return (
         /* Student Page */
         /* Right hand side */
@@ -87,7 +88,7 @@ const  DepartmentsListpage = async(
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                      <FormsContainer type='Create' table='Department' />
+                     { roles === "admin" && <FormsContainer type='Create' table='Department' />}    
                      </div>
             </div>
             {/* || List  */}
