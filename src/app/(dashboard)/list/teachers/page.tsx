@@ -2,17 +2,14 @@ import Image from 'next/image';
 import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
-import { role } from '@/lib/data';
- import TablesearchBar from '@/components/TablesearchBar'
+import TablesearchBar from '@/components/TablesearchBar'
 import { teachersData } from '@/lib/data';
 import { Items_Per_Page } from '../../Settings';
 import prisma from '@/lib/prisma';
 import { Teacher, Subject, Prisma } from '@prisma/client';
-import FormModel from '@/components/FormModel';
-import { promises } from 'dns';
+import { role } from '@/components/user';
 import { NoResultFound } from '@/components/NoResult';
 import FormsContainer from '@/components/FormsContainer';
-import { date } from 'zod';
 type TeacherList = Teacher & { courses: Subject[] }
 
 
@@ -58,9 +55,11 @@ type TeacherList = Teacher & { courses: Subject[] }
             
         }
     ]
-    
-    
-        const renderRow = (teacher: TeacherList ) => (
+
+
+        const renderRow = async(teacher: TeacherList ) => {
+            const roles= await role();
+           return  (
             <tr key={teacher.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={teacher.image || teacher.sex =="Female" ?"/FemaleIcon.png":"/maleIcon.png"} />
                 <div className="">
@@ -78,7 +77,7 @@ type TeacherList = Teacher & { courses: Subject[] }
                         <Link href={`/list/teachers/${teacher.id}`} className="text-blue-500">
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
-                  {role === "admin" && (
+                  {roles === "admin" && (
                     <>  <FormsContainer table="Teacher" type="Update" id={teacher.id} data={teacher}/>
                         <FormsContainer table="Teacher" type="Delete" id={teacher.id}  data={teacher}/>
                         
@@ -88,13 +87,14 @@ type TeacherList = Teacher & { courses: Subject[] }
                 </td>
             </tr>
         )
-
+        }
 const  TeacherListpage = async({ 
     searchParams ,
 }:{
    searchParams :Promise<{[key:string]: string | undefined}>;
  
 }) => {
+        const roles= await role();
         const Params = await searchParams
         const {page, ...queryParams} = Params
         /* || checking if page ex */
@@ -143,7 +143,7 @@ include:{
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                      <FormsContainer table="Teacher" type="Create"  />
+                      {roles === "admin" && <FormsContainer table="Teacher" type="Create"  />}
                      </div>
             </div>
             {/* || List  */}
