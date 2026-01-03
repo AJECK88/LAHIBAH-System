@@ -3,13 +3,13 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import {role} from '@/lib/data';
 import { Department, Grade, Prisma, Student } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { Items_Per_Page } from '../../Settings';
 import { Key } from 'react';
 import { NoResultFound } from '@/components/NoResult';
 import FormsContainer from '@/components/FormsContainer';
+import { role } from '@/components/user';
    type StudentList  = Student & {department:Department, grade:Grade}
     const Columns = [
         {
@@ -48,7 +48,9 @@ import FormsContainer from '@/components/FormsContainer';
         }
     ]  
 
-       const renderRow = (student: StudentList) => (
+       const renderRow = async (student: StudentList) => {
+            const roles = await role();
+            return (
             <tr key={student.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
                 <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.image || student.sex ==="Female"?"/FemaleIcon.png":"/maleIcon.png"} />
                 <div className="">
@@ -65,7 +67,7 @@ import FormsContainer from '@/components/FormsContainer';
                         <Link href={`/list/students/${student.id}`} className="text-blue-500">
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
-                  {role === "admin" && (
+                  {roles === "admin" && (
                     <>  <FormsContainer table="Student" type="Update" id={student.id} data={student}/>
                           <FormsContainer table="Student" type="Delete" id={student.id} data={student}/>
                     </>
@@ -74,7 +76,7 @@ import FormsContainer from '@/components/FormsContainer';
                 </td>
             </tr>
         )
-
+    }
 const  StudentListpage = async({
     searchParams,
 }:{searchParams :Promise<{[key:string]:string|undefined}>
@@ -121,6 +123,7 @@ const  StudentListpage = async({
         ]
         
     )
+       const roles = await role();
     return (
         /* Student Page */
         /* Right hand side */
@@ -133,7 +136,7 @@ const  StudentListpage = async({
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
-                     <FormsContainer table="Student" type="Create" />
+                    {roles === "admin" && <FormsContainer table="Student" type="Create" />}
                      </div>
             </div>
             {/* || List  */}
