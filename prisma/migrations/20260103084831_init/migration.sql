@@ -3,7 +3,6 @@ CREATE TABLE `Admin` (
     `id` VARCHAR(191) NOT NULL,
     `userName` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `Admin_email_key`(`email`),
     PRIMARY KEY (`id`)
@@ -44,7 +43,6 @@ CREATE TABLE `Student` (
     `id` VARCHAR(191) NOT NULL,
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
     `age` INTEGER NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,
@@ -70,7 +68,6 @@ CREATE TABLE `Teacher` (
     `id` VARCHAR(191) NOT NULL,
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `bloodGroup` VARCHAR(191) NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,
@@ -93,7 +90,6 @@ CREATE TABLE `Parent` (
     `id` VARCHAR(191) NOT NULL,
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
     `sex` ENUM('Male', 'Female') NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `phoneNumber` VARCHAR(191) NOT NULL,

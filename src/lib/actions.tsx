@@ -86,7 +86,6 @@ export const deletCourse = async(
       publicMetadata: {
         role: "student",
       },
-     skipPasswordChecks: true, 
     });
       await prisma.student.create({
          data:{
@@ -96,7 +95,6 @@ export const deletCourse = async(
          email:data.email,
          firstName:data.FirstName,
          lastName:data.LastName,
-         password:data.password,
          phoneNumber:data.phoneNumber,
          DateOfBirth:new Date(data.dateOfBirth),
          sex:data.sex,
@@ -168,7 +166,6 @@ export const  UpdateStudent = async(
          email:data.email,
          firstName:data.FirstName,
          lastName:data.LastName,
-         password:data.password,
          phoneNumber:data.phoneNumber,
          DateOfBirth:new Date(data.dateOfBirth),
          sex:data.sex,
@@ -200,7 +197,6 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
       publicMetadata: {
         role: "teacher",
       },
-     skipPasswordChecks: true, 
     });
    await prisma.teacher.create({
          data:{
@@ -209,7 +205,6 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          email:data.email,
          firstName:data.FirstName,
          lastName:data.LastName,
-         password:data.password,
          phoneNumber:data.phoneNumber,
          sex:data.sex,
          DateOfBirth:new Date(data.dateOfBirth),
@@ -250,7 +245,6 @@ export const UpdateTeache = async (
          email:data.email,
          firstName:data.FirstName,
          lastName:data.LastName,
-         password:data.password,
          phoneNumber:data.phoneNumber,
          sex:data.sex,
          DateOfBirth:new Date(data.dateOfBirth),
@@ -321,7 +315,6 @@ export const deleteTeacher = async(
       publicMetadata: {
         role: "teacher",
       },
-     skipPasswordChecks: true, 
     });
      await prisma.parent.create({
        data:{
@@ -331,7 +324,6 @@ export const deleteTeacher = async(
           phoneNumber:data.phoneNumber,
           address:data.Address,
           username:data.UserName,
-          password:data.password,
           sex:data.sex,
           id:clerkId.id,
           students:{
@@ -364,7 +356,6 @@ export const UpdateParent = async(
           address:data.Address,
           username:data.UserName,
           sex:data.sex,
-          password:data.password, 
           students:{
             set:[],
             connect: data.studentName?.split(",").map((student:string)=> ({id:student.trim()}))

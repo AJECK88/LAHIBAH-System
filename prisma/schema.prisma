@@ -16,7 +16,6 @@ model Admin {
   id       String @id @default(cuid())
   userName String
   email    String @unique
-  password String
 }
 
 model Department {
@@ -61,7 +60,6 @@ model Student {
   id           String     @id @default(cuid())
   username     String     @unique
   email        String     @unique
-  password     String
   age          Int
   address      String
   phoneNumber  String     @unique
@@ -89,7 +87,6 @@ model Teacher {
   id          String  @id @default(cuid())
   username    String  @unique
   email       String  @unique
-  password    String
   address     String
   bloodGroup  String?
   phoneNumber String  @unique
@@ -107,7 +104,6 @@ model Parent {
   id          String  @id @default(cuid())
   username    String  @unique
   email       String  @unique
-  password    String
   sex         Usersex
   address     String
   phoneNumber String  @unique

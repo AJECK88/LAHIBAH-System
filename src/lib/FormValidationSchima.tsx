@@ -56,7 +56,7 @@ import { max } from "moment";
                email: z.string().email({ message: 'Invalid email address' }),
                password: z.string()
                .min(4, { message: 'Password must be at least 4 characters long' })
-               .max(8, { message: 'Password must be at most 8 characters long' }),
+               .max(10, { message: 'Password must be at most 8 characters long' }),
                FirstName:z.string()
                .min(1 , { message: 'First Name must be at least 1 character long' }),
                Courses:z.array(z.number()).nonempty({message:"At least one course must be selected"}).optional(),
