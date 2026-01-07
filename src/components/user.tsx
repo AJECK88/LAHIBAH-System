@@ -13,3 +13,9 @@ import { auth, currentUser } from "@clerk/nextjs/server";
    console.log(userRole)
   return userRole;
 };
+ const UserId = async() => {
+    const user = await currentUser();
+    const  id = user?.id as string | null | undefined;
+  return id;
+};
+  export default  UserId
