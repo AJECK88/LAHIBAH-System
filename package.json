@@ -9,9 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "vercel-build": "prisma generate && next build"
-
   },
-
   "dependencies": {
     "@clerk/elements": "^0.23.67",
     "@clerk/nextjs": "^6.36.2",

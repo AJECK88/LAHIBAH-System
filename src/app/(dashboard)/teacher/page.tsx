@@ -3,6 +3,8 @@ import Announcement from "@/components/Announcements";
 import BigCalendar from "@/components/TeacherBigCalelndar";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
+import { userInfo } from "os";
+import UserId from "@/components/user";
 const StudentPage = async() => {
     const AnnouncementData = await prisma.announcement.findMany({
  
@@ -10,7 +12,18 @@ const StudentPage = async() => {
     date: 'desc', // soonest first
   },
   take: 3,
+});
+const UserIdValue = await UserId();
+const userInfo = await prisma.teacher.findMany({
+    where: {
+        id: UserIdValue?.toString()
+    },
+    include: {
+        courses: true,
+    }
 })
+const currentUserInfo = userInfo[0];
+ console.log(UserIdValue?.toString())
     return (
         /* Student Page */
         /* Right hand side */
@@ -31,8 +44,8 @@ const StudentPage = async() => {
                 className=" w-36 h-36  object-cover rounded-full " />
                 </div>
                 <div className="w-2/3 flex flex-col justify-between gap-4 ">
-                <h1 className="text-xl  font-semibold">Loen Deam Ge</h1>
-                <p className="text-sm text-gray-500">lorem ipsum , olor sit amet consevtetur adipisicing elit.</p>
+                <h1 className="text-xl  font-semibold">{currentUserInfo?.firstName + " " + currentUserInfo?.lastName}</h1>
+                <p className="text-sm text-gray-500">{"Lecturing " + currentUserInfo?.courses.length}{currentUserInfo?.courses && currentUserInfo?.courses.length > 1 ? " courses" : " course"}</p>
                 <div className=" flex items-center justify-between gap-2 flex-wrap text-xs font-medium   " >
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -42,7 +55,7 @@ const StudentPage = async() => {
                 height={8}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">B+</span>
+                <span className="ml-1">{currentUserInfo?.bloodGroup}</span>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -62,7 +75,7 @@ const StudentPage = async() => {
                 height={14}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">user@example.com</span>
+                <span className="ml-1">{currentUserInfo?.email}</span>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -72,7 +85,7 @@ const StudentPage = async() => {
                 height={14}
                 className=" w-8 h-8"
                 />
-                <span className="ml-1">68 2031531</span>
+                <span className="ml-1">{currentUserInfo?.phoneNumber}</span>
                 </div>
                 </div>
                 </div>
