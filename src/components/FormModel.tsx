@@ -42,7 +42,7 @@ const deletActionMap: Record<
        const TeachersForms = dynamic( () => import("@/components/Forms/TeachersForms"),{
             loading :() => <h1>Loading...</h1>
        })
-       const ParentForm = dynamic(() => import('@/components/Forms/ PerantsForm'),{
+       const ParentForm = dynamic(() => import('@/components/Forms/PerantsForm'),{
             loading: () => <h1>Loading...</h1>
        })
         const Courseform = dynamic(()=> import('@/components/Forms/Courseform'),
