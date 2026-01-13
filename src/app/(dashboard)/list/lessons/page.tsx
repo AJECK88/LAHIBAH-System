@@ -3,7 +3,7 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import { role, subjectsData} from '@/lib/data';
+import {subjectsData} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
 import FormsContainer from '@/components/FormsContainer';
@@ -46,7 +46,7 @@ const  LessonsListpage = () => {
                
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
-                  {role === "admin" && (
+                  {(
                       <>
                           <FormsContainer table="Lesson" type="Update" id={lesson.id} />
                           <FormsContainer table="Lesson" type="Delete" id={lesson.id} />

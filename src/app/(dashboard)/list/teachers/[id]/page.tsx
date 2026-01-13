@@ -5,7 +5,11 @@
                 import Link from "next/dist/client/link";
                 import Image from "next/image"
               import prisma from "@/lib/prisma";
-                const SingleTeacherPage = async() => {
+import { Prisma } from "@prisma/client";
+import { id } from "zod/locales";
+                const SingleTeacherPage = async(
+                  {params}:{params:{id:string}}
+                ) => {
                 const AnnouncementData = await prisma.announcement.findMany({
 
                   orderBy: {
@@ -13,6 +17,35 @@
                       },
                   take: 3,
            })
+
+           const teacherArray= await prisma.teacher.findMany({
+            where:{
+               id:params.id
+            },
+            select:{
+              address:true,
+              bloodGroup:true,
+              DateOfBirth:true,
+              email:true,
+              lastName:true,
+              phoneNumber:true,
+              sex:true,
+              firstName:true,
+              image:true,
+              courses:true
+
+            }
+           })
+            const Teacher = teacherArray[0] 
+           if (!Teacher.DateOfBirth) {
+  return <p>Date of birth not available</p>
+}
+
+const formattedDate = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "2-digit",
+  year: "numeric",
+}).format(new Date(Teacher.DateOfBirth))
 
                 return (
 
@@ -25,30 +58,32 @@
                 {/* || users  infor card */}
                 <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4 " >
                 <div className="w-1/3" >
-                <Image
-                src="https://images.pexels.com/photos/842980/pexels-photo-842980.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                alt="User Avatar"
-                width={144} 
-                height={144} 
-                className=" w-36 h-36  object-cover rounded-full " />
+            
+                                {Teacher.image ==null
+                                    ?
+                                    Teacher.sex =="Female"
+                                    ?
+                                    <Image src=  "/FemaleIcon.png"
+                                alt="User Avatar"
+                                 width={144} 
+                                 height={144} 
+                                 className=" w-36 h-36  object-cover rounded-full " />
+                                 : 
+                                 <Image src=  "/maleIcon.png"
+                                alt="User Avatar"
+                                 width={144} 
+                                 height={144} 
+                                 className=" w-36 h-36  object-cover rounded-full " />
+                                 : <Image src=  "/maleIcon.png"
+                                alt="User Avatar"
+                                 width={144} 
+                                 height={144} 
+                                 className=" w-36 h-36  object-cover rounded-full " />
+                                }
                 </div>
                 <div className="w-2/3 flex flex-col justify-between gap-4 ">
-                <h1 className="text-xl  font-semibold">Loen Deam Ge</h1>
-                <FormModel table="Teacher" type="Update" data={{
-                id: 1,
-                UserName: "jone",
-                FirstName: "jone",
-                LastName: "Moe",
-                email: "jone@example.com",
-                phoneNumber: "682031531",
-                Address: "123 Main St",
-                password: "pas849",
-                BloodType: "B+",
-               dateOfBirth: new Date("1990-01-01"),
-                sex: "female",
-                img: "https://images.pexels.com/photos/842980/pexels-photo-842980.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                }}/>
-                <p className="text-sm text-gray-500">lorem ipsum , olor sit amet consevtetur adipisicing elit.</p>
+                <h1 className="text-xl  font-semibold">{Teacher.firstName  +" " + Teacher.lastName}</h1>
+                <p className="text-sm text-gray-500">{`Teaches` + " " + Teacher.courses.length + `${Teacher.courses.length > 1?" courses":" course"}`}</p>
                 <div className=" flex items-center justify-between gap-2 flex-wrap text-xs font-medium   " >
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -58,7 +93,7 @@
                 height={8}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">B+</span>
+                <span className="ml-1">{Teacher.bloodGroup}</span>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -68,7 +103,7 @@
                 height={1}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">january 2025</span>
+                <span className="ml-1">{formattedDate}</span>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -78,7 +113,7 @@
                 height={14}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">user@example.com</span>
+                <Link  href={`mailto:${Teacher.email}`} className="ml-1">{Teacher.email}</Link>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image
@@ -88,7 +123,7 @@
                 height={14}
                 className=" w-8 h-8"
                 />
-                <span className="ml-1">68 2031531</span>
+                <span className="ml-1">{Teacher.phoneNumber}</span>
                 </div>
                 </div>
                 </div>

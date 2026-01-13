@@ -1,5 +1,5 @@
 // TEMPORARY DATA FOR TESTING PURPOSES
-export let role = "admin"
+
 
 export const teachersData = [
   {

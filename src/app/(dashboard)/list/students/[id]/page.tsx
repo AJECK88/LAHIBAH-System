@@ -11,7 +11,6 @@ import prisma from "@/lib/prisma";
 const SingleStuentPage = async(
     {params}:{params:{id:string}}
 ) => {
-      console.log(params.id)
  const StudentArray = await prisma.student.findMany({
     where:{
         id :params.id
