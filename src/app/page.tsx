@@ -6,207 +6,262 @@ import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 
 const Homepage = () => {
-  const [Menu, setMenuOpen] = React.useState(true);
+  const [menuOpen, setMenuOpen] = React.useState(false)
   const { isSignedIn, user, isLoaded } = useUser()
-     const route = useRouter() 
-      
-     useEffect(()=>{
-      if(isSignedIn && user){
-         const role=user?.publicMetadata.role;
-       if(role){
-           route.push(`/${role}`)
-        }
+  const route = useRouter()
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      const role = (user?.publicMetadata as any)?.role
+      if (role) {
+        route.push(`/${role}`)
       }
-     },[user, route ,isSignedIn])
-  const handleMenuClick = () => {
-    const siteBar = document.querySelector(".Sitbar");
-    if (siteBar) {
-      siteBar.classList.toggle("active");
     }
-    setMenuOpen(prove => !prove);
-  };
+  }, [user, route, isSignedIn])
+
+  const handleMenuClick = () => {
+    setMenuOpen((prev) => !prev)
+  }
 
   return (
-    <div>
-      <header className="w-full bg-white p-2 flex relative">
-        <nav className="flex justify-between items-center w-full lg:w-[70%] mx-auto lg:flex-row">
-          <div className="border-2 border-black p-3 font-semibold text-sm lg:text-xl">
-            <a className="text-blue-900" href="">
-              LAHIIBA <span className="text-black">MANAGEMENT</span> <span className="text-red-800">IN...</span>
-            </a>
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="w-full bg-white shadow-md sticky top-0 z-50">
+        <nav className="flex justify-between items-center gap-4 w-100% min-w-fit lg:w-full max-w-7xl mx-auto px-4 py-4 ">
+          <div className="border-2 border-blue-900 px-4 py-2 rounded font-bold text-xs sm:text-sm lg:text-lg">
+              <a className="text-blue-400 font-bold text-lg" href="/">
+                LAHIBA <span className="text-black">MANAGEMENT</span>
+                <span className="text-red-600"> SYSTEM</span>
+              </a>
           </div>
-          <div className="Menu" onClick={handleMenuClick}>
-            <Image className="" alt="" src={Menu ? "/menu.png" : "/close_nav.png"} width={40} height={40} />
-          </div>
-          <ul className="Sitbar flex gap-4 items-center text-stone-600 hover:text-shadow-neutral-800 flex-col lg:flex-row font-semibold text-xl Navbar">
-            <li className="hover:text-amber-300 hover:underline">
-              <Link href="">Admission/registration</Link>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="lg:hidden flex items-center"
+            onClick={handleMenuClick}
+            aria-label="Toggle menu"
+          >
+            <Image
+              alt="menu"
+              src={menuOpen ? "/close_nav.png" : "/menu.png"}
+              width={32}
+              height={32}
+            />
+          </button>
+
+          {/* Navigation Menu */}
+          <ul
+            className={` flex items-start lg:items-center lg:static right-0 top-16 w-full lg:w-auto bg-white lg:bg-transparent lg:flex gap-6 flex-col lg:flex-row font-semibold text-base lg:text-lg transition-all duration-300 ease-in-out ${menuOpen ? "block py-4 lg:py-0" : "hidden lg:block"}`}
+          >
+            <li className="hover:text-amber-500 transition w-full lg:w-fit">
+              <Link href="#admission">Admission/Registration</Link>
             </li>
-            <li className="hover:text-amber-300">
-              <Link href="">About Us</Link>
+            <li className="hover:text-amber-500 transition w-full lg:w-fit">
+              <Link href="#about">About Us</Link>
             </li>
-            <li className="hover:text-amber-300 hover:underline">
-              <Link href="">Help</Link>
+            <li className="hover:text-amber-500 transition w-full lg:w-fit">
+              <Link href="#help">Help</Link>
             </li>
-            <li className="hover:text-amber-300 hover:underline">
+            <li className="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition w-full lg:w-fit text-center">
               <Link href="/sign-in">Login</Link>
             </li>
           </ul>
         </nav>
       </header>
 
-      <section>
+      {/* Hero Section */}
+      <section className="w-full h-56 sm:h-72 lg:h-96 relative flex items-center justify-center text-center">
         <div
+          className="absolute inset-0 bg-cover bg-center bg-fixed"
           style={{
             backgroundImage: 'url("/image/sky%20scraper.jpg")',
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-            backgroundColor: "black",
-            height: "20vh",
-            width: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            backgroundBlendMode: "overlay",
           }}
-          className="w-full flex flex-col text-center font-semibold justify-center imageBackground text-white text-sm lg:text-2xl"
-        >
-          <h3>Admission And Registration</h3>
-          <h3 className="underline underline-offset-1">
-            <a href="">Admission And Registration</a>/Admission And Registration
+        />
+        <div className="relative z-10 text-white px-4">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
+            Admission And Registration
           </h3>
+          <p className="text-sm sm:text-base lg:text-lg underline">
+            <a href="#admission">Admission And Registration</a>
+          </p>
         </div>
       </section>
 
-      <section className="p-5 w-full">
-        <h1 className="text-2xl lg:text-[40px] text-[#625757] text-center">
-          Students Admission and Registration Information
-        </h1>
-        <ol style={{ listStyleType: "lower-roman", paddingLeft: "1rem", color: "black" }} className="flex flex-col gap-4 pl-4 w-full lg:w-[70%] m-auto">
-          <li className="w-full text-gray-500 flex flex-col gap-3 lg:text-2xl">
-            <h2 className="text-sm lg:text-[30px] font-semibold text-gray-900">
-              REQUIREMENTS FOR ADMISSION INTO THE FIRST YEAR OF THE HND/BTS/SRN PROGRAM
-            </h2>
-            <ol style={{ listStyleType: "upper-alpha", listStylePosition: "inside" }}>
-              <li>
-                <span>
-                  Applicants should fill and submit the online admission application form at the following page:
-                  <a className="text-blue-500 text-sm underline" href="">click here</a>
-                </span>
-              </li>
-              <li>
-                <span>
-                  The following documents should be attached to the completed application form;
-                </span>
-              </li>
-              <li>Certified copy of GCE Advanced level, passed in at least two subjects in one sitting excluding Religious Studies, or BACC (All series),</li>
-              <li>Certified copy of birth certificate,</li>
-              <li>Photo copy of GCE O/L, or CAP,</li>
-              <li>Photo copy of National Identity Card or international passport for foreigners,</li>
-              <li>Photo copy of receipt of payment of registration fee, and,</li>
-              <li>4*4 passport size photograph affixed to the application form.</li>
-            </ol>
-            <p className="font-sm">
-              The above documents in a self-addressed file should be submitted to the Admissions Office (Room one of the Central administrative Block). The applicant shall be granted provisional admission upon submission pending study of file and granting of final admission by the Admission Commission, wherein admission letters shall be issued to the students admitted. Contact example@mail.com or visit our website: laureateuniversityinstitute.com should you require more information
-            </p>
-          </li>
-          <li className="w-full text-gray-500 flex flex-col gap-3 lg:text-2xl">
-            <h2 className="text-sm lg:text-[30px] font-semibold text-gray-900">
-              REQUIREMENTS FOR ADMISSION INTO THE ONE YEAR TOP-UP DEGREE PROGRAMME
-            </h2>
-            <ol style={{ listStyleType: "decimal", listStylePosition: "inside" }}>
-              <li>
-                <span>
-                  Applicants should fill and submit the online admission application form at the following page
-                  <a className="text-blue-500 text-sm underline" href=""> click here</a>
-                </span>
-              </li>
-              <li>
-                <span>
-                  The following documents should be attached to the completed application form;
-                </span>
-              </li>
-              <li>Certified copy of HND, HPD, BTS, DSEP Success Slip or recognized equivalent diploma,</li>
-              <li>Certified copy of birth certificate,</li>
-              <li>Photo copy of GCE A/L, or BACC,</li>
-              <li>Photo copy of National Identity Card or international passport for foreigners,</li>
-              <li>Photo copy of receipt of payment of registration fee, and,</li>
-              <li>4*4 passport size photograph affixed to the application form.</li>
-            </ol>
-            <p className="font-sm">
-              The above documents in a self-addressed file should be submitted to the Admissions Office.
-              The applicant shall be granted provisional admission upon submission pending study of file and granting of
-              final admission by the Admission Commission, wherein admission letters shall be issued to the students
-              admitted. Contact info@laureateinstitute.com or visit our
-              website:
-              <Link className="text-blue-500 underline" href="https://laureateuniversityinstitute.com">
-                laureateuniversityinstitute.com
-              </Link>
-              should you require more information
-            </p>
-          </li>
-          <li className="w-full text-gray-500 flex flex-col gap-3 lg:text-2xl">
-            <h2 className="text-sm lg:text-[30px] font-semibold text-gray-900">
-              REQUIREMENTS FOR ADMISSION INTO THE MASTER&apos;S DEGREE PROGRAMME
-            </h2>
-            <ol className="w-full text-gray-500 flex flex-col gap-3 lg:text-2xl" style={{ listStyleType: "lower-alpha", listStylePosition: "inside", margin: 0, paddingLeft: 2 }}>
-              <li>
-                <span>
-                  Applicants should fill and submit the online admission application form at the following page click here
-                </span>
-              </li>
-              <li>Certified copy of Bachelor&apos;s Degree or Attestation of Results/Completion of Course (certified by the competent academic authorities)</li>
-              <li>Certified copies of undergraduate academic transcripts (certified by the competent academic authorities),</li>
-              <li>Certified copy of birth certificate,</li>
-              <li>Letter of Motivation (max. 1 page)</li>
-              <li>National Identity Card or Passport for foreigners,</li>
-              <li>Two recommendation letters signed by referees/recommenders,</li>
-              <li>Affix a 4*4 passport size photograph on the application form</li>
-            </ol>
-            <p>
-              The above documents in a self-addressed file should be submitted to the Admissions Office.
-              The applicant shall be granted provisional admission upon submission pending study of file and granting of final admission by the Admission Commission, wherein admission letters shall be issued to the students admitted. Contact info@laureateinstitute.com  or visit our website: laureateuniversityinstitute.com
-              should you require more information
-            </p>
-          </li>
-        </ol>
-      </section>
+      {/* Main Content */}
+      <main className="flex-1 w-full px-4 py-8 sm:py-12 lg:py-16">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl text-gray-700 text-center font-bold mb-12">
+            Students Admission and Registration Information
+          </h1>
 
-      <footer className="bg-[#262323] w-full">
-        <div className="w-full lg:w-[80%] flex justify-around pt-5 pb-5 flex-col lg:flex-row pl-[1rem] gap-5">
-          <div className="text-[#888282] flex flex-col gap-5">
+          <div className="space-y-12" id="admission">
+            {/* Section 1 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
+                Requirements for Admission into the First Year of the HND/BTS/SRN Program
+              </h2>
+              <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
+                <li className="leading-relaxed">
+                  Fill and submit the online admission application form{" "}
+                  <a className="text-blue-600 underline hover:text-blue-800" href="">
+                    click here
+                  </a>
+                </li>
+                <li className="font-semibold">Attach the following documents:</li>
+                <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
+                  <li>Certified copy of GCE Advanced level (two subjects in one sitting)</li>
+                  <li>Certified copy of birth certificate</li>
+                  <li>Photo copy of GCE O/L or CAP</li>
+                  <li>National Identity Card or international passport</li>
+                  <li>Receipt of registration fee payment</li>
+                  <li>4×4 passport size photograph</li>
+                </ul>
+              </ol>
+              <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
+                Submit documents to the Admissions Office (Room 1, Central Administrative Block). Provisional admission pending file review. Contact{" "}
+                <a className="text-blue-600 underline" href="mailto:example@mail.com">
+                  example@mail.com
+                </a>
+                {" "}or visit{" "}
+                <a
+                  className="text-blue-600 underline"
+                  href="https://laureateuniversityinstitute.com"
+                >
+                  laureateuniversityinstitute.com
+                </a>
+              </p>
+            </div>
+
+            {/* Section 2 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
+                Requirements for Admission into the One Year Top-Up Degree Programme
+              </h2>
+              <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
+                <li className="leading-relaxed">
+                  Fill and submit the online admission application form{" "}
+                  <a className="text-blue-600 underline hover:text-blue-800" href="">
+                    click here
+                  </a>
+                </li>
+                <li className="font-semibold">Attach the following documents:</li>
+                <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
+                  <li>Certified copy of HND, HPD, BTS, or recognized diploma</li>
+                  <li>Certified copy of birth certificate</li>
+                  <li>Photo copy of GCE A/L or BACC</li>
+                  <li>National Identity Card or international passport</li>
+                  <li>Receipt of registration fee payment</li>
+                  <li>4x4 passport size photograph</li>
+                </ul>
+              </ol>
+              <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
+                Submit to the Admissions Office. Contact{" "}
+                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                  info@laureateinstitute.com
+                </a>
+                {" "}or visit{" "}
+                <Link className="text-blue-600 underline" href="https://laureateuniversityinstitute.com">
+                  laureateuniversityinstitute.com
+                </Link>
+              </p>
+            </div>
+
+            {/* Section 3 */}
+            <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
+                Requirements for Admission into the Master&apos;s Degree Programme
+              </h2>
+              <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
+                <li className="leading-relaxed">
+                  Fill and submit the online admission application form
+                </li>
+                <li className="font-semibold">Attach the following documents:</li>
+                <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
+                  <li>Certified copy of Bachelor&apos;s Degree or Attestation of Results</li>
+                  <li>Certified undergraduate transcripts</li>
+                  <li>Certified copy of birth certificate</li>
+                  <li>Letter of Motivation (max 1 page)</li>
+                  <li>National Identity Card or Passport</li>
+                  <li>Two recommendation letters</li>
+                  <li>4x4 passport size photograph</li>
+                </ul>
+              </ol>
+              <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
+                Submit to the Admissions Office. Contact{" "}
+                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                  info@laureateinstitute.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 w-full mt-12">
+        <div className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8">
+          {/* Brand */}
+          <div className="flex flex-col gap-4">
             <div>
-              <a className="text-blue-900" href="">
-                LAHIIBA <span className="text-white">MANAGEMENT</span> <span className="text-red-800">IN...</span>
+              <a className="text-blue-400 font-bold text-lg" href="/">
+                LAHIBA <span className="text-white">MANAGEMENT</span>
+                <span className="text-red-600"> SYSTEM</span>
               </a>
             </div>
-            <div className="text-[#888282]">LAHIBA INFORMATION MANAGEMENT</div>
-            <div className="flex items-center gap-5">
-              <div className="bg-[#271288] rounded-full w-[50px] h-[50px] p-5 flex items-center hover:rounded-[10px]">
-                <Link href={""}><Image src={"/facebook.png"} width={100} height={60} alt="" /></Link>
-              </div>
-              <div className="bg-[#271288] rounded-full w-[50px] h-[50px] p-4 hover:rounded-[10px]">
-                <Link href={""}><Image src={"/tiktok.png"} width={100} height={100} alt="" /></Link>
-              </div>
-              <div className="bg-[#271288] rounded-full w-[50px] h-[50px] p-4 hover:rounded-[10px]">
-                <Link href={""}><Image src={"/mail.png"} width={100} height={100} alt="" /></Link>
-              </div>
+            <p className="text-sm">LAHIBA INFORMATION MANAGEMENT SYSTEM</p>
+            <div className="flex gap-4">
+              <a
+                href=""
+                className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
+              >
+                <Image src="/facebook.png" width={20} height={20} alt="facebook" />
+              </a>
+              <a
+                href=""
+                className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
+              >
+                <Image src="/tiktok.png" width={20} height={20} alt="tiktok" />
+              </a>
+              <a
+                href=""
+                className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
+              >
+                <Image src="/mail.png" width={20} height={20} alt="mail" />
+              </a>
             </div>
           </div>
-          <div className="text-[#888282] lg:w-1/3 w-[90%] flex flex-col gap-5">
-            <div>
-              <h1 className="text-2xl">Information</h1>
-              <div className="flex flex-row">
-                <div className="w-[20%] h-[5px] bg-white"></div>
-                <div className="w-[80%] h-[5px] bg-[#271288]"></div>
-              </div>
-            </div>
-            <ul className="flex flex-col gap-1 hover:text-shadow-neutral-800">
-              <li className="hover:text-[#271288] hover:pl-[1rem]"><a href="">ABOUT US</a></li>
-              <li className="hover:text-[#271288] hover:pl-[1rem]"><a href="">STUDENT REGISTRATION</a></li>
-              <li className="hover:text-[#271288] hover:pl-[1rem]"><a href="">ADMISSION AND REGISTRATION</a></li>
-              <li className="hover:text-[#271288] hover:pl-[1rem]"><a href="">TEACHER REGISTRATION</a></li>
-              <li className="hover:text-[#271288] hover:pl-[1rem]"><a href="">HELP</a></li>
+
+          {/* Links */}
+          <div>
+            <h3 className="text-lg font-bold text-white mb-4">Information</h3>
+            <div> <h1 className="text-2xl">Information</h1> <div className="flex flex-row"> 
+              <div className="w-[20%] h-[5px] bg-white"></div> 
+            <div className="w-[80%] h-[5px] bg-[#271288]"></div> </div> </div>
+            <ul className="space-y-3 text-xl">
+              <li className="hover:text-blue-400 pt-2 transition">
+                <a href="#about">About Us</a>
+              </li>
+              <li className="hover:text-blue-400 transition">
+                <a href="">Student Registration</a>
+              </li>
+              <li className="hover:text-blue-400 transition">
+                <a href="#admission">Admission & Registration</a>
+              </li>
+              <li className="hover:text-blue-400 transition">
+                <a href="">Teacher Registration</a>
+              </li>
+              <li className="hover:text-blue-400 transition">
+                <a href="#help">Help</a>
+              </li>
             </ul>
           </div>
+
+        
+        </div>
+        <div className="border-t border-gray-700 mt-8 pt-6 pb-6 text-center text-sm text-gray-400">
+          <p>&copy; 2026 LAHIBA Management System. All rights reserved. Manage by: Students Of Lahiba</p>
         </div>
       </footer>
     </div>

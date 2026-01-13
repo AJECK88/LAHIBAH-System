@@ -18,9 +18,7 @@ footer ul li{
   border-bottom: dotted ; 
   padding-bottom: .5rem; 
 }
-.Menu{
-  display: none;
-}
+
 .active{
   display: block;
 }
@@ -59,10 +57,10 @@ abbr {
 @media all and (max-width: 1024px) {
    header ul{
    position: absolute !important;
-   right: 0 !important;
    bottom: -250px;
+   height: fit-content !important;
+   width: 300px;
    background-color: #262323;
-   display: none;
    color: white;
    padding: 1rem;
    } 
