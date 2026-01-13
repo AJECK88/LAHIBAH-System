@@ -1,15 +1,9 @@
 import Image from 'next/image';
-import Pagination from '@/components/pagination'
 import Table from '@/components/table'
-import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import { examsData, role, subjectsData} from '@/lib/data';
-import { type } from 'os';
-import FormModel from '@/components/FormModel';
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
-import FormsContainer from '@/components/FormsContainer';
    type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
     const Columns = [
         {

@@ -3,7 +3,7 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import { examsData, resultsData, role,} from '@/lib/data';
+import { examsData, resultsData,} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
    type results = {
@@ -72,7 +72,7 @@ const  resultsListpage = () => {
                         <Link href={`/list/subjects/${result.id}`} className="text-blue-500">
                           <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/view.png" alt='' width={16} height={16} ></Image></button>
                         </Link>
-                  {role === "admin" && (
+                  {(
                           <button className='w-7 h-7 flex items-center justify-center rounded-full  bg-red-500'><Image src="/delete.png" alt='' width={16} height={16} ></Image></button>
                     )}
                     </div>

@@ -3,7 +3,9 @@ import Announcement from "@/components/Announcements";
 import BigCalendar from "@/components/TeacherBigCalelndar";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
-const StudentPage = async() => {
+const StudentPage = async(
+    
+) => {
     const AnnouncementData = await prisma.announcement.findMany({
  
   orderBy: {
