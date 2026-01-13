@@ -29,10 +29,10 @@ const Homepage = () => {
       <header className="w-full bg-white shadow-md sticky top-0 z-50">
         <nav className="flex justify-between items-center gap-4 w-100% min-w-fit lg:w-full max-w-7xl mx-auto px-4 py-4 ">
           <div className="border-2 border-blue-900 px-4 py-2 rounded font-bold text-xs sm:text-sm lg:text-lg">
-              <a className="text-blue-400 font-bold text-lg" href="/">
+              <Link className="text-blue-400 font-bold text-lg" href="/">
                 LAHIBA <span className="text-black">MANAGEMENT</span>
                 <span className="text-red-600"> SYSTEM</span>
-              </a>
+              </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -205,10 +205,10 @@ const Homepage = () => {
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <div>
-              <a className="text-blue-400 font-bold text-lg" href="/">
+              <Link className="text-blue-400 font-bold text-lg" href="/">
                 LAHIBA <span className="text-white">MANAGEMENT</span>
                 <span className="text-red-600"> SYSTEM</span>
-              </a>
+              </Link>
             </div>
             <p className="text-sm">LAHIBA INFORMATION MANAGEMENT SYSTEM</p>
             <div className="flex gap-4">
