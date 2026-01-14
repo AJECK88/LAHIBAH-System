@@ -4,6 +4,7 @@ import Image from "next/image"
 import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
+import CopyRight from "@/components/CopyRigt"
 
 const Homepage = () => {
   const [menuOpen, setMenuOpen] = React.useState(false)
@@ -260,9 +261,7 @@ const Homepage = () => {
 
         
         </div>
-        <div className="border-t border-gray-700 mt-8 pt-6 pb-6 text-center text-sm text-gray-400">
-          <p>&copy; 2026 LAHIBA Management System. All rights reserved. Manage by: Students Of Lahiba</p>
-        </div>
+       <CopyRight />
       </footer>
     </div>
   )
