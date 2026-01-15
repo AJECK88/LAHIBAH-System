@@ -2,6 +2,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
+import { d } from "node_modules/@clerk/elements/dist/step-MsK0UT__";
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
@@ -108,12 +109,138 @@ export const deletCourse = async(
          
       }) 
       
-   
+    // 3️⃣ Send welcome email with credentials
+    await fetch("http://localhost:3000/api/send-mail"
+, {
+method: "POST",
+headers: {
+  "Content-Type": "application/json",
+},
+body: JSON.stringify({
+  to: data.email,
+  subject: "Student Account details",
+  html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding:30px 0;">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+
+            <!-- School Logo -->
+            <tr>
+              <td align="center" style="padding:20px;">
+                <img
+                  src=""
+                  alt="School Logo"
+                  width="120"
+                  style="display:block;"
+                />
+              </td>
+            </tr>
+
+            <!-- Header -->
+            <tr>
+              <td style="padding:20px; text-align:center;">
+                <h2 style="margin:0; color:#1f2937;">
+                  Welcome to LAHIBA 🎓
+                </h2>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:20px; color:#374151; font-size:14px; line-height:1.6;">
+                <p>
+                  Dear <strong>${data.FirstName}</strong>,
+                </p>
+
+                <p>
+                  We are pleased to inform you that your student account has been successfully created.
+                  Below are your login details for the school portal:
+                </p>
+
+                <!-- Student Info -->
+                <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
+                  <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>${data.UserName}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Temporary Password:</strong></td>
+                    <td>${data.password}</td>
+                  </tr>
+                </table>
+
+                <p style="margin-top:20px;">
+                  For security reasons, please change your password after logging in for the first time.
+                </p>
+
+                <!-- Portal Button -->
+                <p style="text-align:center; margin:30px 0;">
+                  <a
+                    href="https://yourschoolwebsite.com/login"
+                    style="
+                      background:#0f766e;
+                      color:#ffffff;
+                      padding:12px 24px;
+                      text-decoration:none;
+                      border-radius:5px;
+                      font-weight:bold;
+                      display:inline-block;
+                    "
+                  >
+                    Access Student Portal
+                  </a>
+                </p>
+
+                <p>
+                  If you need any assistance, please contact the school administration.
+                </p>
+
+                <p>
+                  Kind regards,<br />
+                  <strong>School Administration</strong><br />
+                  Lahiba University
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:15px; background:#f1f5f9; text-align:center; font-size:12px; color:#6b7280;">
+                <p style="margin:0;">
+                  🌐 <a href="https://yourschoolwebsite.com" style="color:#0f766e; text-decoration:none;">
+                    www.yourschoolwebsite.com
+                  </a>
+                </p>
+                <p style="margin:5px 0 0;">
+                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                </p>
+                <p style="margin:5px 0 0;">
+                  © 2026 Your School Name. All rights reserved.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `,
+})
+
+});
 
        return { successMessage:true , errorMessage:false };
     }
     catch(error){
+
        return { successMessage:false , errorMessage:true };
+      
     }
  }
  export const deleteStudent = async(
@@ -218,6 +345,131 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          }
          
       }) 
+          // 3️⃣ Send welcome email with credentials
+    await fetch("http://localhost:3000/api/send-mail"
+, {
+method: "POST",
+headers: {
+  "Content-Type": "application/json",
+},
+body: JSON.stringify({
+  to: data.email,
+  subject: "Teacher Account details",
+  html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding:30px 0;">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+
+            <!-- School Logo -->
+            <tr>
+              <td align="center" style="padding:20px;">
+                <img
+                  src=""
+                  alt="School Logo"
+                  width="120"
+                  style="display:block;"
+                />
+              </td>
+            </tr>
+
+            <!-- Header -->
+            <tr>
+              <td style="padding:20px; text-align:center;">
+                <h2 style="margin:0; color:#1f2937;">
+                  Welcome to LAHIBA 🎓
+                </h2>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:20px; color:#374151; font-size:14px; line-height:1.6;">
+                <p>
+                  Dear <strong>${data.FirstName}</strong>,
+                </p>
+
+                <p>
+                  We are pleased to inform you that your teacher account has been successfully created.
+                  Below are your login details for the school portal:
+                </p>
+
+                <!-- Student Info -->
+                <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
+                  <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>${data.UserName}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Temporary Password:</strong></td>
+                    <td>${data.password}</td>
+                  </tr>
+                </table>
+
+                <p style="margin-top:20px;">
+                  For security reasons, please change your password after logging in for the first time.
+                </p>
+
+                <!-- Portal Button -->
+                <p style="text-align:center; margin:30px 0;">
+                  <a
+                    href="https://yourschoolwebsite.com/login"
+                    style="
+                      background:#0f766e;
+                      color:#ffffff;
+                      padding:12px 24px;
+                      text-decoration:none;
+                      border-radius:5px;
+                      font-weight:bold;
+                      display:inline-block;
+                    "
+                  >
+                    Access Teacher Portal
+                  </a>
+                </p>
+
+                <p>
+                  If you need any assistance, please contact the school administration.
+                </p>
+
+                <p>
+                  Kind regards,<br />
+                  <strong>School Administration</strong><br />
+                  Lahiba University
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:15px; background:#f1f5f9; text-align:center; font-size:12px; color:#6b7280;">
+                <p style="margin:0;">
+                  🌐 <a href="https://yourschoolwebsite.com" style="color:#0f766e; text-decoration:none;">
+                    www.yourschoolwebsite.com
+                  </a>
+                </p>
+                <p style="margin:5px 0 0;">
+                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                </p>
+                <p style="margin:5px 0 0;">
+                  © 2026 Your School Name. All rights reserved.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `,
+})
+
+});
        return { successMessage:true , errorMessage:false };
     }
        catch(error){ 
@@ -331,6 +583,131 @@ export const deleteTeacher = async(
           }
         }
       })
+          // 3️⃣ Send welcome email with credentials
+    await fetch("http://localhost:3000/api/send-mail"
+, {
+method: "POST",
+headers: {
+  "Content-Type": "application/json",
+},
+body: JSON.stringify({
+  to: data.email,
+  subject: "Parent Account details",
+  html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding:30px 0;">
+          <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
+
+            <!-- School Logo -->
+            <tr>
+              <td align="center" style="padding:20px;">
+                <img
+                  src=""
+                  alt="School Logo"
+                  width="120"
+                  style="display:block;"
+                />
+              </td>
+            </tr>
+
+            <!-- Header -->
+            <tr>
+              <td style="padding:20px; text-align:center;">
+                <h2 style="margin:0; color:#1f2937;">
+                  Welcome to LAHIBA 🎓
+                </h2>
+              </td>
+            </tr>
+
+            <!-- Body -->
+            <tr>
+              <td style="padding:20px; color:#374151; font-size:14px; line-height:1.6;">
+                <p>
+                  Dear <strong>${data.FirstName}</strong>,
+                </p>
+
+                <p>
+                  We are pleased to inform you that your Parent account has been successfully created.
+                  Below are your login details for the school portal:
+                </p>
+
+                <!-- Student Info -->
+                <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
+                  <tr>
+                    <td><strong>Username:</strong></td>
+                    <td>${data.UserName}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Temporary Password:</strong></td>
+                    <td>${data.password}</td>
+                  </tr>
+                </table>
+
+                <p style="margin-top:20px;">
+                  For security reasons, please change your password after logging in for the first time.
+                </p>
+
+                <!-- Portal Button -->
+                <p style="text-align:center; margin:30px 0;">
+                  <a
+                    href="https://yourschoolwebsite.com/login"
+                    style="
+                      background:#0f766e;
+                      color:#ffffff;
+                      padding:12px 24px;
+                      text-decoration:none;
+                      border-radius:5px;
+                      font-weight:bold;
+                      display:inline-block;
+                    "
+                  >
+                    Access Student Portal
+                  </a>
+                </p>
+
+                <p>
+                  If you need any assistance, please contact the school administration.
+                </p>
+
+                <p>
+                  Kind regards,<br />
+                  <strong>School Administration</strong><br />
+                  Lahiba University
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding:15px; background:#f1f5f9; text-align:center; font-size:12px; color:#6b7280;">
+                <p style="margin:0;">
+                  🌐 <a href="https://yourschoolwebsite.com" style="color:#0f766e; text-decoration:none;">
+                    www.yourschoolwebsite.com
+                  </a>
+                </p>
+                <p style="margin:5px 0 0;">
+                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                </p>
+                <p style="margin:5px 0 0;">
+                  © 2026 Your School Name. All rights reserved.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `,
+})
+
+});
       return { successMessage:true , errorMessage:false };
     } catch(error){
       console.log(error +" << error from creating parent ");

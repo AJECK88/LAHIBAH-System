@@ -1,5 +1,4 @@
-import { broadcast } from "server/ws";
-import { id } from "zod/locales";
+import { broadcast } from "@/lib/ws";
 
 export async function POST(req) {
   try {
@@ -21,7 +20,7 @@ export async function POST(req) {
       title,
       date,
       time,
-      id: id, // Add unique identifier
+      id, // Add unique identifier
     };
 
     // Broadcast full announcement object
