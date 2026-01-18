@@ -238,7 +238,7 @@ body: JSON.stringify({
        return { successMessage:true , errorMessage:false };
     }
     catch(error){
-
+      console.log(error +" << error from creating student ");
        return { successMessage:false , errorMessage:true };
       
     }
@@ -632,7 +632,7 @@ body: JSON.stringify({
 
                 <p>
                   We are pleased to inform you that your Parent account has been successfully created.
-                  Below are your login details for the school portal:
+                  Below are your login details for the school portal, where you can monitor your child's academic progress:
                 </p>
 
                 <!-- Student Info -->
@@ -665,7 +665,7 @@ body: JSON.stringify({
                       display:inline-block;
                     "
                   >
-                    Access Student Portal
+                    Access Parent Portal
                   </a>
                 </p>
 
@@ -710,7 +710,6 @@ body: JSON.stringify({
 });
       return { successMessage:true , errorMessage:false };
     } catch(error){
-      console.log(error +" << error from creating parent ");
       return { successMessage:false , errorMessage:true     
        } 
   }
