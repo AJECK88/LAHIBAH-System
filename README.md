@@ -1,7 +1,60 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Next.js Application
+
+This is a modern web application built with **Next.js**, bootstrapped using
+[`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+The project uses the **App Router**, optimized fonts, and best practices for
+performance, SEO, and developer experience.
+
+---
+
+## About the Project
+
+This application is a role-based platform designed to support multiple user
+types, including **Admin**, **Teacher**, and **Student**. Each role has access
+to its own dashboard and features.
+
+---
+
+## Features
+
+- ⚡ Next.js App Router
+- 🔐 Role-based access (Admin, Teacher, Student)
+- 🎨 Optimized fonts using `next/font` (Geist)
+- 📁 File-based routing
+- 🔥 Fast refresh during development
+- 🌐 SEO-friendly by default
+- 🚀  deployed on Vercel
+---
+
+## Tech Stack
+
+- **Framework:** Next.js
+- **Language:** JavaScript
+- **Styling:** CSS / CSS Modules and Tailwind
+- **Fonts:** next/font (Geist)
+- **Package Managers:** npm, yarn, pnpm, or bun
+- **Deployment:** Vercel
+
+---
+
+## Screenshots
+
+### Home Page
+![Home Page](public/screenshots/home.png)
+
+### Admin Dashboard
+![Admin Dashboard](public/screenshots/admin-dashboard.png)
+
+### Teacher Dashboard
+![Teacher Dashboard](public/screenshots/teacher-dashboard.png)
+
+### Student Dashboard
+![Student Dashboard](public/screenshots/student-dashboard.png)
+
+---
 
 ## Getting Started
-
 First, run the development server:
 
 ```bash
@@ -14,23 +67,18 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 18.17 or later
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Clone the repository and install dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Netlify
-
-The easiest way to deploy your Next.js app is to use the [Netlify planform ](https://app.netlify.com) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+git clone https://github.com/your-username/your-repo-name.git
+cd your-repo-name
+npm install
