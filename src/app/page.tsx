@@ -122,8 +122,8 @@ const Homepage = () => {
               </ol>
               <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
                 Submit documents to the Admissions Office (Room 1, Central Administrative Block). Provisional admission pending file review. Contact{" "}
-                <a className="text-blue-600 underline" href="mailto:example@mail.com">
-                  example@mail.com
+                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                  info@laureateinstitute.com
                 </a>
                 {" "}or visit{" "}
                 <a
@@ -214,19 +214,19 @@ const Homepage = () => {
             <p className="text-sm">LAHIBA INFORMATION MANAGEMENT SYSTEM</p>
             <div className="flex gap-4">
               <a
-                href=""
+                href="https://www.facebook.com/profile.php?id=100063757374130"
                 className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
               >
                 <Image src="/facebook.png" width={20} height={20} alt="facebook" />
               </a>
               <a
-                href=""
+                href="https://www.tiktok.com/@lahibauniversity?_r=1&_t=ZM-93BTtV3Mrgh"
                 className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
               >
                 <Image src="/tiktok.png" width={20} height={20} alt="tiktok" />
               </a>
               <a
-                href=""
+                href="mailto:info@laureateinstitute.com"
                 className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
               >
                 <Image src="/mail.png" width={20} height={20} alt="mail" />
@@ -238,8 +238,8 @@ const Homepage = () => {
           <div>
             <h3 className="text-lg font-bold text-white mb-4">Information</h3>
             <div> <h1 className="text-2xl">Information</h1> <div className="flex flex-row"> 
-              <div className="w-[20%] h-[5px] bg-white"></div> 
-            <div className="w-[80%] h-[5px] bg-[#271288]"></div> </div> </div>
+              <div className="w-[30%] h-[5px] bg-white"></div> 
+            <div className="w-[70%] h-[5px] bg-[#271288]"></div> </div> </div>
             <ul className="space-y-3 text-xl">
               <li className="hover:text-blue-400 pt-2 transition">
                 <a href="#about">About Us</a>
