@@ -5,6 +5,7 @@ import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import CopyRight from "@/components/CopyRigt"
+import MetaHead from "@/components/Metahead"
 
 const Homepage = () => {
   const [menuOpen, setMenuOpen] = React.useState(false)
@@ -26,6 +27,8 @@ const Homepage = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Meta Head */}
+      <MetaHead />
       {/* Header */}
       <header className="w-full bg-white shadow-md sticky top-0 z-50">
         <nav className="flex justify-between items-center gap-4 w-100% min-w-fit lg:w-full max-w-7xl mx-auto px-4 py-4 ">
