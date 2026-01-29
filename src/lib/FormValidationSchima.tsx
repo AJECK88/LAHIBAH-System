@@ -34,13 +34,15 @@ import { max } from "moment";
            age: z.string().min(2, { message: 'Age must be at least 16' }),
            MatriculeNo:z.string(),
            department :z.string()
-          .min(1, {message:"Department is requird"}),
+          .min(1, {message:"Department is required"}),
            Address:z.string()
            .min(5, { message: 'Address must be at least 5 characters long' })
            .max(15, { message: 'Address must be at most 15 characters long' }),
            dateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), {
            message: "Invalid date",
+           
   }),
+          level:z.string().min(1,{message:'Student level is required'}),
         
             id :z.string().optional()
        })
@@ -112,7 +114,7 @@ import { max } from "moment";
      export  const departmentschema = z.object({
           DepartmentName: z.string()
           .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(20, { message: 'Name must be at most 20 characters long' }),
+          .max(30, { message: 'Name must not be  at most 20 characters long' }),
            Supervisor: z.string().optional(),
            id:z.string().optional(),
          })

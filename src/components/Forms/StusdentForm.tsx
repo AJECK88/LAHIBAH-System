@@ -21,10 +21,12 @@ const StudentsForms = ({
   data,
   SetOpen,
   relatedData,
+  relatedData2,
 }: {
   type: "Create" | "Update";
    data?: any ,
    relatedData?:any;
+   relatedData2?:any;
   SetOpen: Dispatch<SetStateAction<boolean>>
  
 })=> { 
@@ -92,6 +94,8 @@ const onSubmit = handleSubmit((formData) => {
    *  Extract department list from relatedData (fallback to empty)
    */
   const departments = relatedData?.departments ?? [];
+  const levels = relatedData2?.level ?? [];
+  console.log("Levels data:", levels);
     /* || Updating the form default when editing data changes */
       useEffect(()=>{
  
@@ -269,13 +273,7 @@ const onSubmit = handleSubmit((formData) => {
           label="Age"
           Placeholder="Age"
         />
-       {/*  || updating default date */}
-      {type === "Update" && (
-  <input type="hidden" {...register("id")} value={data?.id} />
-)}
-        {/* Department + Image Upload Section */}
-        <div className="flex flex-col lg:col-start-3 w-full">
-          {/* Department Select */}
+         {/* Department Select */}
           <div className="flex flex-col w-full">
             <label htmlFor="department">Department</label>
             <select
@@ -301,9 +299,39 @@ const onSubmit = handleSubmit((formData) => {
             )}
 
         </div>
-    
+           {/*Level select*/}
+          <div className="flex flex-col w-full">
+            <label htmlFor="level">Level</label>
+            <select
+              id="level"
+              {...register("level")}
+              className="h-10 border-2 border-amber-100 w-full p-2"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select level
+              </option>
+              {levels.map((d: any) => (
+                <option key={d.id} value={d.id}>
+                  {d.LevelName}
+                </option>
+              ))}
+            </select>
+
+            {errors.level && (
+              <span className="text-sm text-red-500">
+                {errors.level.message}
+              </span>
+            )}
+
+        </div>
+       {/*  || updating default date */}
+      {type === "Update" && (
+  <input type="hidden" {...register("id")} value={data?.id} />
+)}
+        {/* level + Image Upload Section */}
+        <div className="flex flex-col lg:col-start-3 items-center  w-full">
           {/* Image Upload */}
-         
           <div>
             <label
               htmlFor="image"

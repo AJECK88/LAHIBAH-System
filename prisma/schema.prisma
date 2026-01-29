@@ -19,21 +19,22 @@ model Admin {
 }
 
 model Department {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  supervisorId  String?
-  supervisor    Teacher? @relation("DepartmentSupervisor", fields: [supervisorId], references: [id] ,onDelete: SetNull)
-  subjects      Subject[]
-  students      Student[]
-  announcements Announcement[]
-  events        Event[]
+  id              String           @id @default(cuid())
+  name            String           @unique
+  supervisorId    String?
+  supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  subjects        Subject[]
+  students        Student[]
+  announcements   Announcement[]
+  events          Event[]
+  examDepartments ExamDepartment[]
+  exam            Exam?            @relation(fields: [examId], references: [id])
+  examId          Int?
 }
 
 model Grade {
-  id   String @id @default(cuid())
-  name String @unique
-
-  students Student[]
+  id       String    @id @default(cuid())
+  name     String    @unique
   subjects Subject[]
 }
 
@@ -41,10 +42,9 @@ model Subject {
   id           Int     @id @default(autoincrement())
   name         String  @unique
   gradeId      String?
-  departmentId String?
 
   grade      Grade?      @relation(fields: [gradeId], references: [id])
-  department Department? @relation(fields: [departmentId], references: [id])
+  department Department[]
 
   assignments Assignment[]
   attendance  Attendance[]
@@ -71,11 +71,12 @@ model Student {
   parentId     String?
   departmentId String
   gradeId      String?
-  matricule    String?
+  levelId      Int
+  matricule    String? @unique
   DateOfBirth  DateTime?
   department   Department @relation(fields: [departmentId], references: [id])
-  grade        Grade?     @relation(fields: [gradeId], references: [id])
   parent       Parent?    @relation(fields: [parentId], references: [id])
+  level        Level      @relation( fields: [levelId], references: [id])
 
   attendance Attendance[]
   fees       Fee[]
@@ -83,21 +84,28 @@ model Student {
   courses    Subject[]
 }
 
+model Level {
+   id        Int  @id @default(autoincrement())
+   LevelName  String @unique
+   student   Student[]
+   exam     Exam[]
+   
+}
 model Teacher {
-  id          String  @id @default(cuid())
-  username    String  @unique
-  email       String  @unique
+  id          String       @id @default(cuid())
+  username    String       @unique
+  email       String       @unique
   address     String
   bloodGroup  String?
-  phoneNumber String  @unique
+  phoneNumber String       @unique
   firstName   String
   lastName    String
   sex         Usersex
   image       String?
-  teachersId  String  @unique
+  teachersId  String       @unique
   DateOfBirth DateTime?
-  courses    Subject[]
-  department Department[] @relation("DepartmentSupervisor")
+  courses     Subject[]
+  department  Department[] @relation("DepartmentSupervisor")
 }
 
 model Parent {
@@ -114,11 +122,11 @@ model Parent {
 }
 
 model Classroom {
-  id       String @id @default(cuid())
-  name     String @unique
+  id       String  @id @default(cuid())
+  name     String  @unique
   courseId Int
-
-  course Subject @relation(fields: [courseId], references: [id])
+  exams    Exam[]
+  course   Subject[]
 }
 
 model Event {
@@ -133,15 +141,31 @@ model Event {
 }
 
 model Exam {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  title     String
-  startDate DateTime
-  endDate   DateTime
-  courseId  Int
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  title           String
+  startDate       DateTime
+  endDate         DateTime
+  courseId        Int
+  ClassRoomId     String
+  DepartmentId    String
+  classroom       Classroom        @relation(fields: [ClassRoomId], references: [id])
+  depertment      Department[]
+  course          Subject          @relation(fields: [courseId], references: [id])
+  levelId   Int
+  level       Level @relation( fields: [levelId], references: [id])
+  results         Result[]
+  examDepartments ExamDepartment[]
+}
 
-  course  Subject  @relation(fields: [courseId], references: [id])
-  results Result[]
+model ExamDepartment {
+  examId       Int
+  departmentId String
+
+  exam       Exam       @relation(fields: [examId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
+
+  @@id([examId, departmentId]) // composite PK
 }
 
 model Attendance {
@@ -168,8 +192,9 @@ model Assignment {
 
 model Result {
   id        Int      @id @default(autoincrement())
-  marks     Float
-  grade     String
+  CA        Int
+  Exam      Int
+  total     Int
   date      DateTime
   studentId String
   courseId  Int
@@ -178,6 +203,7 @@ model Result {
   course  Subject @relation(fields: [courseId], references: [id])
   exam    Exam?   @relation(fields: [examId], references: [id])
   student Student @relation(fields: [studentId], references: [id])
+   @@unique([studentId, courseId])
 }
 
 model Timetable {
@@ -218,7 +244,7 @@ model Fee {
 model Announcement {
   id           String   @id @default(cuid())
   title        String
-  message      String @db.Text
+  message      String   @db.Text
   date         DateTime @default(now())
   departmentId String?
 

@@ -54,13 +54,13 @@ const deletActionMap: Record<
         const LessonForm = dynamic( () => import('@/components/Forms/LessonForm'))
 
       const Forms:{
-            [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any)=>JSX.Element;
+            [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any , relatedData2?:any)=>JSX.Element;
  } = { 
        Teacher: ( SetOpen, type, data , relatedData) => (
        <TeachersForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData}/>
        ),
-       Student: ( SetOpen,type, data , relatedData) => (
-      <StudentsForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData} />
+       Student: ( SetOpen,type, data , relatedData , relatedData2) => (
+      <StudentsForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2}/>
        ),
        Parent: ( SetOpen,type, data , relatedData) =>(
       <ParentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
@@ -80,8 +80,9 @@ const deletActionMap: Record<
 
  }
 
-      
-      const FormModel = ({type ,table, data, id , relatedData }:FormsContainerProps & {relatedData?:any}) => {
+
+
+      const FormModel = ({type ,table, data, id , relatedData, relatedData2 }:FormsContainerProps & {relatedData?:any , relatedData2?:any}) => {
       const size = type === "Create" ? "w-8 h-8" : "w-8 h-8"
       const bgColor =
       type === "Create" ? "bg-green-100" :
@@ -141,7 +142,7 @@ const deletActionMap: Record<
       </div>
 
       </form>
-      ): Forms[table]( SetOpen ,type, data, relatedData)
+      ): Forms[table]( SetOpen ,type, data, relatedData , relatedData2);
 
       }
   
