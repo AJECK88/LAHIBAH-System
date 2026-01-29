@@ -110,7 +110,7 @@ const  StudentListpage = async({
               where:query,
             include:{
                 department:true,
-                grade:true
+             
                    
             }, 
              take:Items_Per_Page,

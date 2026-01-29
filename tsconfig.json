@@ -37,7 +37,7 @@
     "src",
     ".next/types/**/*.ts",
     "src/middleware.ts"
-, "src/app/server", "api"  ],
+, "src/app/server", "api", "prisma/seedResult.js"  ],
   "exclude": [
     "node_modules",
     ".next",

@@ -22,11 +22,13 @@ export type FormsContainerProps =  {
   }
 const FormsContainer = async( {
     table,
-    type ,
+    type,
     data,
     id
 }: FormsContainerProps)=>{
    let relatedData ={};
+   let relatedData2 = {};
+
 
    if(type !== "Delete"){
     switch(table){
@@ -41,7 +43,15 @@ const FormsContainer = async( {
             }
           )
            relatedData={departments:StudentDepartmant}
+           const levels = await prisma.level.findMany(
+            {
+              select:{
+                id:true,
+                LevelName:true,
+              }
+            })
             
+            relatedData2={level:levels}
         break;
         case "Course" :
           const SubjectTeachers =  await prisma.teacher.findMany(
@@ -103,7 +113,7 @@ const FormsContainer = async( {
    }
   }
      return (
-       <div><FormModel  data={data} type={type} id={id} table={table} relatedData = {relatedData}/></div>
+       <div><FormModel  data={data} type={type} id={id} table={table} relatedData = {relatedData} relatedData2={relatedData2}/></div>
      )
 }
 export default FormsContainer

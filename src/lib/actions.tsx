@@ -103,8 +103,10 @@ export const deletCourse = async(
          id:clerkId.id,
          department:{
            connect:{id:data.department}
-         } 
-         
+         }, 
+         level:{ 
+            connect:{id:Number(data.level)}
+         }
          }
          
       }) 
@@ -239,6 +241,7 @@ body: JSON.stringify({
     }
     catch(error){
       console.log(error +" << error from creating student ");
+      console.log(data.level +" << level data ");
        return { successMessage:false , errorMessage:true };
       
     }
