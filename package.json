@@ -17,6 +17,7 @@
     "@prisma/client": "^6.17.1",
     "@types/react-big-calendar": "^1.16.2",
     "moment": "^2.30.1",
+    "multer": "^2.0.2",
     "next": "^15.5.9",
     "nodemailer": "^7.0.12",
     "prompt-sync": "^4.2.0",

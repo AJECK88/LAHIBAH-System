@@ -142,12 +142,13 @@ model Event {
 
 model Exam {
   id              Int              @id @default(autoincrement())
-  name            String           @unique
+  name            String           @unique       
   title           String
   startDate       DateTime
   endDate         DateTime
   courseId        Int
   ClassRoomId     String
+  schoolYear      String
   DepartmentId    String
   classroom       Classroom        @relation(fields: [ClassRoomId], references: [id])
   depertment      Department[]
@@ -162,7 +163,7 @@ model ExamDepartment {
   examId       Int
   departmentId String
 
-  exam       Exam       @relation(fields: [examId], references: [id])
+  exam       Exam       @relation(fields: [examId], references: [id] , onDelete: Cascade)
   department Department @relation(fields: [departmentId], references: [id])
 
   @@id([examId, departmentId]) // composite PK
@@ -201,7 +202,7 @@ model Result {
   examId    Int?
 
   course  Subject @relation(fields: [courseId], references: [id])
-  exam    Exam?   @relation(fields: [examId], references: [id])
+  exam    Exam?   @relation(fields: [examId], references: [id] , onDelete: SetNull)
   student Student @relation(fields: [studentId], references: [id])
    @@unique([studentId, courseId])
 }

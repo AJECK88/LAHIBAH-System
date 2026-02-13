@@ -4,6 +4,8 @@ import Table from '@/components/table'
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
+import SeedfileInput from '@/components/SeedfileInput';
+import { UploadExam } from '@/app/api/seeds/exams/upload/route';
    type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
     const Columns = [
         {
@@ -93,7 +95,7 @@ const  ExamListpage = async(
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>PDF</button>
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>Excel</button>
                 </div>
-                <div className=''><TablesearchBar/>
+                <div className=''><SeedfileInput/>
                 </div>
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>

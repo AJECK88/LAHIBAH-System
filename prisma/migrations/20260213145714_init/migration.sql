@@ -61,6 +61,7 @@ CREATE TABLE `Student` (
     UNIQUE INDEX `Student_username_key`(`username`),
     UNIQUE INDEX `Student_email_key`(`email`),
     UNIQUE INDEX `Student_phoneNumber_key`(`phoneNumber`),
+    UNIQUE INDEX `Student_matricule_key`(`matricule`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -69,6 +70,7 @@ CREATE TABLE `Level` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `LevelName` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `Level_LevelName_key`(`LevelName`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -143,6 +145,7 @@ CREATE TABLE `Exam` (
     `endDate` DATETIME(3) NOT NULL,
     `courseId` INTEGER NOT NULL,
     `ClassRoomId` VARCHAR(191) NOT NULL,
+    `schoolYear` VARCHAR(191) NOT NULL,
     `DepartmentId` VARCHAR(191) NOT NULL,
     `levelId` INTEGER NOT NULL,
 
@@ -192,6 +195,7 @@ CREATE TABLE `Result` (
     `courseId` INTEGER NOT NULL,
     `examId` INTEGER NULL,
 
+    UNIQUE INDEX `Result_studentId_courseId_key`(`studentId`, `courseId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -316,7 +320,7 @@ ALTER TABLE `Exam` ADD CONSTRAINT `Exam_courseId_fkey` FOREIGN KEY (`courseId`) 
 ALTER TABLE `Exam` ADD CONSTRAINT `Exam_levelId_fkey` FOREIGN KEY (`levelId`) REFERENCES `Level`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ExamDepartment` ADD CONSTRAINT `ExamDepartment_examId_fkey` FOREIGN KEY (`examId`) REFERENCES `Exam`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `ExamDepartment` ADD CONSTRAINT `ExamDepartment_examId_fkey` FOREIGN KEY (`examId`) REFERENCES `Exam`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ExamDepartment` ADD CONSTRAINT `ExamDepartment_departmentId_fkey` FOREIGN KEY (`departmentId`) REFERENCES `Department`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
