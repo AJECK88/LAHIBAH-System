@@ -23,7 +23,7 @@ import Image from "next/image";
       id:4,
       time:"12 : 00 AM - 02:60 PM",
       Tile:"Student Party",
-      discription : "student meating for mortivation and growth"
+      discription : "student meating for motivation and growth"
      }
   ]
  const  EventCalendar = () =>{
