@@ -95,7 +95,7 @@ const  ExamListpage = async(
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>PDF</button>
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>Excel</button>
                 </div>
-                <div className=''><SeedfileInput/>
+                <div className=''><SeedfileInput type='Exam'/>
                 </div>
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
