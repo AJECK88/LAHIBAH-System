@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { examsData, resultsData,} from '@/lib/data';
 import React from 'react';
 import { R } from 'node_modules/@clerk/elements/dist/index-BT_Jj2MC.mjs';
+import SeedfileInput from '@/components/Forms/SeedfileInput';
    type results = {
         id: string;
         subject: string;
@@ -14,45 +15,7 @@ import { R } from 'node_modules/@clerk/elements/dist/index-BT_Jj2MC.mjs';
         score?: number;
         date: string;
        
-    }
-    const Columns = [
-        {
-            header:"Students name",
-            accessorKey:"id"
-        },
-      
-   
-            {
-                header:"level",
-                accessorKey:"level",
-                className: "hidden md:table-cell"
-            },
-
-            {
-                header:"Score",
-                accessorKey:"score",
-                className: "hidden md:table-cell"
-            },
-
-        {
-
-            header:"Date",
-            accessorKey:"date",
-            className: ""
-        },
-             {
-            header:"Teacher",
-            accessorKey:"teacher",
-            className: "hidden md:table-cell"
-            
-        },
-    {
-            header:"Actions",
-            accessorKey:"actions",
-            className: "hidden md:table-cell"
-            
-        }
-    ]
+   }
     const results = [
   {Levels:100, 
  deperments: [ 
@@ -1323,6 +1286,7 @@ const  resultsListpage = () => {
                 <h1 className='hidden md:block  text-lg font-semibold'>Results</h1>
                 <div className=''><TablesearchBar/>
                 </div>
+                <SeedfileInput type="Result" />
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>

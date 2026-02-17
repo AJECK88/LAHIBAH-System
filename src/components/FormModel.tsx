@@ -6,8 +6,6 @@ import { deletCourse, DeleteAnnouncement, DeleteDepartment, deleteParent, delete
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { FormsContainerProps } from "./FormsContainer";
-import { d } from "node_modules/@clerk/elements/dist/step-MsK0UT__";
-import { de } from "zod/v4/locales";
 const deletActionMap: Record<
   | "Teacher"
   | "Student"

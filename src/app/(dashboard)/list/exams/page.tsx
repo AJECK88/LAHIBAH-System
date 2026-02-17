@@ -4,8 +4,9 @@ import Table from '@/components/table'
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
-import SeedfileInput from '@/components/SeedfileInput';
+import SeedfileInput from '@/components/Forms/SeedfileInput';
 import { UploadExam } from '@/app/api/seeds/exams/upload/route';
+import ExamForm from '@/components/Forms/QUERYDB/ExamQuery';
    type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
     const Columns = [
         {
@@ -90,12 +91,17 @@ const  ExamListpage = async(
             {/* || top section */}
             <div className='flex md:flex  text-lg font-semibold bg-gray-300 h-12 items-center border-white'><h1 className='bg-white flex items-center h-full p-4 border-3 border-t-blue-500 border-r-blue-500  border-b-white border-l-white'>All Exams</h1></div> <br />
             <div className="flex flex-col md:flex-row gap-4  items-center md:w-auto justify-between">
-             
+                 <div className='flex flex-col' >
                 <div className="flex gap-2">
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>PDF</button>
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>Excel</button>
                 </div>
-                <div className=''><SeedfileInput type='Exam'/>
+                <SeedfileInput type='Exam'/>
+                </div>
+                <div className=''>
+                    
+                    <ExamForm />
+                            
                 </div>
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>

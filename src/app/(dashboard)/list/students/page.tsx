@@ -140,7 +140,7 @@ const  StudentListpage = async({
                      </div>
             </div>
             {/* || List  */}
-            <div className={`${count==0?' flex items-center justify-center mt-4 h-[90vh]':""}`}>
+            <div className={`${count==0?' flex items-center justify-center mt-4 h-[90vh] text-center':""}`}>
              {count!==0 ? <Table columns={Columns} renderRow ={renderRow} data={studentData} />
               :<NoResultFound 
                Result='Student not Found !! please Input the right Name'/>
