@@ -64,7 +64,7 @@ abbr {
    color: white;
    padding: 1rem;
    } 
-   ul li{
+ header ul li{
       margin: 0.5rem 0;
       font-size: 1.2rem;
       border-bottom: solid white 1px;
