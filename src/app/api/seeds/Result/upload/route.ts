@@ -42,10 +42,6 @@ const data = Rowdata
 
 // Build subject column map
 const subject: { name: string; startIndex: number }[] = [];
-console.log("Subject Row:", subjectRow);
-console.log("SubHeader Row:", subHeaderRow);
-console.log("Data Rows:", data.length);
-
 for (let i = 2; i < subjectRow.length; i++) {
   if (subjectRow[i]) {
     subject.push({

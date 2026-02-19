@@ -63,6 +63,7 @@ useEffect(() => {
 </form>
 
 { Notisfication &&
+  <div className="absolute inset-0 bg-black/60 z-50 flex justify-center p-2 items-center overflow-scroll">
   <div className=" mt-8 flex absolute h-50 w-70  bg-gray-100  items-center justify-center rounded-md p-2 flex-col gap-2">
     <button className="text-red-500 absolute top-2 right-2" onClick={() => setNotisfication(false)}><Image src="/close.png" width={10} height={10} alt="exit"color="red" /></button>
     <span className="text-lg font-semibold text-gray-800">Processing {type} file...</span>
@@ -85,9 +86,10 @@ useEffect(() => {
       </p>
     )}            
 </div>
-  
+
   }
 
+</div>
 </div>
 }
  </div>

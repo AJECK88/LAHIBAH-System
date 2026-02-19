@@ -158,7 +158,7 @@ const deletActionMap: Record<
       </button>
       }
       {open && (
-      <div className="absolute inset-0 bg-black/60 z-50 flex justify-center p-2 items-center overflow-scroll">
+      <div className="absolute inset-0">
       {/* Modal */}
       <div className="relative bg-white p-4 rounded w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] 2xl:w-[40%] m-auto">
       <Form data={data} />
