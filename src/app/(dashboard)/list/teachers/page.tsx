@@ -147,7 +147,7 @@ include:{
                      </div>
             </div>
             {/* || List  */}
-            <div className={`${count== 0?' flex items-center justify-center mt-4 h-[90vh]':""}`}>
+            <div className={`${count== 0?' flex items-center text-center justify-center mt-4 h-[90vh]':""}`}>
            { count !==0? <Table columns={Columns} renderRow={renderRow} data={teachers} />
           :<NoResultFound Result='Teacher not Found !! please Input the right Name'/> 
         }
