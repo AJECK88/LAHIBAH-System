@@ -2,6 +2,8 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
+import { sendMail } from "@/app/api/send-mail/route";
+import { Sen } from "next/font/google";
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
@@ -111,13 +113,7 @@ export const deletCourse = async(
       }) 
       
     // 3️⃣ Send welcome email with credentials
-    await fetch("http://localhost:3000/api/send-mail"
-, {
-method: "POST",
-headers: {
-  "Content-Type": "application/json",
-},
-body: JSON.stringify({
+    await sendMail({
   to: data.email,
   subject: "Student Account details",
   html: `
@@ -234,7 +230,7 @@ body: JSON.stringify({
   `,
 })
 
-});
+
 
        return { successMessage:true , errorMessage:false };
     }
@@ -348,13 +344,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          
       }) 
           // 3️⃣ Send welcome email with credentials
-    await fetch("http://localhost:3000/api/send-mail"
-, {
-method: "POST",
-headers: {
-  "Content-Type": "application/json",
-},
-body: JSON.stringify({
+    await sendMail({
   to: data.email,
   subject: "Teacher Account details",
   html: `
@@ -470,8 +460,6 @@ body: JSON.stringify({
 </html>
   `,
 })
-
-});
        return { successMessage:true , errorMessage:false };
     }
        catch(error){ 
@@ -586,13 +574,7 @@ export const deleteTeacher = async(
         }
       })
           // 3️⃣ Send welcome email with credentials
-    await fetch("http://localhost:3000/api/send-mail"
-, {
-method: "POST",
-headers: {
-  "Content-Type": "application/json",
-},
-body: JSON.stringify({
+    await sendMail({
   to: data.email,
   subject: "Parent Account details",
   html: `
@@ -708,8 +690,6 @@ body: JSON.stringify({
 </html>
   `,
 })
-
-});
       return { successMessage:true , errorMessage:false };
     } catch(error){
       return { successMessage:false , errorMessage:true     
