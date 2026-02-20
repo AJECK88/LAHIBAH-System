@@ -2,7 +2,6 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
-import { d } from "node_modules/@clerk/elements/dist/step-MsK0UT__";
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
