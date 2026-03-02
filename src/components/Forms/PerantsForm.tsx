@@ -54,9 +54,7 @@ import { useRouter } from "next/navigation";
             useEffect(()=>{
           if (type === "Update" && data) {
               reset({ 
-                UserName: data.username ,
                 email: data.email,
-                password: data.password ,
                 FirstName: data.firstName,
                 LastName: data.lastName,
                 phoneNumber: data.phoneNumber,
@@ -79,15 +77,6 @@ import { useRouter } from "next/navigation";
           {/* Top */}
           <h2 className="text-gray-500 self-start tex-sm font-semibold">Authentification info</h2>
           <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
-
-          < Input 
-          type="text" 
-          name="UserName" 
-          id="UserName"
-          register={register}
-            errors={ errors.UserName} 
-            label="UserName"
-            Placeholder="Enter username"/>
           < Input
             type="email"
             id="email"
@@ -96,16 +85,6 @@ import { useRouter } from "next/navigation";
             errors={ errors.email}
             label="Email"
             Placeholder="example@gmail.com" />
-
-          < Input 
-          name="password"
-          id="password"
-          type="password"
-          register={register} 
-          errors={ errors.password} 
-          label="Password" 
-          Placeholder=" password"
-          />
 
           </div>
           {/* Middle */}

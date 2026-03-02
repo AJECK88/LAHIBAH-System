@@ -110,11 +110,9 @@ const onSubmit = handleSubmit((formData) => {
     }
           
           reset({
-            UserName: data.username,
             Address: data.address,
             age: data.age,
             email: data.email,
-            password: data.password,
             FirstName: data.firstName,
             LastName: data.lastName,
             phoneNumber: data.phoneNumber,        
@@ -147,16 +145,6 @@ const onSubmit = handleSubmit((formData) => {
       <div className="grid lg:grid-cols-3 grid-cols-1 gap-5 w-full">
 
         <Input
-          type="text"
-          name="UserName"
-          id="UserName"
-          register={register}
-          errors={errors.UserName}
-          label="UserName"
-          Placeholder="Enter username"
-        />
-
-        <Input
           type="email"
           id="email"
           name="email"
@@ -166,15 +154,6 @@ const onSubmit = handleSubmit((formData) => {
           Placeholder="example@gmail.com"
         />
 
-        <Input
-          name="password"
-          id="password"
-          type="password"
-          register={register}
-          errors={errors.password}
-          label="Password"
-          Placeholder="Password"
-        />
       </div>
 
       {/* Personal Info Section */}

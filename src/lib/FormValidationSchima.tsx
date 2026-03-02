@@ -16,13 +16,7 @@ import { max } from "moment";
          export type CourseSchema = z.infer<typeof courseSchema>
  /* || zod auth StudentSchema validation */
  export const  studentSchma = z.object({
-           UserName: z.string()
-           .min(3, { message: 'Name must be at least 3 characters long' })
-           .max(20, { message: 'Name must be at most 20 characters long' }),
            email: z.string().email({ message: 'Invalid email address' }),
-           password: z.string()
-           .min(4, { message: 'Password must be at least 4 characters long' })
-           .max(8, { message: 'Password must be at most 8 characters long' }),
            FirstName:z.string()
            .min(1 , { message: 'First Name must be at least 1 character long' }),
            LastName:z.string()
@@ -52,13 +46,7 @@ import { max } from "moment";
 
      /* || Auth for TeacherSchema validation */
        export const teacherSchema = z.object({
-               UserName: z.string()
-               .min(3, { message: 'Name must be at least 3 characters long' })
-               .max(20, { message: 'Name must be at most 20 characters long' }),
                email: z.string().email({ message: 'Invalid email address' }),
-               password: z.string()
-               .min(4, { message: 'Password must be at least 4 characters long' })
-               .max(10, { message: 'Password must be at most 8 characters long' }),
                FirstName:z.string()
                .min(1 , { message: 'First Name must be at least 1 character long' }),
                Courses:z.array(z.number()).nonempty({message:"At least one course must be selected"}).optional(),
@@ -85,13 +73,7 @@ import { max } from "moment";
 
       /* || Auth for ParentSchema validation */
             export   const parentschema = z.object({
-          UserName: z.string()
-          .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(20, { message: 'Name must be at most 20 characters long' }),
           email: z.string().email({ message: 'Invalid email address' }),
-          password: z.string()
-          .min(4, { message: 'Password must be at least 4 characters long' })
-          .max(8, { message: 'Password must be at most 8 characters long' }),
           FirstName:z.string()
           .min(1 , { message: 'First Name must be at least 1 character long' }),
           LastName:z.string()

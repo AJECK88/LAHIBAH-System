@@ -4,9 +4,7 @@
                 import FormModel from "@/components/FormModel";
                 import Link from "next/dist/client/link";
                 import Image from "next/image"
-              import prisma from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import { id } from "zod/locales";
+               import prisma from "@/lib/prisma";
                 const SingleTeacherPage = async(
                   {params}:{params:{id:string}}
                 ) => {

@@ -3,7 +3,18 @@ import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
-import { Sen } from "next/font/google";
+
+const passwordgenerator = (length: number) => {
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+  let password = "";    
+  for (let i = 0; i < length; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+}
+//  the password generator a length of 8 to generate a password of 8 characters
+ const generatedPassword = passwordgenerator(8);
+
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
@@ -79,10 +90,9 @@ export const deletCourse = async(
      const client = await clerkClient();
 
     const clerkId = await client.users.createUser({
-      username: data.UserName,
-
+      username: data.FirstName +"_" + data.MatriculeNo.slice(-4),
       emailAddress: [data.email],
-      password: data.password,
+      password: generatedPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
@@ -91,7 +101,7 @@ export const deletCourse = async(
     });
       await prisma.student.create({
          data:{
-         username:data.UserName,
+         username:data.FirstName +"_" + data.MatriculeNo.slice(-4),
          address:data.Address,
          age:Number(data.age),
          email:data.email,
@@ -162,11 +172,11 @@ export const deletCourse = async(
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.UserName}</td>
+                    <td>${data.FirstName +"_"+ data.MatriculeNo.slice(-4)}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${data.password}</td>
+                    <td>${generatedPassword}</td>
                   </tr>
                 </table>
 
@@ -213,10 +223,10 @@ export const deletCourse = async(
                   </a>
                 </p>
                 <p style="margin:5px 0 0;">
-                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                   ✉️ info@laureateinstitute.com
                 </p>
                 <p style="margin:5px 0 0;">
-                  © 2026 Your School Name. All rights reserved.
+                  © ${new Date().getFullYear()} LAHIBA. All rights reserved.
                 </p>
               </td>
             </tr>
@@ -285,7 +295,6 @@ export const  UpdateStudent = async(
         id: (data.id),
       },
           data:{
-         username:data.UserName,
          address:data.Address,
          age:Number(data.age),
          email:data.email,
@@ -314,9 +323,9 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
         const client = await clerkClient();
   try {
     const clerkId = await client.users.createUser({
-      username: data.UserName,
+      username: data.FirstName + "_" + data.LastName.slice(-4),
       emailAddress: [data.email],
-      password: data.password,
+      password: generatedPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
@@ -325,7 +334,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
     });
    await prisma.teacher.create({
          data:{
-         username:data.UserName,
+         username:data.FirstName + "_" + data.LastName.slice(-4),
          address:data.Address,
          email:data.email,
          firstName:data.FirstName,
@@ -393,11 +402,11 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.UserName}</td>
+                    <td>${data.FirstName +"_"+ data.LastName.slice(-4)}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${data.password}</td>
+                    <td>${generatedPassword}</td>
                   </tr>
                 </table>
 
@@ -444,10 +453,10 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
                   </a>
                 </p>
                 <p style="margin:5px 0 0;">
-                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                  ✉️ info@laureateinstitute.com
                 </p>
                 <p style="margin:5px 0 0;">
-                  © 2026 Your School Name. All rights reserved.
+                  © ${new Date().getFullYear()} LAHIBA. All rights reserved.
                 </p>
               </td>
             </tr>
@@ -482,7 +491,7 @@ export const UpdateTeache = async (
         id:(data.id)
       },
       data:{
-       username:data.UserName,
+       username:data.FirstName +"_"+ data.LastName.slice(-4),
          address:data.Address,
          email:data.email,
          firstName:data.FirstName,
@@ -549,23 +558,23 @@ export const deleteTeacher = async(
    const client = await clerkClient();
   try{
     const clerkId = await client.users.createUser({
-      username: data.UserName,
+      username: data.FirstName + "_" + data.LastName.slice(-4),
       emailAddress: [data.email],
-      password: data.password,
+      password: generatedPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
-        role: "teacher",
+        role: "parent",
       },
     });
      await prisma.parent.create({
        data:{
+          username:data.FirstName + "_" + data.LastName.slice(-4),
           firstName:data.FirstName, 
           lastName:data.LastName,
           email:data.email,
           phoneNumber:data.phoneNumber,
           address:data.Address,
-          username:data.UserName,
           sex:data.sex,
           id:clerkId.id,
           students:{
@@ -623,11 +632,11 @@ export const deleteTeacher = async(
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.UserName}</td>
+                    <td>${data.FirstName +"_"+ data.LastName.slice(-4)}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${data.password}</td>
+                    <td>${generatedPassword}</td>
                   </tr>
                 </table>
 
@@ -674,10 +683,10 @@ export const deleteTeacher = async(
                   </a>
                 </p>
                 <p style="margin:5px 0 0;">
-                  📞 +123 456 7890 | ✉️ info@yourschoolwebsite.com
+                 ✉️ info@laureateinstitute.com
                 </p>
                 <p style="margin:5px 0 0;">
-                  © 2026 Your School Name. All rights reserved.
+                  © ${new Date().getFullYear()} LAHIBA. All rights reserved.
                 </p>
               </td>
             </tr>
@@ -712,7 +721,6 @@ export const UpdateParent = async(
           email:data.email,
           phoneNumber:data.phoneNumber,
           address:data.Address,
-          username:data.UserName,
           sex:data.sex,
           students:{
             set:[],

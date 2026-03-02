@@ -83,12 +83,10 @@ import { useRouter } from "next/navigation";
       }
     }
           reset({
-        UserName:data.username,
         Address:data.address,
          email:data.email,
         FirstName:data.firstName,
         LastName:data.lastName,
-         password:data.password,
          phoneNumber:data.phoneNumber,
         sex:data.sex,
         teachersId:data.teachersId,
@@ -108,15 +106,6 @@ import { useRouter } from "next/navigation";
           {/* Top */}
           <h2 className="text-gray-500 self-start tex-sm font-semibold">Authentification info</h2>
           <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
-
-          < Input 
-          type="text" 
-          name="UserName" 
-          id="UserName"
-          register={register}
-            errors={ errors.UserName} 
-            label="UserName"
-            Placeholder="Enter username"/>
           < Input
             type="email"
             id="email"
@@ -125,17 +114,7 @@ import { useRouter } from "next/navigation";
             errors={ errors.email}
             label="Email"
             Placeholder="example@gmail.com" />
-
-          < Input 
-          name="password"
-          id="password"
-          type="password"
-          register={register} 
-          errors={ errors.password} 
-          label="Password" 
-          Placeholder=" password"
-          />
-
+            
           </div>
           <h2 className="self-start text-sm font-semibold text-gray-500">personal Info</h2>
           {/* Buttom */}
