@@ -23,27 +23,27 @@ const userInfo = await prisma.teacher.findMany({
     }
 })
 const currentUserInfo = userInfo[0];
- console.log(UserIdValue?.toString())
     return (
         /* Student Page */
         /* Right hand side */
-        <div className="w-full bg- white flex flex-col sm:flex-col xl:flex-row  bg-white p-4 rounded-md m-4 mt-0 ">
+        <div className="w-full bg- white flex flex-col sm:flex-col xl:flex-row border border-red-500 bg-white lg:p-4 rounded-md lg:m-4 m-0 mt-0 ">
             <div className="w-full h-full sm:w-full xl:w-2/3  ">
                {/* || left side */}
                 <div className=" w-full">
                 {/* TOP CONTENT */}
                 <div className="flex flex-col lg:flex-row gap-4" >
                 {/* || users  infor card */}
-                <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4 " >
-                <div className="w-1/3" >
+                <div className="bg-blue-200 py-2 px-4 rounded-md flex-1 flex gap-4 " >
+                <div className="" >
                 <Image
                 src="https://images.pexels.com/photos/842980/pexels-photo-842980.jpeg?auto=compress&cs=tinysrgb&w=1200"
                 alt="User Avatar"
-                width={144} 
-                height={144} 
-                className=" w-36 h-36  object-cover rounded-full " />
+                width={120} 
+                height={120} 
+                className="w-24 h-24 rounded-full object-cover"
+                 />
                 </div>
-                <div className="w-2/3 flex flex-col justify-between gap-4 ">
+                <div className="w-2/3 flex flex-col justify-evenly gap-2 ">
                 <h1 className="text-xl  font-semibold">{currentUserInfo?.firstName + " " + currentUserInfo?.lastName}</h1>
                 <p className="text-sm text-gray-500">{"Lecturing " + currentUserInfo?.courses.length}{currentUserInfo?.courses && currentUserInfo?.courses.length > 1 ? " courses" : " course"}</p>
                 <div className=" flex items-center justify-between gap-2 flex-wrap text-xs font-medium   " >
@@ -57,7 +57,7 @@ const currentUserInfo = userInfo[0];
                 />
                 <span className="ml-1">{currentUserInfo?.bloodGroup}</span>
                 </div>
-                <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
+                <div className="w-full md:w-1/3 flex items-center 2xl:w-1/3 gap-2 p-2">
                 <Image
                 src="/date.png"
                 alt="User Avatar"
@@ -75,7 +75,7 @@ const currentUserInfo = userInfo[0];
                 height={14}
                 className=" w-8 h-8 "
                 />
-                <span className="ml-1">{currentUserInfo?.email}</span>
+                <span className="  w-auto h-auto text-wrap flex flex-wrap break-all">{currentUserInfo?.email}</span>
                 </div>
                 <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
                 <Image

@@ -1,19 +1,29 @@
   "use client"
 import { Calendar, momentLocalizer, View, Views } from 'react-big-calendar'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { TeacherCalendarEvents} from '@/lib/data'
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import moment from 'moment'
 const localizer = momentLocalizer(moment)
 const currentdate = new Date().getFullYear();
+ 
 const BigCalendar = () => {
+  const  [MobileView , mobileView] = useState(true);
   moment.updateLocale("en", {
   week: {
     dow: 1, // 0 = Sunday, 1 = Monday
     doy: 2,
   },
 })
-    function generateWeeklyEvents(baseWeek = moment()) {
+useEffect(() => {
+   window.addEventListener("resize", () => {
+     if (window.innerWidth < 468) {
+      mobileView(false);
+     }
+   });
+ }, []);
+
+ function generateWeeklyEvents(baseWeek = moment()) {
   return TeacherCalendarEvents.map((e) => {
     const start = baseWeek
       .clone()
@@ -36,18 +46,18 @@ const BigCalendar = () => {
 }
  
  const events = generateWeeklyEvents(); 
- const [view, setView] = React.useState<View>(Views.WEEK);
+ const [view, setView] = React.useState<View>(Views.AGENDA);
  function handleViewChange(newView: View) {
    setView(newView);
  }
   return (
     <div>
-      <Calendar
+      <Calendar 
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
-        views={["week" ,"agenda","day"]}
+        views={MobileView ? ["agenda", "day"]:["week", "agenda", "day"]}
         view={view}
         onView={handleViewChange}
         toolbar={true}
