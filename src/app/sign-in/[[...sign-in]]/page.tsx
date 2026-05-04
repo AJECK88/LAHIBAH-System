@@ -3,6 +3,7 @@ import * as Clerk from '@clerk/elements/common'
 import * as SignIn from '@clerk/elements/sign-in'
 import Image from "next/image"
 import "./login.css"
+import Link from 'next/link'
 import React, { useEffect } from "react"
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
@@ -26,11 +27,6 @@ const { isSignedIn, user, isLoaded } = useUser();
    }
   } ,[user , router])
  
-
-
-
-
-  
  return (
 
         <div className=" grid w-full flex-grow items-center bg-zinc-100 px-4 sm:justify-center h-[100vh]">
@@ -56,7 +52,7 @@ const { isSignedIn, user, isLoaded } = useUser();
                 <div className=" w-full relative">
                 <Clerk.Input className="border p-2 rounded w-full h-14" type={ passWordset ? "text" : "password"}name="password" placeholder="" required/>
                 <Clerk.Label className="absolute left-2 top-1/2 transform -translate-y-1/2" htmlFor="password">Password</Clerk.Label>
-                <Image  className="absolute right-2 top-1/2 transform -translate-y-1/2" alt="" onClick={handlePasswordToggle} src={passWordset ? "/visibility_password.png" : "/visibility_off.png"} width={20} height={20} />
+                <Image  className="absolute right-2 top-1/2 transform -translate-y-1/2" alt="" onClick={handlePasswordToggle} src={passWordset ? "/visibility_off.png" : "/visibility_password.png"} width={20} height={20} />
                   </div>
                   <Clerk.FieldError className="text-sm text-red-600 mt-1" />
               </Clerk.Field> 
@@ -64,18 +60,19 @@ const { isSignedIn, user, isLoaded } = useUser();
 
                  <SignIn.Action submit className="bg-blue-500 text-white p-2 rounded w-full" id="Submit"  >Login</SignIn.Action>
 
-               <Clerk.Link
-              navigate="sign-up"
+               <Link
+              href="/Reset-Password"
               className="font-medium  text-zinc-950 decoration-zinc-950/20 underline-offset-4 outline-none hover:text-zinc-700 hover:underline focus-visible:underline text-center "
             >
                Forget Password?
-            </Clerk.Link>
+            </Link>
           </div>
            
           </SignIn.Step> 
           </SignIn.Root>
+          
 </div>
-   
+    
  )
 }
 export default Sign_In;

@@ -36,7 +36,7 @@ const currentUserInfo = userInfo[0];
                 <div className="bg-blue-200 py-2 px-4 rounded-md flex-1 flex gap-4 " >
                 <div className="" >
                 <Image
-                src="https://images.pexels.com/photos/842980/pexels-photo-842980.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                src={currentUserInfo?.image || "/user.png"}
                 alt="User Avatar"
                 width={120} 
                 height={120} 

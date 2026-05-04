@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import "@fontsource/inter";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ToastContainer } from "react-toastify";
@@ -7,7 +7,6 @@ import { ToastContainer } from "react-toastify";
   title: "LAHIBAH MANAGEMENT SYSTEM",
   description: "School Management System",
 };
-const inter = Inter({ subsets: ["latin"] });
 export default function RootLayout({
   children,
 }: {
@@ -15,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+     <body className="font-sans">
         <ClerkProvider>
           {children}
           <ToastContainer
