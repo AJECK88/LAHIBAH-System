@@ -13,9 +13,12 @@
   "dependencies": {
     "@clerk/elements": "^0.23.67",
     "@clerk/nextjs": "^6.36.2",
+    "@fontsource/inter": "^5.2.8",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.17.1",
     "@types/react-big-calendar": "^1.16.2",
+    "@upstash/redis": "^1.37.0",
+    "ioredis": "^5.10.1",
     "moment": "^2.30.1",
     "multer": "^2.0.2",
     "next": "^15.5.12",
