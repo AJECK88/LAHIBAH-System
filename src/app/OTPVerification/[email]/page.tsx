@@ -66,7 +66,7 @@ const requestcode = async() =>{
     <div className="w-full h-screen flex items-center justify-center">
       <form 
         onSubmit={handleVerify}
-        className="space-y-5 bg-white p-6 rounded-xl shadow-md flex flex-col items-center"
+        className=" space-y-5 bg-white p-6 rounded-xl inset-shadow-xs shadow-xl/30 m-2 flex flex-col items-center"
       >
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
         <Image src="/image/mail.png" alt="Email Icon" width={35} height={35} />
