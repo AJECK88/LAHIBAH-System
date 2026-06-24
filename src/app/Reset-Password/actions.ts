@@ -1,6 +1,8 @@
 "use server"
 import {createClerkClient } from "@clerk/nextjs/server";
 import generateConfirmation from "../server/Auth/verification";
+import { tr } from "zod/locales";
+
 const clerkClients = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
 
@@ -29,3 +31,27 @@ const clerkClients = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY
     }
 }
 export default verificationEmail;
+
+export async function Reset_FonFormPasword( email: string, newPassword: string) {
+    // Clean the email by removing brackets and trimming whitespace
+   const emails =decodeURIComponent(email)
+   const cleanedEmail = emails.replace(/[\[\]]/g, "").trim();
+    console.log("Decoded email:", cleanedEmail);
+    // Check if the user exists
+   const userList = await clerkClients.users.getUserList({
+  emailAddress: [cleanedEmail],
+  limit: 1,
+});
+
+    try {
+        
+        const userId = userList.data[0].id; 
+        await clerkClients.users.updateUser(userId, {
+            password: newPassword,
+        });
+        return { success: true, message: "Password reset successful" };
+    } catch (error) {
+        console.error("Password reset error:", error);
+        return { success: false, message: "Internal server error" };
+    }
+}

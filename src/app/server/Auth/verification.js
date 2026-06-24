@@ -2,17 +2,16 @@ import { sendMail } from "@/app/api/send-mail/route";
 import crypto from "crypto";
 import Redis from "ioredis"
 
-
-async function generateConfirmation(userId) {
-  //Generate a secure 6-digit code
-  const code = crypto.randomInt(100000, 999999).toString(); 
-  console.log(`Generated code for user ${userId}: ${code}`); // For debugging, remove in production
-
   // Store in Redis with a 5-minute expiration
  const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
+async function generateConfirmation(userId) {
+  //Generate a secure 6-digit code
+  const code = crypto.randomInt(100000, 999999).toString(); 
+  console.log(`Generated code for user ${userId}: ${code}`); // For debugging, remove in production
+
   await redis.set(`auth_code:${userId}`, code, 'EX', 300);
 
   //Send via external service
@@ -110,16 +109,28 @@ async function generateConfirmation(userId) {
 export default generateConfirmation;
 
 
-async function verifyCode(userId, inputCode) {
-  const storedCode = await Redis.get(`auth_code:${userId}`);
+export async function verifyCode(userId, inputCode) {
+  const storedCode = await redis.get(`auth_code:${userId}`);
   
-  if (!storedCode) throw new Error("Code expired or never requested.");
+
+  
+  if (!storedCode)
+    return{
+      success: false,
+      message: "Code expired or not found. Please request a new code.",
+    };
+
   if (storedCode !== inputCode) {
-    await trackAttempt(userId); // Increment fail counter
-    throw new Error("Invalid code.");
+    return {
+      success: false,
+      message: "Invalid code. Please try again.",
+    };
   }
 
   // Success: Clear the code so it can't be used again
-  await Redis.del(`auth_code:${userId}`);
-  return true;
+  await redis.del(`auth_code:${userId}`);
+  return {
+    success: true,
+    message: "Code verified successfully.",
+  };
 }
