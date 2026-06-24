@@ -5,15 +5,14 @@ export async function POST(req: Request) {
     try {
         const { email, code } = await req.json();
 
-        // 1. Await the execution of your verification logic
+        // wait for the verifyCode function to complete and store the result
         const result = await verifyCode(email, code);
-       console.log("Verification result:", result);
+        // return the result as a JSON response
         return NextResponse.json(result);
 
     } catch (error) {
-        console.error("API ROUTE CRASHED BECAUSE:", error);
         
-        // 3. Ensure the catch block also explicitly RETURNS a response
+        // Return a JSON response with an error message and a 500 status code
         return NextResponse.json(
             { success: false, message: "Internal Server Error" }, 
             { status: 500 }
