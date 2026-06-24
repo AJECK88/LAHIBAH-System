@@ -81,7 +81,6 @@ await fetch("/api/send-otp", {
 
 const  result = await response.json();
       if (result.success==false) {
-     
           setFeedback(result.message);
       } else {
         // Show success  message
