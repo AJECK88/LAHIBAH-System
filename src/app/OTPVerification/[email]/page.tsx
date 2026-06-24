@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useRef } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { sendOtp } from "@/app/server/sendOTP";
 
 export default function VerifyCodePage()  
     {
+  const [feedback, setFeedback] = useState("");
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
   const [canResend, setcanResend] = useState(false); 
-  const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in milliseconds  
+  const [timeLeft, setTimeLeft] = useState(10); // 3 minutes in milliseconds  
   const params = useParams();
   const email =decodeURIComponent(params.email as string)
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -20,10 +21,16 @@ export default function VerifyCodePage()
   };
 
 const requestcode = async() =>{
-  console.log("requesting new code")
+
    setcanResend(false)
    setTimeLeft(180) 
-  await sendOtp(email);
+await fetch("/api/send-otp", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ email })
+});
  } 
   useEffect(()=>{
     if(timeLeft<=0){
@@ -59,14 +66,43 @@ const requestcode = async() =>{
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
+    const code = inputsRef.current.map((input) => input?.value).join("");
+    try {
+     const response = await fetch("/api/verify-otp", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    email,
+    code
+  })
+});
 
+const  result = await response.json();
+      if (result.success==false) {
+     
+          setFeedback(result.message);
+      } else {
+        // Show success  message
+        setFeedback(result.message);
+        // Redirect to the reset password page
+        window.location.href = `/Reset-Password/[${encodeURIComponent(email)}]`;
+
+      }
+    } catch (error) {
+      // Show error message
+      setFeedback("An error occurred. Please try again.");
+      
+    }
   };
- 
+  
   return (
     <div className="w-full h-screen flex items-center justify-center">
+    <div className="space-y-5 bg-white p-6 rounded-xl inset-shadow-xs shadow-xl/30 m-2 flex flex-col items-center">
       <form 
+        className="flex flex-col items-center space-y-5"
         onSubmit={handleVerify}
-        className=" space-y-5 bg-white p-6 rounded-xl inset-shadow-xs shadow-xl/30 m-2 flex flex-col items-center"
       >
         <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
         <Image src="/image/mail.png" alt="Email Icon" width={35} height={35} />
@@ -94,13 +130,17 @@ const requestcode = async() =>{
         
            ))}
            </div>
+        {feedback  && <p className= { result?.success ? `text-green-500` : `text-red-500` }>{feedback}</p>}  
+        
         <button className="bg-blue-500 text-white p-2 w-full rounded-sm font-semibold ">
           Verify
         </button>
-        <button disabled={!canResend} onClick = {requestcode} className="bg-gray-300 text-gray-700 p-2 w-full rounded-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+        
+      </form>
+      <button disabled={!canResend} onClick = {requestcode} className="bg-gray-300 text-gray-700 p-2 w-full rounded-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
           Resend Code  {canResend ? "": formatTime(timeLeft)}
         </button>
-      </form>
+    </div>
     </div>
   );
 }
