@@ -12,7 +12,7 @@ async function generateConfirmation(userId) {
   const code = crypto.randomInt(100000, 999999).toString(); 
   console.log(`Generated code for user ${userId}: ${code}`); // For debugging, remove in production
 
-  await redis.set(`auth_code:${userId}`, code, 'EX', 300);
+ await redis.set(`auth_code:${userId}`, code, { ex: 300 });
 
   //Send via external service
  await sendMail({
