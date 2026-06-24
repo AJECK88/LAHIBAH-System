@@ -1,6 +1,6 @@
 import { sendMail } from "@/app/api/send-mail/route";
 import crypto from "crypto";
-import Redis from "ioredis"
+import {Redis} from "@upstash/redis";
 
   // Store in Redis with a 5-minute expiration
  const redis = new Redis({
