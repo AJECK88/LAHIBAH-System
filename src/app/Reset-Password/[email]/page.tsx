@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image"; 
 const RestPasswordPage = () => {
   const params = useParams();
-  const email = params.EMAIL;
+  const email = params.email;
   const [newPassword, setNewPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
