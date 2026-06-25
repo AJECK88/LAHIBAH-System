@@ -4,8 +4,10 @@ import verificationEmail from "./actions"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link  from "next/link"
-const  ResetPassword =  (
+import { aw } from "node_modules/@upstash/redis/error-8y4qG0W2.mjs"
+const  ResetPassword = (
 )=>{
+  let err ="";
    const router = useRouter();
    const handleSubmit = (e:React.FormEvent<HTMLFormElement>)=>{     
       e.preventDefault();
@@ -17,7 +19,8 @@ const  ResetPassword =  (
        verificationEmail(UserEmail)
        .then((res)=>{
         if(res?.error){
-          console.log(res.error)
+          err = res?.error
+          console.log(`Error: ${err}`);
         }
         else{
       router.push(`/OTPVerification/${encodeURIComponent(UserEmail)}`);
@@ -31,13 +34,8 @@ const  ResetPassword =  (
     if(!UserEmail?.toString().endsWith("@gmail.com")){
       throw(err="invalid email")
     }
-    else{
-     
-    }
-    }
-
-   }
-   
+  }
+  }
    
      return (
         <div className="w-full h-screen flex items-center justify-center">
@@ -47,7 +45,7 @@ const  ResetPassword =  (
          <h1 className="font-semibold text-gray-700">Password Reset</h1>
           <label htmlFor="Email">Email <strong className="text-red-700">*</strong></label>
           <input className="w-full p-2 border rounded-sm" type="email" placeholder="example@gmail.com" required name="Email"/>
-          <h3>{}</h3>
+          <h3>{err}</h3>
          <button className="w-full bg-blue-500 p-2 text-white consure  font-semibold rounded-sm">Reset Password </button>
          <Link href = '/sign-in' className="text-blue-600 flex justify-end w-full underline ">Back to Login <Image alt="arrow" src={"/arrow.png"} width={20} height={20} /> </Link> 
          </form>

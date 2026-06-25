@@ -36,7 +36,11 @@ const currentUserInfo = userInfo[0];
                 <div className="bg-blue-200 py-2 px-4 rounded-md flex-1 flex gap-4 " >
                 <div className="" >
                 <Image
-                src={"/user.png"}
+                src={currentUserInfo?.image && currentUserInfo.image.trim() !== "" ? 
+                    currentUserInfo.image : currentUserInfo?.sex === "Male"
+                ? "/maleIcon.png"
+                : "/FemaleIcon.png"}
+
                 alt="User Avatar"
                 width={120} 
                 height={120} 

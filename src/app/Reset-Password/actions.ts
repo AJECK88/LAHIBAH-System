@@ -15,7 +15,6 @@ const clerkClients = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY
         });
      
         if (!users.data || users.data.length === 0) {
-            console.log("No user found with email:", email);
             return { error: "User not found" };
         } 
         else{
@@ -25,7 +24,6 @@ const clerkClients = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY
         
         // Success logic here...
     } catch (error) {
-        console.error("Password reset error:", error);
         return { error: "Internal server error" };
     }
 }
