@@ -13,6 +13,7 @@ async function generateConfirmation(userId) {
   console.log(`Generated code for user ${userId}: ${code}`); // For debugging, remove in production
 
  await redis.set(`auth_code:${userId}`, code, { ex: 300 });
+ console.log(`Stored code for user ${userId}: ${code}`); // For debugging, remove in production
 
   //Send via external service
  await sendMail({
@@ -111,26 +112,24 @@ export default generateConfirmation;
 
 export async function verifyCode(userId, inputCode) {
   const storedCode = await redis.get(`auth_code:${userId}`);
-  
-
-  
+   console.log(`Verifying code for user ${userId}: input=${inputCode}, stored=${storedCode}`); // For debugging, remove in production
   if (!storedCode)
     return{
       success: false,
       message: "Code expired or not found. Please request a new code.",
     };
-
-  if (storedCode !== inputCode) {
-    return {
-      success: false,
-      message: "Invalid code. Please try again.",
-    };
-  }
-
-  // Success: Clear the code so it can't be used again
+console.log(`Verifying code for user ${userId}: input=${inputCode}, stored=${storedCode}`); 
+  if (storedCode == inputCode) {
+    // Success: Clear the code so it can't be used again
   await redis.del(`auth_code:${userId}`);
   return {
     success: true,
     message: "Code verified successfully.",
   };
+  }
+return {
+      success: false,
+      message: "Invalid code. Please try again.",
+    };
+  
 }

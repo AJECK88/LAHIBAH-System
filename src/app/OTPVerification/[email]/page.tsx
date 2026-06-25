@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 export default function VerifyCodePage()  
     {
   const [feedback, setFeedback] = useState("");
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState(false);
   const [canResend, setcanResend] = useState(false); 
   const [timeLeft, setTimeLeft] = useState(10); // 3 minutes in milliseconds  
   const params = useParams();
@@ -85,6 +85,7 @@ const  result = await response.json();
       } else {
         // Show success  message
         setFeedback(result.message);
+        setResult(true)
         // Redirect to the reset password page
         window.location.href = `/Reset-Password/[${encodeURIComponent(email)}]`;
 
@@ -129,7 +130,7 @@ const  result = await response.json();
         
            ))}
            </div>
-        {feedback  && <p className= { result?.success ? `text-green-500` : `text-red-500` }>{feedback}</p>}  
+        {feedback  && <p className= { result == true? `text-green-500` : `text-red-500` }>{feedback}</p>}  
         
         <button className="bg-blue-500 text-white p-2 w-full rounded-sm font-semibold ">
           Verify
