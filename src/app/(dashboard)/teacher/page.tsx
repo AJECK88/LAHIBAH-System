@@ -26,7 +26,7 @@ const currentUserInfo = userInfo[0];
     return (
         /* Student Page */
         /* Right hand side */
-        <div className="w-full bg- white flex flex-col sm:flex-col xl:flex-row border border-red-500 bg-white lg:p-4 rounded-md lg:m-4 m-0 mt-0 ">
+        <div className="w-full bg- white flex flex-col sm:flex-col xl:flex-row bg-white lg:p-4 rounded-md lg:m-4 m-0 mt-0 ">
             <div className="w-full h-full sm:w-full xl:w-2/3  ">
                {/* || left side */}
                 <div className=" w-full">
@@ -36,13 +36,14 @@ const currentUserInfo = userInfo[0];
                 <div className="bg-blue-200 py-2 px-4 rounded-md flex-1 flex gap-4 " >
                 <div className="" >
                 <Image
-                src={currentUserInfo?.image || "/user.png"}
+                src={"/user.png"}
                 alt="User Avatar"
                 width={120} 
                 height={120} 
                 className="w-24 h-24 rounded-full object-cover"
                  />
                 </div>
+   
                 <div className="w-2/3 flex flex-col justify-evenly gap-2 ">
                 <h1 className="text-xl  font-semibold">{currentUserInfo?.firstName + " " + currentUserInfo?.lastName}</h1>
                 <p className="text-sm text-gray-500">{"Lecturing " + currentUserInfo?.courses.length}{currentUserInfo?.courses && currentUserInfo?.courses.length > 1 ? " courses" : " course"}</p>
@@ -90,8 +91,11 @@ const currentUserInfo = userInfo[0];
                 </div>
                 </div>
                 </div>
+
+
+
                 {/* || small card*/}
-                <div className=" flex-1 flex gap-4 justify-center flex-wrap " >  {/* || card */}
+                <div className=" grid grid-cols-2 gap-4 justify-center flex-wrap " >  {/* || card */}
                 <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[45%] xl:w-[48%]">
                 <Image src={"/singleAttendance.png"} alt="Attendance" width={100} height={100} className=" w-15 h-15 "
                 /> <div className="">
@@ -132,7 +136,8 @@ const currentUserInfo = userInfo[0];
             
             
             </div>
-            <div className="p-4 bg-white shadow-md w-1/3 h-full">
+
+            <div className=" p-4 m-0.5 shadow-md bg-white sm:w-full lg:w-1/3  h-full block md:flex col-1 xl:flex flex-col gap-4 rounded-md   ">
                 <EventCalendar />
                 <Announcement AnnouncementData={AnnouncementData}/>
             </div>
