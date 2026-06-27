@@ -5,12 +5,14 @@ export default async function  Navber()  {
    const user = await currentUser();
    const role =  user?.publicMetadata.role as string ;
    const UserName =user?.fullName as string ;
+  const  userId   = user?.id as string
 
 
   return(
   <NavbarClient
-      fullName={user?.fullName ?? ""}
-      role={user?.publicMetadata?.role as string}
+      fullName={UserName}
+      role={role}
+      userId={ userId}
     />
   );
 }

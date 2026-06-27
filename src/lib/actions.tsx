@@ -3,6 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
+import { AnyARecord } from "dns";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";

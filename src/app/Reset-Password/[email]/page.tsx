@@ -1,7 +1,6 @@
  "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
-import Image from "next/image"; 
 const RestPasswordPage = () => {
   const params = useParams();
   const email = params.email;

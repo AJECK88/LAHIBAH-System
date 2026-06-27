@@ -7,9 +7,10 @@ import Announcement_Notification from "./AnnouncementNavber_notification"
 type Props = {
   fullName: string
   role: string
+  userId:string
 }
 
-export default function NavbarClient({ fullName, role }: Props) {
+export default function NavbarClient({ fullName, role , userId }: Props) {
   return (
  <div className="flex text-center justify-between w-full" >
 
@@ -24,7 +25,7 @@ export default function NavbarClient({ fullName, role }: Props) {
         <figure className="rounded-full w-7 h-7 flex  items-center justify-center cursor-pointer">
      <Image src="/message.png" alt="User Profile" width={20} height={20} />   
      </figure>
-     <Announcement_Notification />
+     <Announcement_Notification userId={userId} />
       <div className="flex flex-col">
         <span className="text-xs leading-3 font-medium">{fullName}</span>
         <span className="text-[10px] text-gray-500 text-right">{role}</span>

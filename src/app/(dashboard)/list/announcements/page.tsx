@@ -5,7 +5,7 @@ import FormsContainer from '@/components/FormsContainer';
 import AnnouncementsPage from '@/components/AnnouncementMessage';
 import { role } from '@/components/user';
 
- export const  AnnouncementsListpage = async({
+ export const  AnnouncementsListpage = async({ 
   
 }:{ 
     searchParams:Promise<{[key:string]:string|undefined}>

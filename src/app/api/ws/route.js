@@ -1,44 +1,41 @@
-import { title } from "process";
+import { addClient, removeClient } from "@/lib/sse";
 
-// src/app/api/ws/route.js
-export const config = { runtime: "nodejs" };
-
-let wss; // store WebSocket server globally
+export const dynamic = "force-dynamic"; // Strictly bypasses Vercel compilation caching
 
 export async function GET(req) {
-  const { socket } = req;
+  const encoder = new TextEncoder();
 
-  // Initialize WebSocket server only once
-  if (!socket.server.ws) {
-    console.log("Starting WebSocket server...");
-    const WebSocket = require("ws"); // ✅ server-side only
-    wss = new WebSocket.Server({ noServer: true });
+  const stream = new ReadableStream({
+    start(controller) {
+      const clientRecord = { controller, encoder };
+      addClient(controller, encoder);
 
-    socket.server.ws = wss;
-
-    // Upgrade HTTP -> WebSocket
-    socket.server.on("upgrade", (req, socket, head) => {
-      if (req.url === "/api/ws") {
-        wss.handleUpgrade(req, socket, head, (ws) => {
-          wss.emit("connection", ws, req);
-        });
-      }
-    });
-
-    wss.on("connection", (ws) => {
-      console.log("Client connected");
-    });
-
-    // Broadcast function
-    socket.server.broadcast = (...msg ) => {
-      console.log("Broadcasting:", msg);
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: "announcement", message , title , date, time ,id}) );
+      // Keep connection from idling out on Vercel using a tiny heartbeat ping
+      const heartbeat = setInterval(() => {
+        try {
+          controller.enqueue(encoder.encode(": keepalive ping\n\n"));
+        } catch (e) {
+          clearInterval(heartbeat);
         }
-      });
-    };
-  }
+      }, 15000);
 
-  return new Response("WebSocket server initialized");
+      // Triggers cleanup immediately if a student closes their tab or navigates away
+      req.signal.addEventListener("abort", () => {
+        clearInterval(heartbeat);
+        removeClient(clientRecord);
+        try {
+          controller.close();
+        } catch (e) {}
+      });
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      "Connection": "keep-alive",
+      "Content-Encoding": "none",
+    },
+  });
 }

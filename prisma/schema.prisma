@@ -16,6 +16,8 @@ model Admin {
   id       String @id @default(cuid())
   userName String
   email    String @unique
+  notification  Notification[]
+  notifications notificationRead[]
 }
 
 model Department {
@@ -54,6 +56,7 @@ model Subject {
   timetables  Timetable[]
   students    Student[]
   teachers    Teacher[]
+
 }
 
 model Student {
@@ -82,6 +85,7 @@ model Student {
   fees       Fee[]
   results    Result[]
   courses    Subject[]
+  readReceipts notificationRead[]
 }
 
 model Level {
@@ -106,6 +110,8 @@ model Teacher {
   DateOfBirth DateTime?
   courses     Subject[]
   department  Department[] @relation("DepartmentSupervisor")
+  notifications  Notification[]
+  readReceipts notificationRead[]
 }
 
 model Parent {
@@ -217,13 +223,6 @@ model Timetable {
   course Subject @relation(fields: [courseId], references: [id])
 }
 
-model Notification {
-  id      String   @id @default(cuid())
-  title   String
-  message String
-  date    DateTime
-}
-
 model Message {
   id         String   @id @default(cuid())
   senderId   String
@@ -248,6 +247,44 @@ model Announcement {
   message      String   @db.Text
   date         DateTime @default(now())
   departmentId String?
+  notificationRead notificationRead[]
 
   department Department? @relation(fields: [departmentId], references: [id])
+}
+model Notification {
+  id      String   @id @default(cuid())
+  title   String
+  message String
+  createdAt DateTime @default(now())
+  teacherId String?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  adminId   String?
+  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  notificationRead notificationRead[]
+}
+
+model notificationRead {
+  id             String   @id @default(cuid())
+  notificationId String
+  read           Boolean  @default(false)
+  readAt         DateTime?
+  studentId      String?
+  teacherId      String?
+  adminId        String?
+  announcementId String?
+
+  // Relations
+  student      Student?      @relation(fields: [studentId], references: [id])
+  teacher      Teacher?      @relation(fields: [teacherId], references: [id])
+  admin        Admin?        @relation(fields: [adminId], references: [id])
+  notification Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  announcement Announcement? @relation(fields: [announcementId], references: [id], onDelete: Cascade) 
+
+  // Indexes for fast lookups
+  @@index([studentId])
+  @@index([teacherId])
+  @@index([adminId])
+  @@index([notificationId])
+  @@index([announcementId])
 }
