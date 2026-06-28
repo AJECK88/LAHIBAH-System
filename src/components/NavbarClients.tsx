@@ -25,7 +25,7 @@ export default function NavbarClient({ fullName, role , userId }: Props) {
         <figure className="rounded-full w-7 h-7 flex  items-center justify-center cursor-pointer">
      <Image src="/message.png" alt="User Profile" width={20} height={20} />   
      </figure>
-     <Announcement_Notification userId={userId} />
+     <Announcement_Notification userId={userId} UserRole={role} />
       <div className="flex flex-col">
         <span className="text-xs leading-3 font-medium">{fullName}</span>
         <span className="text-[10px] text-gray-500 text-right">{role}</span>

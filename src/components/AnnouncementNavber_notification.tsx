@@ -2,9 +2,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-
+ type pop={
+  userId:string,
+  UserRole:string
+ }
 const Announcement_Notification = (
-   {userId}:{userId:string}
+   {userId , UserRole }:pop
 )=>{
   
     // Store the unread count in state (defaults to 0)
@@ -14,18 +17,17 @@ const Announcement_Notification = (
       setUnreadCount(0);
   }
 
-useEffect( ()=>{
-  if(!userId) return;
-fetch(`/api/announcement?userId=${userId}&userType=student`)
+    useEffect( ()=>{
+ if(!userId) return;
+fetch(`/api/announcement?userId=${userId}&userType=${UserRole}`)
       .then((res) => res.json())
       .then((data) => {
-        // We target 'unread' because this badge is for unread alerts
+        // 'unread' because this badge is for unread alerts
         setUnreadCount(data.unread || 0);
-          console.log(data.unread)
       })
     
       .catch((err) => console.error("Failed to load initial notification count:", err));
-  }, [userId]);
+  }, [userId, UserRole]);
 
   // 2. Optional: Connect to your live SSE stream to update the badge in real-time
   useEffect(() => {
@@ -34,13 +36,17 @@ fetch(`/api/announcement?userId=${userId}&userType=student`)
 
     eventSource.onmessage = () => {
       // Increment the unread counter live whenever a new broadcast arrives
-      setUnreadCount((prev) => prev);
+      setUnreadCount((prev) => {
+         if(UserRole !== "admin") return prev + 1
+         
+         return prev
+      });
     };
 
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [UserRole]);
 
  
     return(

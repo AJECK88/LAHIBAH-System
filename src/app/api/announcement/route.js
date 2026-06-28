@@ -24,7 +24,7 @@ export async function GET(req) {
         adminId:   userType === "admin"   ? userId : undefined,
       },
     });
-
+    console.log("userType",userType)
     const unreadCount = Math.max(0, totalAnnouncements - readCount);
 
     return new Response(JSON.stringify({ unread: unreadCount }), {
