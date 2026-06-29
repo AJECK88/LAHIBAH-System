@@ -61,8 +61,8 @@ import { role } from '@/components/user';
   <h1 className='font-extrabold text-gray-700'>Announcement</h1>
 
   {/* Header Bar (Create button & info) - Fixed */}
-  <div className='flex justify-between items-center   z-0 md:z-999 bg-white shadow-md p-2 h-25 shrink-0 '>
-    <div className='flex gap-4 p-4 items-center'>
+  <div className='flex justify-between items-center   z-1 md:z-999 bg-white shadow-md p-2 h-25 shrink-0 '>
+    <div className='flex gap-4 p-1 items-center'>
       <Image 
         src={'/announcementM .png'} 
         className='rounded-3xl p-1' 
@@ -83,7 +83,7 @@ import { role } from '@/components/user';
   </div> 
 
 
-  <div className='bg-gray-200 p-2 flex-1 w-full flex flex-col gap-4 overflow-y-auto rounded-md '>
+  <div className='bg-gray-200 p-2 flex-1 w-full flex flex-col gap-4 overflow-y-auto rounded-md'>
     <AnnouncementsPage
       AnnouncementData={AnnouncementMessage}
     />
