@@ -56,26 +56,39 @@ import { role } from '@/components/user';
       }
    })  
   return (
-    <div className='h-full  bg-white p-4 flex flex-col gap-4 m-2 fixed pb-20'>
-      <h1 className='font-extrabold text-gray-700'>Announcement </h1>
-    <div className='bg-gray-200 p-1 h-full w-full flex flex-col gap-4 overflow-y-auto'>
-      <div className='flex justify-between items-center bg-white shadow-md p-2 h-25'>
-        <div className='flex gap-4 p-4 items-center'>
-        <Image src={'/announcementM .png'} className='rounded-3xl p-1' alt={"announcement"} height={70} width={70}></Image>
-        { Role === "admin" ?<div className=''>
-          <h1 className="hidden md:block font-semibold text-gray-500">Create announcement</h1>
-          <p className="text-sm sm:font-semibold text-gray-900">notisfy all student</p>
-        </div> : "All Announcements"}
-</div>
-        {Role === "admin" && <FormsContainer  type={'Create'} table={"announcement"} />}
-      </div> 
-      <AnnouncementsPage
-        AnnouncementData={AnnouncementMessage}
+<div className='h-[calc(100vh-2rem)] bg-white p-4 flex flex-col gap-4 m-2'>
+  {/* Section Title - Fixed */}
+  <h1 className='font-extrabold text-gray-700'>Announcement</h1>
+
+  {/* Header Bar (Create button & info) - Fixed */}
+  <div className='flex justify-between items-center inset-0  z-999 bg-white shadow-md p-2 h-25 shrink-0 '>
+    <div className='flex gap-4 p-4 items-center'>
+      <Image 
+        src={'/announcementM .png'} 
+        className='rounded-3xl p-1' 
+        alt={"announcement"} 
+        height={70} 
+        width={70} 
       />
-
+      {Role === "admin" ? (
+        <div>
+          <h1 className="hidden md:block font-semibold text-gray-500">Create announcement</h1>
+          <p className="text-sm sm:font-semibold text-gray-900">notify all students</p>
+        </div>
+      ) : (
+        <span className="font-semibold text-gray-700">All Announcements</span>
+      )}
     </div>
+    {Role === "admin" && <FormsContainer type={'Create'} table={"announcement"} />}
+  </div> 
 
-    </div>
+
+  <div className='bg-gray-200 p-2 flex-1 w-full flex flex-col gap-4 overflow-y-auto rounded-md '>
+    <AnnouncementsPage
+      AnnouncementData={AnnouncementMessage}
+    />
+  </div>
+</div>
   ) 
 }
 export default AnnouncementsListpage;
