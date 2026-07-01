@@ -23,15 +23,13 @@ model Admin {
 model Department {
   id              String           @id @default(cuid())
   name            String           @unique
-  supervisorId    String?
-  supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [supervisorId], references: [id], onDelete: SetNull)
+  teacherId       String?
+  supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [teacherId], references: [id], onDelete: SetNull)
   subjects        Subject[]
   students        Student[]
   announcements   Announcement[]
   events          Event[]
-  examDepartments ExamDepartment[]
-  exam            Exam?            @relation(fields: [examId], references: [id])
-  examId          Int?
+  examDepartments ExamDepartment[] //  This handles mapping exams to departments perfectly
 }
 
 model Grade {
@@ -106,7 +104,6 @@ model Teacher {
   lastName    String
   sex         Usersex
   image       String?
-  teachersId  String       @unique
   DateOfBirth DateTime?
   courses     Subject[]
   department  Department[] @relation("DepartmentSupervisor")
@@ -145,7 +142,6 @@ model Event {
 
   department Department? @relation(fields: [departmentId], references: [id])
 }
-
 model Exam {
   id              Int              @id @default(autoincrement())
   name            String           @unique       
@@ -155,14 +151,13 @@ model Exam {
   courseId        Int
   ClassRoomId     String
   schoolYear      String
-  DepartmentId    String
   classroom       Classroom        @relation(fields: [ClassRoomId], references: [id])
-  depertment      Department[]
+  Invigilator     String?          
   course          Subject          @relation(fields: [courseId], references: [id])
-  levelId   Int
-  level       Level @relation( fields: [levelId], references: [id])
+  levelId         Int
+  level           Level            @relation(fields: [levelId], references: [id])
   results         Result[]
-  examDepartments ExamDepartment[]
+  examDepartments ExamDepartment[] //  Explicit relationship side
 }
 
 model ExamDepartment {
@@ -206,6 +201,7 @@ model Result {
   studentId String
   courseId  Int
   examId    Int?
+  grand     String
 
   course  Subject @relation(fields: [courseId], references: [id])
   exam    Exam?   @relation(fields: [examId], references: [id] , onDelete: SetNull)

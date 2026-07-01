@@ -4,12 +4,16 @@ import { PrismaClient } from "@prisma/client";
 import * as XLSX from "xlsx";
 
 const prisma = new PrismaClient();
+
 type ExamUploadResponse = {
   success: boolean;
   error?: string;
 };
 
-export async function UploadExam( ExamUploadResponse: ExamUploadResponse,formData: FormData) {
+export async function UploadExam(
+  prevState: ExamUploadResponse, 
+  formData: FormData
+): Promise<ExamUploadResponse> {
   try {
     const file = formData.get("file") as File;
     if (!file || file.size === 0) {
@@ -21,98 +25,99 @@ export async function UploadExam( ExamUploadResponse: ExamUploadResponse,formDat
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { raw: false }) as Array<Record<string, any>>;
 
-    const year = new Date().getFullYear();
-    const month = new Date().getMonth();
-    const startYear = month < 7 ? year - 1 : year;
+    // Dynamic School Year calculation based on the current date context
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth();
+    const startYear = currentMonth < 7 ? currentYear - 1 : currentYear;
     const endYear = startYear + 1;
+    const computedSchoolYear = `${startYear}/${endYear}`;
 
     for (const row of rows) {
+      // 1. Identify Subject/Course column directly (Excel header says 'caurses')
+      const courseName = row.caurses || row["caurses"];
+      if (!courseName || courseName === "General Course") {
+        continue; // Gracefully bypass spacer structural labels or empty rows
+      }
+
+      // 2. Fetch dependencies safely from the database
       const level = await prisma.level.findUnique({
         where: { LevelName: String(row.Level) },
       });
-      if (!level) throw new Error(`Level ${row.Level} not found`);
+      if (!level) throw new Error(`Level value "${row.Level}" was not found.`);
 
       const department = await prisma.department.findUnique({
         where: { name: row.Department },
       });
-      if (!department) throw new Error(`Department "${row.Department}" not found`);
+      if (!department) throw new Error(`Department string "${row.Department}" was not found.`);
 
-      const META_KEYS = [
-        "Level",
-        "Department",
-        "Start Date",
-        "End Date",
-        "Exam Name",
-        "ClassRoom",
-      ];
+      const classRoom = await prisma.classroom.findUnique({
+        where: { name: row.ClassRoom },
+      });
+      if (!classRoom) throw new Error(`Classroom target "${row.ClassRoom}" was not found.`);
 
-      const subjects = Object.entries(row).filter(
-        ([key]) => !META_KEYS.includes(key)
-      );
+      const course = await prisma.subject.findUnique({
+        where: { name: courseName },
+      });
+      if (!course) throw new Error(`Subject mapping "${courseName}" was not found.`);
 
-      for (const [courseName] of subjects) {
-        const course = await prisma.subject.findUnique({
-          where: { name: courseName },
-        });
-        if (!course) throw new Error(`Course "${courseName}" not found`);
+      // 3. Compute timestamps accurately via Duration hours
+      const startDate = new Date(row["Start Date"]);
+      if (isNaN(startDate.getTime())) {
+        throw new Error(`Invalid timestamp formatting under row: ${courseName}`);
+      }
+      const durationHours = parseFloat(row["Duration/hrs"]) || 2;
+      const endDate = new Date(startDate.getTime() + durationHours * 60 * 60 * 1000);
 
-        const classRoom = await prisma.classroom.findUnique({
-          where: { name: row.ClassRoom },
-        });
-        if (!classRoom) throw new Error(`Classroom "${row.ClassRoom}" not found`);
+      const examUniqueName = `${row["Exam Name"]}-${department.name}-${course.name}`;
 
-        const exam = await prisma.exam.upsert({
-          where: {
-            name: `${row["Exam Name"]}-${department.name}-${course.name}`,
-          },
-          update: {
-            startDate: new Date(row["Start Date"]),
-            endDate: new Date(row["End Date"]),
-            schoolYear: `${startYear}/${endYear}`,
-            title: row["Exam Name"],
-            DepartmentId: department.id,
-            ClassRoomId: classRoom.id,
-            courseId: course.id,
-            levelId: level.id,
-          },
-          create: {
-            name: `${row["Exam Name"]}-${department.name}-${course.name}`,
-            startDate: new Date(row["Start Date"]),
-            endDate: new Date(row["End Date"]),
-            schoolYear: `${startYear}/${endYear}`,
-            title: row["Exam Name"],
-            DepartmentId: department.id,
-            ClassRoomId: classRoom.id,
-            courseId: course.id,
-            levelId: level.id,
-          },
-        });
+      // 4. Perform the upsert operation using your strict scalar keys
+      const exam = await prisma.exam.upsert({
+        where: { name: examUniqueName },
+        update: {
+          startDate,
+          endDate,
+          schoolYear: computedSchoolYear,
+          title: row["Exam Name"],
+          ClassRoomId: classRoom.id,
+          courseId: course.id,
+          levelId: level.id,
+          Invigilator: row.Invigilator || null, // Directly matches your String? schema property
+        },
+        create: {
+          name: examUniqueName,
+          startDate,
+          endDate,
+          schoolYear: computedSchoolYear,
+          title: row["Exam Name"],
+          ClassRoomId: classRoom.id,
+          courseId: course.id,
+          levelId: level.id,
+          Invigilator: row.Invigilator || null,
+        },
+      });
 
-        await prisma.examDepartment.upsert({
-          where: {
-            examId_departmentId: {
-              examId: exam.id,
-              departmentId: department.id,
-            },
-          },
-          update: {},
-          create: {
+      // 5. Connect the Exam to the Department via explicit join table record
+      await prisma.examDepartment.upsert({
+        where: {
+          examId_departmentId: {
             examId: exam.id,
             departmentId: department.id,
           },
-        });
-      }
+        },
+        update: {},
+        create: {
+          examId: exam.id,
+          departmentId: department.id,
+        },
+      });
     }
 
-    // ✅ Just return nothing (or simple object)
     return { success: true };
 
   } catch (error) {
-    console.error(error);
-    return { success: false, error: error instanceof Error ? error.message : "Unknown error" };
+    console.error("EXCEL SEED RUNTIME FAILURE:", error);
+    return { success: false, error: error instanceof Error ? error.message : "Unknown structural parser exception" };
+  } finally {
+    await prisma.$disconnect();
   }
-    //** Ensure Prisma Client is disconnected after operation to prevent hanging connections */
-    finally {
-      await prisma.$disconnect();
-    }
 }

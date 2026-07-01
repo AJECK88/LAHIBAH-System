@@ -1,8 +1,7 @@
 "use server"
 import { PrismaClient } from "@prisma/client";
-import { e } from "node_modules/@clerk/elements/dist/step-MsK0UT__";
-import { a } from "node_modules/@clerk/elements/dist/submit-gXm55DfO";
 import * as XLSX from "xlsx"
+import { toLowerCase } from "zod";
 
 const prisma = new PrismaClient();
 type ResultUploadRespone ={
@@ -18,7 +17,6 @@ export  async function UploadResult(ResultUploadRespone:ResultUploadRespone , Fo
      if (!file|| file.size === 0 ){
       throw new Error ("No file uploaded or file is Emtty....")
      }
-
      const buffer = Buffer.from(await file.arrayBuffer());
      const workbook = XLSX.read(buffer, { type: "buffer" });
      const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -26,6 +24,7 @@ export  async function UploadResult(ResultUploadRespone:ResultUploadRespone , Fo
   header: 1,   // VERY IMPORTANT
   raw: false
 }) as any[][];
+console.log(Rowdata)
 const data = Rowdata
   .filter(row =>
     row &&
@@ -62,8 +61,6 @@ for (let i = 2; i < subjectRow.length; i++) {
     const marks = {
       ca: Number(row[base]),
       exam: Number(row[base + 1]),
-      total: Number(row[base + 2]),
-      grade: row[base + 3]
     };
 
     // 3️⃣ STUDENT (must exist)
@@ -94,7 +91,20 @@ for (let i = 2; i < subjectRow.length; i++) {
         }
       });
       if (!exam) throw new Error(`Exam for course "${courseName}" not found for student's level and department`);
-
+       
+   // calculating the tatal marks for the subject
+   const  totalMask = marks.ca +marks.exam
+   // function to retur the Grand value of a 
+   function grandMap( totalMasks:string){
+    if(totalMask >= 80) return "A+"
+    else if(totalMask>=70)return "A"
+    else if (totalMask >=65) return"B+"
+    else if (totalMask>50) return "B"
+    else if (totalMask>=45) return "c+"
+    else  if (totalMask >= 40) return "c"
+    else return "D" 
+   }
+    console.log(grandMap(totalMask))
       // 7️⃣ RESULT (create or update ONLY)
       await prisma.result.upsert({
   where: {
@@ -106,8 +116,9 @@ for (let i = 2; i < subjectRow.length; i++) {
   update: {
     CA: marks.ca,
     Exam: marks.exam,
-    total: marks.total,
+    total: totalMask,
     date: new Date(),
+    grand:grandMap(totalMask),
     examId: exam.id
   },
   create: {
@@ -115,7 +126,8 @@ for (let i = 2; i < subjectRow.length; i++) {
     courseId: course.id,
     CA: marks.ca,
     Exam: marks.exam,
-    total: marks.total,
+    total:totalMask,
+    grand: grandMap(totalMask),
     date: new Date(),
     examId: exam.id
   }
