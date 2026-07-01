@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "allowJs": true,
     "module": "esnext",
     "target": "es6",
@@ -36,8 +36,12 @@
     "next-env.d.ts",
     "src",
     ".next/types/**/*.ts",
-    "src/middleware.ts"
-, "src/app/server", "api", "prisma/seedResult.ts"  ],
+    "src/middleware.ts",
+    "src/app/server",
+    "api",
+    "prisma/seedResult.ts",
+    ".next/dev/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     ".next",

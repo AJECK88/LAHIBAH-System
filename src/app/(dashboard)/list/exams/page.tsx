@@ -15,14 +15,19 @@ import ExamForm from '@/components/Forms/QUERYDB/ExamQuery';
         },
       
         {
-            header:"Teachers",
+            header:"Invigilators",
             accessorKey:"students",
             className: "hidden md:table-cell"
             
         },
         {
-            header:"Time",
-            accessorKey:"time",
+            header:"Start Time",
+            accessorKey:"Start_time",
+            className: "hidden md:table-cell"
+        },
+           {
+            header:"End Time",
+            accessorKey:"End_Time",
             className: "hidden md:table-cell"
         },
         {
@@ -40,8 +45,9 @@ import ExamForm from '@/components/Forms/QUERYDB/ExamQuery';
                 </div>
                 </td>
 
-                <td className="hidden md:table-cell"> {exam.course.teachers.map(teacher => teacher.firstName + " " + teacher.lastName).join(", ")}</td>
+                <td className="hidden md:table-cell"> {exam.Invigilator}</td>
                 <td className="hidden md:table-cell"> {exam.startDate.toLocaleTimeString()}</td>
+                <td className="hidden md:table-cell"> {exam.endDate.toLocaleTimeString()}</td>
                 <td className=""> {exam.endDate.toLocaleDateString()}</td>
                 <td className=" md:table-cell">
                    {/*  <div className="flex items-center gap-2 self-end" >
