@@ -18,12 +18,12 @@ type TeacherList = Teacher & { courses: Subject[] }
             header:"Info",
             accessorKey:"info"
         },
-        {
+      /*   {
             header:"Teacher ID",
             accessorKey:"teacherId ",
             className: "hidden md:table-cell"
             
-        },
+        }, */
             {
             header:"Subjects",
             accessorKey:"subjects",
@@ -68,7 +68,7 @@ type TeacherList = Teacher & { courses: Subject[] }
                 </div>
                 </td>
 
-              <td className="hidden md:table-cell">{teacher.teachersId}</td>
+              <td className="hidden md:table-cell">{teacher.id}</td>
                 <td className="hidden md:table-cell">{teacher.courses.map(course => course.name).join(", ")}</td> 
                 <td className="hidden md:table-cell">{teacher.phoneNumber}</td>
                 <td className="hidden md:table-cell">{teacher.address}</td>

@@ -104,6 +104,7 @@ model Teacher {
   lastName    String
   sex         Usersex
   image       String?
+   teachersId String?
   DateOfBirth DateTime?
   courses     Subject[]
   department  Department[] @relation("DepartmentSupervisor")
