@@ -21,11 +21,20 @@ const securityHeaders = [
     key: 'Referrer-Policy',
     value: 'origin-when-cross-origin'
   },
-  {
-    // Adjust this CSP to fit your specific needs (e.g., if using external scripts)
-    key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:;"
-  }
+{
+  key: 'Content-Security-Policy',
+  value: [
+    "default-src 'self';",
+    // 1. Allow scripts from Clerk's domain
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cool-fish-97.clerk.accounts.dev https://*.clerk.shared.com;",
+    "style-src 'self' 'unsafe-inline';",
+    "img-src 'self' blob: data: https://img.clerk.com;",
+    // 2. Allow connections to Clerk's backend API
+    "connect-src 'self' https://cool-fish-97.clerk.accounts.dev https://api.clerk.io;",
+    // 3. Allow iframe environments if using Clerk components
+    "frame-src 'self' https://cool-fish-97.clerk.accounts.dev;"
+  ].join(' ')
+}
 ];
 
 const nextConfig = {
