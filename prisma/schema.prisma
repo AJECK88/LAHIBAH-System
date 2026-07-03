@@ -7,15 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Usersex {
-  Male
-  Female
-}
-
 model Admin {
-  id       String @id @default(cuid())
-  userName String
-  email    String @unique
+  id            String             @id @default(cuid())
+  userName      String
+  email         String             @unique
   notification  Notification[]
   notifications notificationRead[]
 }
@@ -24,12 +19,14 @@ model Department {
   id              String           @id @default(cuid())
   name            String           @unique
   teacherId       String?
-  supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [teacherId], references: [id], onDelete: SetNull)
-  subjects        Subject[]
-  students        Student[]
   announcements   Announcement[]
+  supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [teacherId], references: [id])
   events          Event[]
-  examDepartments ExamDepartment[] //  This handles mapping exams to departments perfectly
+  examDepartments ExamDepartment[]
+  students        Student[]
+  subjects        Subject[]        @relation("DepartmentToSubject")
+
+  @@index([teacherId], map: "Department_teacherId_fkey")
 }
 
 model Grade {
@@ -39,136 +36,143 @@ model Grade {
 }
 
 model Subject {
-  id           Int     @id @default(autoincrement())
-  name         String  @unique
-  gradeId      String?
-
-  grade      Grade?      @relation(fields: [gradeId], references: [id])
-  department Department[]
-
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  gradeId     String?
   assignments Assignment[]
   attendance  Attendance[]
-  classrooms  Classroom[]
   exams       Exam[]
   results     Result[]
+  grade       Grade?       @relation(fields: [gradeId], references: [id])
   timetables  Timetable[]
-  students    Student[]
-  teachers    Teacher[]
+  classrooms  Classroom[]  @relation("ClassroomToSubject")
+  department  Department[] @relation("DepartmentToSubject")
+  students    Student[]    @relation("StudentToSubject")
+  teachers    Teacher[]    @relation("SubjectToTeacher")
 
+  @@index([gradeId], map: "Subject_gradeId_fkey")
 }
 
 model Student {
-  id           String     @id @default(cuid())
-  username     String     @unique
-  email        String     @unique
+  id           String             @id @default(cuid())
+  username     String             @unique
+  email        String             @unique
   age          Int
   address      String
-  phoneNumber  String     @unique
+  phoneNumber  String             @unique
   firstName    String
   lastName     String
   image        String?
   sex          Usersex
-  createdAt    DateTime   @default(now())
+  createdAt    DateTime           @default(now())
   parentId     String?
   departmentId String
   gradeId      String?
   levelId      Int
-  matricule    String? @unique
+  matricule    String?            @unique
   DateOfBirth  DateTime?
-  department   Department @relation(fields: [departmentId], references: [id])
-  parent       Parent?    @relation(fields: [parentId], references: [id])
-  level        Level      @relation( fields: [levelId], references: [id])
-
-  attendance Attendance[]
-  fees       Fee[]
-  results    Result[]
-  courses    Subject[]
+  attendance   Attendance[]
+  fees         Fee[]
+  results      Result[]
+  department   Department         @relation(fields: [departmentId], references: [id])
+  level        Level              @relation(fields: [levelId], references: [id])
+  parent       Parent?            @relation(fields: [parentId], references: [id])
   readReceipts notificationRead[]
+  courses      Subject[]          @relation("StudentToSubject")
+
+  @@index([departmentId], map: "Student_departmentId_fkey")
+  @@index([levelId], map: "Student_levelId_fkey")
+  @@index([parentId], map: "Student_parentId_fkey")
 }
 
 model Level {
-   id        Int  @id @default(autoincrement())
-   LevelName  String @unique
-   student   Student[]
-   exam     Exam[]
-   
+  id        Int       @id @default(autoincrement())
+  LevelName String    @unique
+  exam      Exam[]
+  student   Student[]
 }
+
 model Teacher {
-  id          String       @id @default(cuid())
-  username    String       @unique
-  email       String       @unique
-  address     String
-  bloodGroup  String?
-  phoneNumber String       @unique
-  firstName   String
-  lastName    String
-  sex         Usersex
-  image       String?
-   teachersId String?
-  DateOfBirth DateTime?
-  courses     Subject[]
-  department  Department[] @relation("DepartmentSupervisor")
-  notifications  Notification[]
-  readReceipts notificationRead[]
+  id            String             @id @default(cuid())
+  username      String             @unique
+  email         String             @unique
+  address       String
+  bloodGroup    String?
+  phoneNumber   String             @unique
+  firstName     String
+  lastName      String
+  sex           Usersex
+  image         String?
+  DateOfBirth   DateTime?
+  teachersId    String?
+  department    Department[]       @relation("DepartmentSupervisor")
+  notifications Notification[]
+  readReceipts  notificationRead[]
+  courses       Subject[]          @relation("SubjectToTeacher")
 }
 
 model Parent {
-  id          String  @id @default(cuid())
-  username    String  @unique
-  email       String  @unique
+  id          String    @id @default(cuid())
+  username    String    @unique
+  email       String    @unique
   sex         Usersex
   address     String
-  phoneNumber String  @unique
+  phoneNumber String    @unique
   firstName   String
   lastName    String
-
-  students Student[]
+  students    Student[]
 }
 
 model Classroom {
-  id       String  @id @default(cuid())
-  name     String  @unique
+  id       String    @id @default(cuid())
+  name     String    @unique
   courseId Int
   exams    Exam[]
-  course   Subject[]
+  course   Subject[] @relation("ClassroomToSubject")
 }
 
 model Event {
-  id           String   @id @default(cuid())
-  name         String   @unique
+  id           String      @id @default(cuid())
+  name         String      @unique
   startDate    DateTime
   endDate      DateTime
   description  String
   departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
 
-  department Department? @relation(fields: [departmentId], references: [id])
+  @@index([departmentId], map: "Event_departmentId_fkey")
 }
+
 model Exam {
   id              Int              @id @default(autoincrement())
-  name            String           @unique       
+  name            String           @unique
   title           String
   startDate       DateTime
   endDate         DateTime
   courseId        Int
   ClassRoomId     String
   schoolYear      String
-  classroom       Classroom        @relation(fields: [ClassRoomId], references: [id])
-  Invigilator     String?          
-  course          Subject          @relation(fields: [courseId], references: [id])
   levelId         Int
+  Invigilator     String?
+  classroom       Classroom        @relation(fields: [ClassRoomId], references: [id])
+  course          Subject          @relation(fields: [courseId], references: [id])
   level           Level            @relation(fields: [levelId], references: [id])
+  examDepartments ExamDepartment[]
   results         Result[]
-  examDepartments ExamDepartment[] //  Explicit relationship side
+
+  @@index([ClassRoomId], map: "Exam_ClassRoomId_fkey")
+  @@index([courseId], map: "Exam_courseId_fkey")
+  @@index([levelId], map: "Exam_levelId_fkey")
 }
 
 model ExamDepartment {
   examId       Int
   departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  exam         Exam       @relation(fields: [examId], references: [id], onDelete: Cascade)
 
-  exam       Exam       @relation(fields: [examId], references: [id] , onDelete: Cascade)
-  department Department @relation(fields: [departmentId], references: [id])
-
-  @@id([examId, departmentId]) // composite PK
+  @@id([examId, departmentId])
+  @@index([departmentId], map: "ExamDepartment_departmentId_fkey")
 }
 
 model Attendance {
@@ -178,9 +182,11 @@ model Attendance {
   status    String
   courseId  Int
   studentId String
+  course    Subject  @relation(fields: [courseId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
 
-  course  Subject @relation(fields: [courseId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  @@index([courseId], map: "Attendance_courseId_fkey")
+  @@index([studentId], map: "Attendance_studentId_fkey")
 }
 
 model Assignment {
@@ -189,8 +195,9 @@ model Assignment {
   startDate DateTime
   dueDate   DateTime
   courseId  Int
+  course    Subject  @relation(fields: [courseId], references: [id])
 
-  course Subject @relation(fields: [courseId], references: [id])
+  @@index([courseId], map: "Assignment_courseId_fkey")
 }
 
 model Result {
@@ -203,11 +210,13 @@ model Result {
   courseId  Int
   examId    Int?
   grand     String
+  course    Subject  @relation(fields: [courseId], references: [id])
+  exam      Exam?    @relation(fields: [examId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
 
-  course  Subject @relation(fields: [courseId], references: [id])
-  exam    Exam?   @relation(fields: [examId], references: [id] , onDelete: SetNull)
-  student Student @relation(fields: [studentId], references: [id])
-   @@unique([studentId, courseId])
+  @@unique([studentId, courseId])
+  @@index([courseId], map: "Result_courseId_fkey")
+  @@index([examId], map: "Result_examId_fkey")
 }
 
 model Timetable {
@@ -216,8 +225,9 @@ model Timetable {
   startTime DateTime
   endTime   DateTime
   day       String
+  course    Subject  @relation(fields: [courseId], references: [id])
 
-  course Subject @relation(fields: [courseId], references: [id])
+  @@index([courseId], map: "Timetable_courseId_fkey")
 }
 
 model Message {
@@ -234,54 +244,61 @@ model Fee {
   amount    Float
   dueDate   DateTime
   status    String
+  student   Student  @relation(fields: [studentId], references: [id])
 
-  student Student @relation(fields: [studentId], references: [id])
+  @@index([studentId], map: "Fee_studentId_fkey")
 }
 
 model Announcement {
-  id           String   @id @default(cuid())
-  title        String
-  message      String   @db.Text
-  date         DateTime @default(now())
-  departmentId String?
+  id               String             @id @default(cuid())
+  title            String
+  message          String             @db.Text
+  date             DateTime           @default(now())
+  departmentId     String?
+  department       Department?        @relation(fields: [departmentId], references: [id])
   notificationRead notificationRead[]
 
-  department Department? @relation(fields: [departmentId], references: [id])
+  @@index([departmentId], map: "Announcement_departmentId_fkey")
 }
+
 model Notification {
-  id      String   @id @default(cuid())
-  title   String
-  message String
-  createdAt DateTime @default(now())
-  teacherId String?
-  teacher   Teacher? @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  
-  adminId   String?
-  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  id               String             @id @default(cuid())
+  title            String
+  message          String
+  adminId          String?
+  createdAt        DateTime           @default(now())
+  teacherId        String?
+  admin            Admin?             @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  teacher          Teacher?           @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   notificationRead notificationRead[]
+
+  @@index([adminId], map: "Notification_adminId_fkey")
+  @@index([teacherId], map: "Notification_teacherId_fkey")
 }
 
 model notificationRead {
-  id             String   @id @default(cuid())
+  id             String        @id @default(cuid())
   notificationId String
-  read           Boolean  @default(false)
+  read           Boolean       @default(false)
   readAt         DateTime?
   studentId      String?
   teacherId      String?
   adminId        String?
   announcementId String?
+  admin          Admin?        @relation(fields: [adminId], references: [id])
+  announcement   Announcement? @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  student        Student?      @relation(fields: [studentId], references: [id])
+  teacher        Teacher?      @relation(fields: [teacherId], references: [id])
 
-  // Relations
-  student      Student?      @relation(fields: [studentId], references: [id])
-  teacher      Teacher?      @relation(fields: [teacherId], references: [id])
-  admin        Admin?        @relation(fields: [adminId], references: [id])
-  notification Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  announcement Announcement? @relation(fields: [announcementId], references: [id], onDelete: Cascade) 
-
-  // Indexes for fast lookups
   @@index([studentId])
   @@index([teacherId])
   @@index([adminId])
   @@index([notificationId])
   @@index([announcementId])
+}
+
+enum Usersex {
+  Male
+  Female
 }
