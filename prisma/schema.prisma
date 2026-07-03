@@ -7,12 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Usersex {
+  Male
+  Female
+}
+
 model Admin {
   id            String             @id @default(cuid())
   userName      String
   email         String             @unique
   notification  Notification[]
-  notifications notificationRead[]
+  notifications NotificationRead[] 
 }
 
 model Department {
@@ -39,11 +44,13 @@ model Subject {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   gradeId     String?
+  levelId     Int?         
   assignments Assignment[]
   attendance  Attendance[]
   exams       Exam[]
   results     Result[]
   grade       Grade?       @relation(fields: [gradeId], references: [id])
+  level       Level?       @relation(fields: [levelId], references: [id]) //  FIX: Added missing back relation
   timetables  Timetable[]
   classrooms  Classroom[]  @relation("ClassroomToSubject")
   department  Department[] @relation("DepartmentToSubject")
@@ -51,6 +58,7 @@ model Subject {
   teachers    Teacher[]    @relation("SubjectToTeacher")
 
   @@index([gradeId], map: "Subject_gradeId_fkey")
+  @@index([levelId], map: "Subject_levelId_fkey")
 }
 
 model Student {
@@ -77,7 +85,7 @@ model Student {
   department   Department         @relation(fields: [departmentId], references: [id])
   level        Level              @relation(fields: [levelId], references: [id])
   parent       Parent?            @relation(fields: [parentId], references: [id])
-  readReceipts notificationRead[]
+  readReceipts NotificationRead[] // Fixed Case Name
   courses      Subject[]          @relation("StudentToSubject")
 
   @@index([departmentId], map: "Student_departmentId_fkey")
@@ -90,6 +98,7 @@ model Level {
   LevelName String    @unique
   exam      Exam[]
   student   Student[]
+  subjects  Subject[] 
 }
 
 model Teacher {
@@ -107,7 +116,7 @@ model Teacher {
   teachersId    String?
   department    Department[]       @relation("DepartmentSupervisor")
   notifications Notification[]
-  readReceipts  notificationRead[]
+  readReceipts  NotificationRead[] // Fixed Case Name
   courses       Subject[]          @relation("SubjectToTeacher")
 }
 
@@ -126,7 +135,7 @@ model Parent {
 model Classroom {
   id       String    @id @default(cuid())
   name     String    @unique
-  courseId Int
+  //  FIX: Removed disconnected courseId scalar 
   exams    Exam[]
   course   Subject[] @relation("ClassroomToSubject")
 }
@@ -256,7 +265,7 @@ model Announcement {
   date             DateTime           @default(now())
   departmentId     String?
   department       Department?        @relation(fields: [departmentId], references: [id])
-  notificationRead notificationRead[]
+  notificationRead NotificationRead[] // Fixed Case Name
 
   @@index([departmentId], map: "Announcement_departmentId_fkey")
 }
@@ -270,13 +279,13 @@ model Notification {
   teacherId        String?
   admin            Admin?             @relation(fields: [adminId], references: [id], onDelete: Cascade)
   teacher          Teacher?           @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  notificationRead notificationRead[]
+  notificationRead NotificationRead[] // Fixed Case Name
 
   @@index([adminId], map: "Notification_adminId_fkey")
   @@index([teacherId], map: "Notification_teacherId_fkey")
 }
 
-model notificationRead {
+model NotificationRead {
   id             String        @id @default(cuid())
   notificationId String
   read           Boolean       @default(false)
@@ -286,8 +295,8 @@ model notificationRead {
   adminId        String?
   announcementId String?
   admin          Admin?        @relation(fields: [adminId], references: [id])
-  announcement   Announcement? @relation(fields: [announcementId], references: [id], onDelete: Cascade)
-  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  announcement   Announcement? @relation(fields: [announcementId], references: [id], onDelete: NoAction) // Changed to avoid cyclic cascades
+  notification   Notification  @relation(fields: [notificationId], references: [id], onDelete: NoAction) // Changed to avoid cyclic cascades
   student        Student?      @relation(fields: [studentId], references: [id])
   teacher        Teacher?      @relation(fields: [teacherId], references: [id])
 
@@ -296,9 +305,4 @@ model notificationRead {
   @@index([adminId])
   @@index([notificationId])
   @@index([announcementId])
-}
-
-enum Usersex {
-  Male
-  Female
 }

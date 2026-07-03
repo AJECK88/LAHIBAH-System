@@ -1,27 +1,35 @@
 import { broadcastSSE } from "@/lib/sse";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"; 
+import  {auth } from "@clerk/nextjs/server";
 const prisma = new PrismaClient();
 
 // 1. GET: Fetch current unread counts for a specific user
-export async function GET(req) {
+export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    const userType = searchParams.get("userType"); 
+    const { userId:sessionId,sessionClaims } = await auth();
+    if (!sessionId) {
+      return new Response(JSON.stringify({ error: "Unauthorized: Invalid session" }), { status: 401,
+         headers: { "Content-Type": "application/json" }
+       });
 
-    if (!userId) {
-      return new Response(JSON.stringify({ error: "Missing userId" }), { status: 400 });
+
     }
 
+
+   // Extracting userId and userType from session claims
+   // for example, if you have a claim like "userType" in your session claims
+   const  {searchParams} = new URL(req.url);
+   const userType = (sessionClaims?.metaData  as any)?.role  ||  searchParams.get("userType");
+ 
     // Total announcements in the system
     const totalAnnouncements = await prisma.notification.count();
 
     // Total read entries matching this user's role criteria
     const readCount = await prisma.notificationRead.count({
       where: {
-        studentId: userType === "student" ? userId : undefined,
-        teacherId: userType === "teacher" ? userId : undefined,
-        adminId:   userType === "admin"   ? userId : undefined,
+        studentId: userType === "student" ? sessionId : undefined,
+        teacherId: userType === "teacher" ?  sessionId : undefined,
+        adminId:   userType === "admin"   ?  sessionId: undefined,
       },
     });
     console.log("userType",userType)
@@ -37,8 +45,15 @@ export async function GET(req) {
 }
 
 // 2. POST: Creating a new announcement and broadcasting updated count
-export async function POST(req) {
+export async function POST(req : Request) {
   try {
+    const { userId: sessionId} = await auth();
+    if (!sessionId) {
+      return new Response(JSON.stringify({ error: "Unauthorized: Invalid session" }), { status: 401,
+         headers: { "Content-Type": "application/json" }
+       });
+    }
+    
     const { message, title, teacherId, adminId } = await req.json();
 
     if (!title || !message) {
