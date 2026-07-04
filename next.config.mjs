@@ -35,6 +35,8 @@ const securityHeaders = [
       "default-src 'self'",
       // Allowed scripts (Clerk development domains + production fallback distributions)
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cool-fish-97.clerk.accounts.dev https://*.clerk.shared.com",
+      // 🛠️ FIX: Authorize background Web Workers built via local inline blob scripts for session management
+      "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https://img.clerk.com https://images.pexels.com",
       // Secure WebSocket & Database pipelines (Clerk + your local API architecture)
