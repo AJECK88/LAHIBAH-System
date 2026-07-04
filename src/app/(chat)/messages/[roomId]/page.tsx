@@ -3,11 +3,13 @@ import React from 'react';
 import ChatRoomWindow from './ChatRoomWindow';
 
 interface PageProps {
-  params: { roomId: string };
+  // In Next.js 15+, params must be typed as a Promise
+  params: Promise<{ roomId: string }>;
 }
 
 export default async function RoomPage({ params }: PageProps) {
-  const { roomId } = params;
+  // Await the params promise before destructuring the roomId
+  const { roomId } = await params;
 
   // In production, you would fetch real entries here from your database:
   // const initialMessages = await db.messages.findMany({ where: { roomId } });
