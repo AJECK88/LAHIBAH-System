@@ -22,10 +22,10 @@ const securityHeaders = [
   {
     // Strips out sensitive tracking metadata when clicking out of your application
     key: 'Referrer-Policy',
-    value: 'strict-origin-when-cross-origin' // Upgraded from origin-when-cross-origin
+    value: 'strict-origin-when-cross-origin' 
   },
   {
-    // 🛡️ NEW: Restricts access to device hardware elements (Camera, Mic, Geo) unless explicitly authorized
+    // 🛡️ Restricts access to device hardware elements (Camera, Mic, Geo) unless explicitly authorized
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
   },
@@ -35,15 +35,15 @@ const securityHeaders = [
       "default-src 'self'",
       // Allowed scripts (Clerk development domains + production fallback distributions)
       "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cool-fish-97.clerk.accounts.dev https://*.clerk.shared.com",
-      // 🛠️ FIX: Authorize background Web Workers built via local inline blob scripts for session management
+      // Authorize background Web Workers built via local inline blob scripts for session management
       "worker-src 'self' blob:",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' blob: data: https://img.clerk.com https://images.pexels.com",
-      // Secure WebSocket & Database pipelines (Clerk + your local API architecture)
-      "connect-src 'self' https://cool-fish-97.clerk.accounts.dev https://api.clerk.io wss://*.clerk.shared.com",
+      // 🛠️ FIX: Added https://clerk-telemetry.com to authorize analytics and event reporting data connections
+      "connect-src 'self' https://cool-fish-97.clerk.accounts.dev https://api.clerk.io wss://*.clerk.shared.com https://clerk-telemetry.com",
       "frame-src 'self' https://cool-fish-97.clerk.accounts.dev",
       "upgrade-insecure-requests" // Automatically upgrades HTTP assets to HTTPS
-    ].join('; ') // Clean separation mapping format
+    ].join('; ') 
   }
 ];
 

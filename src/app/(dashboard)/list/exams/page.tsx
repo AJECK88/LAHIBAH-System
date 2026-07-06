@@ -6,7 +6,7 @@ import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
 import SeedfileInput from '@/components/Forms/SeedfileInput';
 import { UploadExam } from '@/app/api/seeds/exams/upload/route';
-import ExamForm from '@/components/Forms/QUERYDB/ExamQuery';
+import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
    type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
     const Columns = [
         {
@@ -66,6 +66,18 @@ const  ExamListpage = async(
    {searchParams}:
   {searchParams: Promise<{[key:string]:string|undefined}>}
 ) => { 
+  const levels = await prisma.level.findMany({
+     select:{
+         id:true,
+         LevelName:true
+     }
+  });
+  const departments = await prisma.department.findMany({
+     select:{
+         id:true,
+         name:true
+     }
+  });
    const params = await searchParams;
    const {page , ...qouryParams} = params
    const p = page ? parseInt(page):1;
@@ -93,22 +105,26 @@ const  ExamListpage = async(
     return (
         /* Student Page */
         /* Right hand side */
-        <div className=" flex-1 bg-white  rounded-md m-4 mt-0 h-full p-4" >
+        <div className=" flex-1 bg-white  rounded-md m-4 mt-0 h-full p-4 w-full" >
             {/* || top section */}
             <div className='flex md:flex  text-lg font-semibold bg-gray-300 h-12 items-center border-white'><h1 className='bg-white flex items-center h-full p-4 border-3 border-t-blue-500 border-r-blue-500  border-b-white border-l-white'>All Exams</h1></div> <br />
-            <div className="flex flex-col md:flex-row gap-4  items-center md:w-auto justify-between">
-                 <div className='flex flex-col' >
+            <div className="flex flex-col md:flex-row gap-4  items-center md:w-auto justify-between w-full border-b border-gray-200 p-2">
+                 <div className='flex flex-col w-full' >
+
+                 <div className="flex gap-2">  
+
                 <div className="flex gap-2">
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>PDF</button>
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>Excel</button>
                 </div>
+
+                <ExamForm levels={levels} departments={departments}/>
+
+                </div>
                 <SeedfileInput type='Exam'/>
                 </div>
-                <div className=''>
                     
-                    <ExamForm />
-                            
-                </div>
+                 
                 <div className="flex items-center gap-4 self-end">
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/filter.png" alt="Add" width={14} height={14} /></button>
                      <button className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100"><Image src="/sort.png" alt="Add" width={14} height={14} /></button>
