@@ -8,6 +8,7 @@ import React, { useEffect } from "react"
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
+
 const Sign_In  =  ()=>{
 const { isSignedIn, user, isLoaded } = useUser();
   const [passWordset , passWordFunction] =React.useState(false);
@@ -25,8 +26,8 @@ const { isSignedIn, user, isLoaded } = useUser();
     const role = user?.publicMetadata.role;
     router.push(`/${role}`)
    }
+  
   } ,[user , router])
- 
  return (
 
         <div className=" grid w-full flex-grow items-center bg-zinc-100 px-4 sm:justify-center h-[100vh]">
