@@ -19,7 +19,7 @@ const Params = new URLSearchParams(window.location.search);
 } 
   console.log(length)
     return(
-        <div className=" pt-4 md:p-1 lg:p-4 flex items-center justify-between text-gray-500 ">
+        <div className=" pt-4 md:p-1 lg:p-4 flex items-center justify-between text-gray-500  gap-2">
             <button disabled={hasProv} className="py-2 p-4 rounded-md bg-slate-200 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"onClick={()=>{
                 changePage(page -1)
                 }} >Previous</button>

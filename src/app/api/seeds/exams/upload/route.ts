@@ -16,8 +16,8 @@ export async function UploadExam(
 ): Promise<ExamUploadResponse> {
   try {
     const file = formData.get("file") as File;
-    if (!file || file.size === 0) {
-      throw new Error("No file uploaded or file is empty");
+    if (!file || file.size === 0 || !file.name.endsWith(".xlsx") ) {
+      throw new Error("No file uploaded please select a valid Excel file.");
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -35,7 +35,7 @@ export async function UploadExam(
     for (const row of rows) {
       // 1. Identify Subject/Course column directly (Excel header says 'caurses')
       const courseName = row.caurses || row["caurses"];
-      if (!courseName || courseName === "General Course") {
+      if (!courseName) {
         continue; // Gracefully bypass spacer structural labels or empty rows
       }
 

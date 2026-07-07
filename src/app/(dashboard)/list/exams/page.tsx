@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import Table from '@/components/table'
- import TablesearchBar from '@/components/TablesearchBar'
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
 import { Items_Per_Page } from '../../Settings';
 import SeedfileInput from '@/components/Forms/SeedfileInput';
-import { UploadExam } from '@/app/api/seeds/exams/upload/route';
 import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
-   type  examList = Exam & {course:Subject  & {teachers:{firstName:string , lastName:string}[]}} 
+import UserId, { role } from '@/components/user';
+import Pagination from '@/components/pagination';
+import { User } from '@clerk/nextjs/server';
+   type  examList = Exam & {course:Subject} 
     const Columns = [
         {
             header:"Course Title",
@@ -23,7 +24,6 @@ import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
         {
             header:"Start Time",
             accessorKey:"Start_time",
-            className: "hidden md:table-cell"
         },
            {
             header:"End Time",
@@ -33,7 +33,7 @@ import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
         {
             header:"Date",
             accessorKey:"date",
-            className: "hidden md:table-cell"
+            
         }
     ]
     
@@ -46,19 +46,9 @@ import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
                 </td>
 
                 <td className="hidden md:table-cell"> {exam.Invigilator}</td>
-                <td className="hidden md:table-cell"> {exam.startDate.toLocaleTimeString()}</td>
+                <td className=""> {exam.startDate.toLocaleTimeString()}</td>
                 <td className="hidden md:table-cell"> {exam.endDate.toLocaleTimeString()}</td>
                 <td className=""> {exam.endDate.toLocaleDateString()}</td>
-                <td className=" md:table-cell">
-                   {/*  <div className="flex items-center gap-2 self-end" >
-                        <Link href={`/list/subjects/${exam.id}`} className="text-blue-500">
-                          <button className='w-7 h-7 flex items-center justify-center rounded-full bg-[#271288]'><Image src="/edit.png" alt='' width={16} height={16} ></Image></button>
-                        </Link>
-                  {role === "admin" && (
-                        <FormModel table="Exams" type="Delete" id={exam.id} />
-                    )}
-                    </div> */}
-                </td>
             </tr>
         )
 
@@ -66,6 +56,8 @@ const  ExamListpage = async(
    {searchParams}:
   {searchParams: Promise<{[key:string]:string|undefined}>}
 ) => { 
+  const userRole = await role();  
+  const userId  = await  UserId()
   const levels = await prisma.level.findMany({
      select:{
          id:true,
@@ -80,10 +72,42 @@ const  ExamListpage = async(
   });
    const params = await searchParams;
    const {page , ...qouryParams} = params
-   const p = page ? parseInt(page):1;
+   const p = page ? parseInt(page):1; 
+//  filter the exams based on the query parameters
+   let examFilter = {};
+   if (userRole === "student") {
+  examFilter = {
+    // Filter exams to match the student's specific Level and Department
+    examDepartments:{
+                some:{
+                department:{
+                    students:{
+                        some:{
+                            id: String(userId)
+                        }
+                    }
+                }
+                }
+                 
+             }
+  };
+} else if (userRole === "teacher") {
+  examFilter = {
+        course:{
+                    teachers:{
+                        some:{
+                            id:String(userId)
+                        }
+                    }
+                }
+            
+  };
+}
+
    const[examData , count]= await prisma.$transaction([
       prisma.exam.findMany({
-         include:{
+            where:examFilter,
+         include:{ 
              course:{
                  include:{
                      teachers:{
@@ -91,7 +115,7 @@ const  ExamListpage = async(
                              firstName:true,
                              lastName:true,
                          },
-                     },
+                     }, 
                 
                  },
              },
@@ -108,20 +132,21 @@ const  ExamListpage = async(
         <div className=" flex-1 bg-white  rounded-md m-4 mt-0 h-full p-4 w-full" >
             {/* || top section */}
             <div className='flex md:flex  text-lg font-semibold bg-gray-300 h-12 items-center border-white'><h1 className='bg-white flex items-center h-full p-4 border-3 border-t-blue-500 border-r-blue-500  border-b-white border-l-white'>All Exams</h1></div> <br />
-            <div className="flex flex-col md:flex-row gap-4  items-center md:w-auto justify-between w-full border-b border-gray-200 p-2">
+           
+            <div className="flex flex-col md:flex-row gap-4  items-center md:w-auto justify-between w-full">
                  <div className='flex flex-col w-full' >
 
                  <div className="flex gap-2">  
-
-                <div className="flex gap-2">
+            { userRole === "student" &&
+             <div className="flex gap-2">
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>PDF</button>
                     <button className='border-1 border-gray-500 p-2 cursor-pointer text-sm font-semibold text-gray-500'>Excel</button>
                 </div>
-
-                <ExamForm levels={levels} departments={departments}/>
+}
+               {userRole ==="admin" && <ExamForm levels={levels} departments={departments} />}
 
                 </div>
-                <SeedfileInput type='Exam'/>
+               {userRole === "admin" && <SeedfileInput type='Exam'/>}
                 </div>
                     
                  
@@ -134,17 +159,16 @@ const  ExamListpage = async(
             {/* || List  */}
             <div className="m-auto flex flex-col gap-4 ">
             <div className="mt-4">
-                <h1 className="text-lg font-semibold">{}Department</h1>
                 <Table columns={Columns} renderRow ={renderRow} data ={examData} />
 
             </div>
             {/* || pagination */}
-        {/*     <div className="w-inherit flex start">
-                <Pagination 
+            <div className="w-inherit flex items-center justify-center">
+                <Pagination
                  page={p}
                  count={count}
                 />
-            </div> */}
+            </div>
             </div>
         </div>
     )

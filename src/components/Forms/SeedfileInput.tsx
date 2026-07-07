@@ -10,14 +10,12 @@ import { Loading } from "@clerk/elements/common";
 const SeedfileInput =({type}:{type:"Exam"|"Result"}) => {
 
   const [showImage, setShowImage] = useState(true);  /**
-   * 📦 Preview image state
-   */
+   * 📦 Preview image state */
   const [preview, setPreview] = useState(false);
 
   /**
    *  Handle file input change for previewing uploaded image
    */
-  let size ;
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; 
     if (file) {
@@ -25,23 +23,23 @@ const SeedfileInput =({type}:{type:"Exam"|"Result"}) => {
     }
   };
   const [Notisfication , setNotisfication] = useState(false)
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setShowImage(false);
-  }, 4000); // Show the image after 3 seconds
 
-  return () => clearTimeout(timer); // Cleanup the timer on component unmount
-}, []);
-  const [state, formAction] = useActionState( type ==="Exam"?UploadExam: UploadResult,{
+  const [state, formAction , isLoading] = useActionState( type ==="Exam"?UploadExam: UploadResult,{
   success: false,
   error:undefined
 }); 
+  useEffect( ()=> {
+     if (isLoading){
+      setNotisfication(true)
+      setShowImage(true)
+     }
+     else {
+      setShowImage(false)
+      setPreview(false)
+     }
+  },[isLoading])
   const Loading = () => {
-    setShowImage(true) 
-       setTimeout(() => { 
-      setShowImage(false);
-    }, 5000); // Show the image after 3 seconds
-     setNotisfication(true)   
+    setShowImage(true)  
   }
   const submitEvent = (formData:FormData) => {
 
@@ -64,7 +62,7 @@ useEffect(() => {
 
 { Notisfication &&
   <div className="absolute inset-0 bg-black/60 z-50 flex justify-center p-2 items-center overflow-scroll">
-  <div className=" mt-8 flex absolute h-50 w-70  bg-gray-100  items-center justify-center rounded-md p-2 flex-col gap-2">
+  <div className=" mt-8 flex absolute h-50 w-70 items-center justify-center rounded-md p-2 flex-col gap-2 bg-white">
     <button className="text-red-500 absolute top-2 right-2" onClick={() => setNotisfication(false)}><Image src="/close.png" width={10} height={10} alt="exit"color="red" /></button>
     <span className="text-lg font-semibold text-gray-800">Processing {type} file...</span>
     {showImage ?
@@ -75,15 +73,21 @@ useEffect(() => {
 
   <div className="mt-2">
   {state?.success && (
-      <p className="text-green-600 text-sm">
+    <div className="flex flex-col items-center gap-2">
+      <p className="text-green-600 text-sm w-35 text-center">
         File uploaded successfully!
       </p>
+        <Image src="/success.jpeg" width={30} height={30} alt="success" />
+        </div>
     )}
 
     {state?.error && (
+     <div className="flex flex-col items-center gap-2">  
       <p className="text-red-600 text-sm w-35 text-center">
-        Error uploading file: {state.error}
+         Error uploading file: {state.error}
       </p>
+        <Image src="/error.jpg" width={30} height={30} alt="error" />
+        </div>
     )}            
 </div>
 

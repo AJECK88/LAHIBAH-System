@@ -66,12 +66,14 @@ finally {
 
     {Activestate && ( 
  
-  <div className="flex flex-col absolute bg-white pt-0 pl-4  pb-4 border-2 border-gray-200 rounded-md shadow-md z-10 w-0 md:w-100 lg:w-100 xl:w-100 2xl:w-100">
+  <div className="flex flex-col absolute bg-white pt-0 pl-4  pb-4 border-2 border-gray-200 rounded-md shadow-md z-10 w-100% md:w-100 lg:w-100 xl:w-100 2xl:w-100">
    
+   {/* exist form button */}
    <div className="flex gap-2 items-center justify-end p-2">
     <button className="rounded-md hover:bg-gray-100 p-2" onClick={() => setActivate(!Activestate)}>
      <Image  src="/close.png" alt="Excel Template" width={10} height={10} /></button>
      </div>
+ {/* form inputs */}
    <form onSubmit={handleForm} className="flex flex-col gap-4 pr-4">
 
   <select name="levelId" required className="border border-amber-100 p-2">
