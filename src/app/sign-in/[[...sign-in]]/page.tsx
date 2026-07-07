@@ -21,11 +21,13 @@ const { isSignedIn, user, isLoaded } = useUser();
    } */
  const router = useRouter()
   useEffect(() => {
-   if(user){
+  if (isLoaded && isSignedIn && user) {
     const role = user?.publicMetadata.role;
-    router.push(`/${role}`)
-   }
-  } ,[user , router])
+    if (role) {
+      window.location.href = `/${role}`;
+    }
+  }
+}, [user, isLoaded, isSignedIn])
  
  return (
 

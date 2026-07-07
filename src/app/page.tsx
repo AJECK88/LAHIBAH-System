@@ -1,31 +1,43 @@
-"use client"
-import Link from "next/link"
-import Image from "next/image"
-import React, { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useUser } from "@clerk/nextjs"
-import CopyRight from "@/components/CopyRigt"
-import MetaHead from "@/components/Metahead"
+"use client";
+import Link from "next/link";
+import Image from "next/image";
+import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import CopyRight from "@/components/CopyRigt";
+import MetaHead from "@/components/Metahead";
 
 const Homepage = () => {
-  const [menuOpen, setMenuOpen] = React.useState(false)
-  const { isSignedIn, user, isLoaded } = useUser()
-  const route = useRouter()
+  const [menuOpen, setMenuOpen] = React.useState(false);
+  const { isSignedIn, user, isLoaded } = useUser();
+  const route = useRouter();
 
   useEffect(() => {
-    if (isSignedIn && user) {
-      const role = (user?.publicMetadata as any)?.role
+    if (isLoaded && isSignedIn && user) {
+      const role = user?.publicMetadata.role;
       if (role) {
-        route.push(`/${role}`)
+        window.location.href = `/${role}`;
       }
     }
-  }, [user, route, isSignedIn])
+  }, [user, isLoaded, isSignedIn]);
 
-  const handleMenuClick = () => {
-    setMenuOpen((prev) => !prev)
+  // Don't render the homepage while we're still checking auth,
+  // or if we know we're about to redirect away
+  if (!isLoaded || (isSignedIn && user?.publicMetadata?.role)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-50 gap-4">
+        <div className="w-10 h-10 border-4 border-blue-900 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-500 text-sm">Loading...</p>
+      </div>
+    );
   }
 
+  const handleMenuClick = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   return (
+    // ...rest of your existing homepage JSX unchanged
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Meta Head */}
       <MetaHead />
@@ -33,10 +45,10 @@ const Homepage = () => {
       <header className="w-full bg-white shadow-md sticky top-0 z-50">
         <nav className="flex justify-between items-center gap-4 w-100% min-w-fit lg:w-full max-w-7xl mx-auto px-4 py-4 ">
           <div className="border-2 border-blue-900 px-4 py-2 rounded font-bold text-xs sm:text-sm lg:text-lg">
-              <Link className="text-blue-400 font-bold text-lg" href="/">
-                LAHIBA <span className="text-black">MANAGEMENT</span>
-                <span className="text-red-600"> SYSTEM</span>
-              </Link>
+            <Link className="text-blue-400 font-bold text-lg" href="/">
+              LAHIBA <span className="text-black">MANAGEMENT</span>
+              <span className="text-red-600"> SYSTEM</span>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -104,18 +116,27 @@ const Homepage = () => {
             {/* Section 1 */}
             <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
-                Requirements for Admission into the First Year of the HND/BTS/SRN Program
+                Requirements for Admission into the First Year of the
+                HND/BTS/SRN Program
               </h2>
               <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
                 <li className="leading-relaxed">
                   Fill and submit the online admission application form{" "}
-                  <a className="text-blue-600 underline hover:text-blue-800" href="">
+                  <a
+                    className="text-blue-600 underline hover:text-blue-800"
+                    href=""
+                  >
                     click here
                   </a>
                 </li>
-                <li className="font-semibold">Attach the following documents:</li>
+                <li className="font-semibold">
+                  Attach the following documents:
+                </li>
                 <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
-                  <li>Certified copy of GCE Advanced level (two subjects in one sitting)</li>
+                  <li>
+                    Certified copy of GCE Advanced level (two subjects in one
+                    sitting)
+                  </li>
                   <li>Certified copy of birth certificate</li>
                   <li>Photo copy of GCE O/L or CAP</li>
                   <li>National Identity Card or international passport</li>
@@ -124,11 +145,16 @@ const Homepage = () => {
                 </ul>
               </ol>
               <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
-                Submit documents to the Admissions Office (Room 1, Central Administrative Block). Provisional admission pending file review. Contact{" "}
-                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                Submit documents to the Admissions Office (Room 1, Central
+                Administrative Block). Provisional admission pending file
+                review. Contact{" "}
+                <a
+                  className="text-blue-600 underline"
+                  href="mailto:info@laureateinstitute.com"
+                >
                   info@laureateinstitute.com
-                </a>
-                {" "}or visit{" "}
+                </a>{" "}
+                or visit{" "}
                 <a
                   className="text-blue-600 underline"
                   href="https://laureateuniversityinstitute.com"
@@ -141,18 +167,26 @@ const Homepage = () => {
             {/* Section 2 */}
             <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
-                Requirements for Admission into the One Year Top-Up Degree Programme
+                Requirements for Admission into the One Year Top-Up Degree
+                Programme
               </h2>
               <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
                 <li className="leading-relaxed">
                   Fill and submit the online admission application form{" "}
-                  <a className="text-blue-600 underline hover:text-blue-800" href="">
+                  <a
+                    className="text-blue-600 underline hover:text-blue-800"
+                    href=""
+                  >
                     click here
                   </a>
                 </li>
-                <li className="font-semibold">Attach the following documents:</li>
+                <li className="font-semibold">
+                  Attach the following documents:
+                </li>
                 <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
-                  <li>Certified copy of HND, HPD, BTS, or recognized diploma</li>
+                  <li>
+                    Certified copy of HND, HPD, BTS, or recognized diploma
+                  </li>
                   <li>Certified copy of birth certificate</li>
                   <li>Photo copy of GCE A/L or BACC</li>
                   <li>National Identity Card or international passport</li>
@@ -162,11 +196,17 @@ const Homepage = () => {
               </ol>
               <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
                 Submit to the Admissions Office. Contact{" "}
-                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                <a
+                  className="text-blue-600 underline"
+                  href="mailto:info@laureateinstitute.com"
+                >
                   info@laureateinstitute.com
-                </a>
-                {" "}or visit{" "}
-                <Link className="text-blue-600 underline" href="https://laureateuniversityinstitute.com">
+                </a>{" "}
+                or visit{" "}
+                <Link
+                  className="text-blue-600 underline"
+                  href="https://laureateuniversityinstitute.com"
+                >
                   laureateuniversityinstitute.com
                 </Link>
               </p>
@@ -175,15 +215,21 @@ const Homepage = () => {
             {/* Section 3 */}
             <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
-                Requirements for Admission into the Master&apos;s Degree Programme
+                Requirements for Admission into the Master&apos;s Degree
+                Programme
               </h2>
               <ol className="space-y-4 text-gray-700 text-sm sm:text-base list-decimal list-inside">
                 <li className="leading-relaxed">
                   Fill and submit the online admission application form
                 </li>
-                <li className="font-semibold">Attach the following documents:</li>
+                <li className="font-semibold">
+                  Attach the following documents:
+                </li>
                 <ul className="ml-6 space-y-2 list-disc list-inside text-gray-600">
-                  <li>Certified copy of Bachelor&apos;s Degree or Attestation of Results</li>
+                  <li>
+                    Certified copy of Bachelor&apos;s Degree or Attestation of
+                    Results
+                  </li>
                   <li>Certified undergraduate transcripts</li>
                   <li>Certified copy of birth certificate</li>
                   <li>Letter of Motivation (max 1 page)</li>
@@ -194,7 +240,10 @@ const Homepage = () => {
               </ol>
               <p className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 text-gray-700 text-sm sm:text-base">
                 Submit to the Admissions Office. Contact{" "}
-                <a className="text-blue-600 underline" href="mailto:info@laureateinstitute.com">
+                <a
+                  className="text-blue-600 underline"
+                  href="mailto:info@laureateinstitute.com"
+                >
                   info@laureateinstitute.com
                 </a>
               </p>
@@ -220,7 +269,12 @@ const Homepage = () => {
                 href="https://www.facebook.com/profile.php?id=100063757374130"
                 className="bg-blue-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
               >
-                <Image src="/facebook.png" width={20} height={20} alt="facebook" />
+                <Image
+                  src="/facebook.png"
+                  width={20}
+                  height={20}
+                  alt="facebook"
+                />
               </a>
               <a
                 href="https://www.tiktok.com/@lahibauniversity?_r=1&_t=ZM-93BTtV3Mrgh"
@@ -240,9 +294,14 @@ const Homepage = () => {
           {/* Links */}
           <div>
             <h3 className="text-lg font-bold text-white mb-4">Information</h3>
-            <div> <h1 className="text-2xl">Information</h1> <div className="flex flex-row"> 
-              <div className="w-[30%] h-[5px] bg-white"></div> 
-            <div className="w-[70%] h-[5px] bg-[#271288]"></div> </div> </div>
+            <div>
+              {" "}
+              <h1 className="text-2xl">Information</h1>{" "}
+              <div className="flex flex-row">
+                <div className="w-[30%] h-[5px] bg-white"></div>
+                <div className="w-[70%] h-[5px] bg-[#271288]"></div>{" "}
+              </div>{" "}
+            </div>
             <ul className="space-y-3 text-xl">
               <li className="hover:text-blue-400 pt-2 transition">
                 <a href="#about">About Us</a>
@@ -261,13 +320,11 @@ const Homepage = () => {
               </li>
             </ul>
           </div>
-
-        
         </div>
-       <CopyRight />
+        <CopyRight />
       </footer>
     </div>
-  )
-}
+  );
+};
 
-export default Homepage
+export default Homepage;
