@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       { header: "caurses", key: "courses", width: 20 }, // Match exact typo expected by seed
       { header: "ClassRoom", key: "classroom", width: 15 },
       { header: "Start Date", key: "startDate", width: 22 },
-      { header: "Duration/hrs", key: "duration", width: 15 },
+      { header: "Duration", key: "duration", width: 15 },
       { header: "Invigilator", key: "invigilator", width: 20 } 
     ];
 
