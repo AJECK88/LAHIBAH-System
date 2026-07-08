@@ -24,15 +24,20 @@ export async function UploadExam(
     const workbook = XLSX.read(buffer, { type: "buffer" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { raw: false }) as Array<Record<string, any>>;
-
+    // to get the first examtype and level
+const row2 = rows.slice(0,2)
+const rowDepartment =row2[1]
+const rows3 = rows.slice(2)
+console.log(rows3)
+const levels =row2[0].Duration
     // Dynamic School Year calculation based on the current date context
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth();
     const startYear = currentMonth < 7 ? currentYear - 1 : currentYear;
     const endYear = startYear + 1;
     const computedSchoolYear = `${startYear}/${endYear}`;
-
-    for (const row of rows) {
+    
+    for (const row of rows3) {
       // 1. Identify Subject/Course column directly (Excel header says 'caurses')
       const courseName = row.caurses || row["caurses"];
       if (!courseName) {
@@ -41,14 +46,13 @@ export async function UploadExam(
 
       // 2. Fetch dependencies safely from the database
       const level = await prisma.level.findUnique({
-        where: { LevelName: String(row.Level) },
+        where: { LevelName: String(levels)},
       });
-      if (!level) throw new Error(`Level value "${row.Level}" was not found.`);
-
+      if (!level || level === undefined) throw new Error(`Level value "${row.Level}" was not found.`);
       const department = await prisma.department.findUnique({
-        where: { name: row.Department },
+        where: { name: rowDepartment.caurses},
       });
-      if (!department) throw new Error(`Department string "${row.Department}" was not found.`);
+      if (!department) throw new Error(`Department string "${rowDepartment.caurses}" was not found.`);
 
       const classRoom = await prisma.classroom.findUnique({
         where: { name: row.ClassRoom },
@@ -68,7 +72,7 @@ export async function UploadExam(
       const durationHours = parseFloat(row["Duration/hrs"]) || 2;
       const endDate = new Date(startDate.getTime() + durationHours * 60 * 60 * 1000);
 
-      const examUniqueName = `${row["Exam Name"]}-${department.name}-${course.name}`;
+      const examUniqueName = `${row2[0]. caurses}-${rowDepartment.caurses}-${course.name}`;
 
       // 4. Perform the upsert operation using your strict scalar keys
       const exam = await prisma.exam.upsert({
@@ -77,7 +81,7 @@ export async function UploadExam(
           startDate,
           endDate,
           schoolYear: computedSchoolYear,
-          title: row["Exam Name"],
+          title: row2[0]. caurses, //the courses is seen as title
           ClassRoomId: classRoom.id,
           courseId: course.id,
           levelId: level.id,
@@ -88,7 +92,7 @@ export async function UploadExam(
           startDate,
           endDate,
           schoolYear: computedSchoolYear,
-          title: row["Exam Name"],
+          title:row2[0]. caurses, //the courses is seen as title ,
           ClassRoomId: classRoom.id,
           courseId: course.id,
           levelId: level.id,
