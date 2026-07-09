@@ -1,6 +1,6 @@
 // app/(chat)/messages/[roomId]/page.tsx
 import React from 'react';
-import ChatRoomWindow from './ChatRoomWindow';
+ import ChatRoomWindow from './ChatRoomWindow'; 
 
 interface PageProps {
   // In Next.js 15+, params must be typed as a Promise
@@ -21,10 +21,12 @@ export default async function RoomPage({ params }: PageProps) {
   const currentUser = { id: 'me', name: 'You' };
 
   return (
+    <main className="w-full h-screen max-w-7xl mx-auto  p-0 sm:p-4 md:p-6 ">
     <ChatRoomWindow 
       roomId={roomId} 
       initialMessages={mockOldMessages} 
       currentUser={currentUser} 
     />
+    </main> 
   );
 }
