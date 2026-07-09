@@ -1,7 +1,7 @@
-// app/(chat)/messages/[roomId]/ChatRoomWindow.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation'; //  ADDED: For back navigation capabilities
 
 interface Message {
   id: string;
@@ -18,6 +18,7 @@ interface ChatRoomWindowProps {
 }
 
 export default function ChatRoomWindow({ roomId, initialMessages, currentUser }: ChatRoomWindowProps) {
+  const router = useRouter(); //  ADDED: Router initialization instance
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [textInput, setTextInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -48,13 +49,31 @@ export default function ChatRoomWindow({ roomId, initialMessages, currentUser }:
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
+    //  REMOVED: bg-red-500 container background
+    <div className="flex flex-col h-full w-full bg-[#0b141a] rounded-none shadow-md overflow-hidden">
+      
       {/* CHAT WINDOW WINDOW HEADER */}
-      <header className="h-16 bg-[#202c33] flex items-center px-4 justify-between border-b border-[#222e35]">
+      <header className="h-16 min-h-[64px] bg-[#202c33] flex items-center px-4 justify-between border-b border-[#222e35]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-zinc-700" />
+          
+          {/*  NEW: Responsive back button wrapper to change selected conversation chats */}
+          <button 
+            type="button"
+            onClick={() => router.push('/messages')}
+            className="block md:hidden p-1.5 rounded-full text-[#8696a0] hover:bg-[#2a3942] hover:text-[#e9edef] transition-colors shrink-0"
+            title="Back to conversation list"
+          >
+            <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </button>
+
+          <div className="w-10 h-10 rounded-full bg-zinc-700 shrink-0" />
           <div>
-            <h3 className="text-sm font-medium tracking-wide capitalize">{roomId.replace('-', ' ')}</h3>
+            {/*  REMOVED: bg-red-500 banner highlight accent color layout tag */}
+            <h3 className="text-sm font-medium tracking-wide capitalize text-[#e9edef]">
+              {roomId?.replace('-', ' ')}
+            </h3>
             <p className="text-[11px] text-[#8696a0]">online</p>
           </div>
         </div>
@@ -66,7 +85,7 @@ export default function ChatRoomWindow({ roomId, initialMessages, currentUser }:
           const isSenderMe = msg.senderId === currentUser.id;
           return (
             <div key={msg.id} className={`flex ${isSenderMe ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[65%] rounded-lg px-3 py-1.5 text-sm shadow-sm relative ${
+              <div className={`max-w-[85%] sm:max-w-[65%] rounded-lg px-3 py-1.5 text-sm shadow-sm relative ${
                 isSenderMe 
                   ? 'bg-[#005c4b] text-[#e9edef] rounded-tr-none' 
                   : 'bg-[#202c33] text-[#e9edef] rounded-tl-none'
@@ -84,16 +103,18 @@ export default function ChatRoomWindow({ roomId, initialMessages, currentUser }:
       </div>
 
       {/* BOTTOM CONTROL PANEL INPUT */}
-      <form onSubmit={handleSend} className="h-16 bg-[#202c33] px-4 flex items-center gap-3">
+      <form onSubmit={handleSend} className="h-16 min-h-[64px] bg-[#202c33] px-4 flex items-center gap-3 pb-safe">
         <input 
           type="text" 
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           placeholder="Type a message" 
-          className="flex-1 bg-[#2a3942] rounded-lg text-sm px-4 py-2.5 text-[#e9edef] placeholder-[#8696a0] focus:outline-none"
+          className="flex-1 bg-[#2a3942] rounded-lg text-base md:text-sm px-4 py-2.5 text-[#e9edef] placeholder-[#8696a0] focus:outline-none"
         />
-        <button type="submit" className="text-emerald-500 hover:text-emerald-400 p-1">
-          <svg className="w-6 h-6 rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+        <button type="submit" className="text-emerald-500 hover:text-emerald-400 p-1 shrink-0">
+          <svg className="w-6 h-6 rotate-90" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/>
+          </svg>
         </button>
       </form>
     </div>

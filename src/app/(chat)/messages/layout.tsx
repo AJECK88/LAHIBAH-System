@@ -1,8 +1,8 @@
-// app/(chat)/layout.tsx
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation'; //  FIXED: Added usePathname
+import Link from 'next/link'; //  FIXED: Added Link import
 
 interface ChatItem {
   id: string;
@@ -13,11 +13,12 @@ interface ChatItem {
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname(); //  FIXED: Declared pathname hook
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'students' | 'teachers' | 'people'>('students');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 1. Move activeChats into a State array so it can update dynamically
+  // Move activeChats into a State array so it can update dynamically
   const [activeChats, setActiveChats] = useState<ChatItem[]>([
     { id: 'lahiba-devs', name: 'LAHIBA system developers', lastMsg: 'Glory: Reacted to your message', time: 'Yesterday' },
     { id: 'arnold-d', name: 'Arnold D', lastMsg: 'yeah, see you then!', time: '12:09 PM' },
@@ -43,9 +44,8 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // 2. Modified handle function to permanently pin them to the sidebar
+  // Modified handle function to permanently pin them to the sidebar
   const handleAddToChat = (userId: string, name: string) => {
-    // Check if the conversation item already exists in your sidebar list
     const chatExists = activeChats.some(chat => chat.id === userId);
 
     if (!chatExists) {
@@ -56,30 +56,44 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         time: 'Just now'
       };
       
-      // Prepend to the top of your sidebar state array
       setActiveChats(prevChats => [newChatSlot, ...prevChats]);
     }
 
-    // Close the search interface
     setIsModalOpen(false);
     setSearchQuery('');
-
-    // Automatically navigate the user into the newly generated workspace route
     router.push(`/messages/${userId}`);
   };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#111b21] text-[#e9edef] antialiased">
-      
+          
       {/* FAR-LEFT UTILITY BAR */}
-      <aside className="flex flex-col items-center justify-between w-16 h-full bg-[#202c33] border-r border-[#222e35] py-4 flex-shrink-0">
+      <aside className={`flex flex-col items-center justify-between w-16 h-full bg-[#202c33] border-r border-[#222e35] py-4 flex-shrink-0 ${
+        pathname !== '/messages' ? 'hidden md:flex' : 'flex'
+      }`}>
         <div className="flex flex-col items-center gap-6 w-full">
+          {/* Home Navigation Link */}
+          <Link 
+            href="/" 
+            className="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition-all hover:scale-105 active:scale-95 group"
+            title="Return to Home"
+          >
+            <svg xmlns="http://w3.org" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 transition-transform group-hover:-translate-y-0.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+          </Link>
+
           <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-black cursor-pointer">L</div>
         </div>
       </aside>
 
       {/* CONVERSATIONS LIST SIDEBAR CONTAINER */}
-      <section className="w-[380px] h-full bg-[#111b21] border-r border-[#222e35] flex flex-col relative flex-shrink-0">
+    {/*   <section className={`w-full md:w-[380px] h-full bg-[#111b21] border-r border-[#222e35] flex flex-col relative flex-shrink-0 ${
+        pathname !== '/messages' ? 'hidden md:flex' : 'flex'
+      }`}> */}
+      <section className={`w-screen md:w-[380px] max-w-full h-full bg-[#111b21] border-r border-[#222e35] flex flex-col relative flex-shrink-0 ${
+  pathname !== '/messages' ? 'hidden md:flex' : 'flex'
+}`}>
         <div className="p-4 flex flex-col gap-3">
           <h1 className="text-xl font-bold">Chats</h1>
           <div className="flex items-center bg-[#202c33] rounded-lg px-3 py-1.5">
@@ -93,7 +107,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             <button 
               key={chat.id} 
               onClick={() => router.push(`/messages/${chat.id}`)}
-              className="w-full text-left flex items-center gap-3 p-3 hover:bg-[#202c33]/70 border-b border-[#222e35]/30 transition-colors block"
+              className="w-full text-left flex items-center gap-3 p-3 hover:bg-[#202c33]/70 border-b border-[#222e35]/30 transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-zinc-600 flex-shrink-0" />
               <div className="flex-1 min-w-0">
@@ -110,25 +124,27 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* FLOATING ACTION BUTTON (FAB) */}
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="absolute bottom-6 right-6 w-14 h-14 bg-emerald-500 hover:bg-emerald-400 text-[#111b21] rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all active:scale-95 z-40 group"
+className="absolute bottom-6 right-12 md:right-12 md:p-right-12 sm:p-right-12 w-14 h-14 bg-emerald-500 hover:bg-emerald-400 text-[#111b21] rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all active:scale-95 z-40 group shrink-0"
           title="Add People"
         >
-          <svg className="w-6 h-6 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 sm:left-5  transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
           </svg>
         </button>
       </section>
 
       {/* DYNAMIC CHAT DISPLAY AREA */}
-      <main className="flex-1 h-full relative bg-[#0b141a]">
+      <main className={`flex-1 h-full relative bg-[#0b141a] ${
+        pathname !== '/messages' ? 'block' : 'hidden md:block'
+      }`}>
         <div className="absolute inset-0 opacity-[0.04] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] pointer-events-none" />
         <div className="relative z-10 h-full w-full">{children}</div>
       </main>
 
       {/* SYSTEM DIRECTORY MODAL POPUP */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className="bg-[#222e35] w-[450px] rounded-xl shadow-2xl overflow-hidden border border-[#2a3942] flex flex-col max-h-[85vh]">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+          <div className="bg-[#222e35] w-full max-w-[450px] rounded-xl shadow-2xl overflow-hidden border border-[#2a3942] flex flex-col max-h-[85vh]">
             
             {/* Modal Header */}
             <div className="p-4 border-b border-[#2a3942] flex justify-between items-center bg-[#202c33]">
@@ -150,6 +166,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             {/* Tab Swappers */}
+            {/*  FIXED: Completed the broken tab section logic cleanly here */}
             <div className="flex border-b border-[#2a3942] text-sm font-medium bg-[#202c33]">
               {(['students', 'teachers', 'people'] as const).map((tab) => (
                 <button
