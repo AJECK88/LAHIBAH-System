@@ -1,166 +1,129 @@
-"use server"
+"use server";
 import { PrismaClient } from "@prisma/client";
-import * as XLSX from "xlsx"
-import { toLowerCase } from "zod";
+import * as XLSX from "xlsx";
 
 const prisma = new PrismaClient();
-type ResultUploadRespone ={
-   success: Boolean;
-   error? : String;
+
+type ResultUploadResponse = {
+   success: boolean;
+   error?: string;
 }
 
-
-
-export  async function UploadResult(ResultUploadRespone:ResultUploadRespone , FormData : FormData) {
-  try{
-     const file = FormData.get("file") as File;
-     if (!file|| file.size === 0 ){
-      throw new Error ("No file uploaded or file is Emtty....")
+export async function UploadResult(prevState: any, formData: FormData): Promise<ResultUploadResponse> {
+  try {
+     const file = formData.get("file") as File;
+     if (!file || file.size === 0) {
+        throw new Error("No file uploaded or file is empty.");
      }
+     
      const buffer = Buffer.from(await file.arrayBuffer());
      const workbook = XLSX.read(buffer, { type: "buffer" });
      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const Rowdata = XLSX.utils.sheet_to_json(sheet, {
-  header: 1,   // VERY IMPORTANT
-  raw: false
-}) as any[][];
-console.log(Rowdata)
-const data = Rowdata
-  .filter(row =>
-    row &&
-    row.some(cell => cell && String(cell).trim() !== "")
-  )
-  .map(row =>
-    row.map(cell =>
-      typeof cell === "string" ? cell.trim() : cell
-    )
-  );
+     
+     const rowData = XLSX.utils.sheet_to_json(sheet, {
+       header: 1,
+       raw: false
+     }) as any[][];
 
-   const subjectRow = data[1];   // English, Economics, Math
-   const subHeaderRow = data[2]; // CA /40, Exam /60 ...
+     // Clean blank rows but keep the index intact
+     const data = rowData.filter(row => row && row.some(cell => cell && String(cell).trim() !== ""));
 
-// Build subject column map
-const subject: { name: string; startIndex: number }[] = [];
-for (let i = 2; i < subjectRow.length; i++) {
-  if (subjectRow[i]) {
-    subject.push({
-      name: subjectRow[i],
-      startIndex: i
-    });
-  }
-}
- 
-        for (let i = 4; i < data.length; i++) {
-  const row = data[i];
+     const subjectRow = data[1]; // Index 1 contains: English, Economics, Math
 
-  const matricule = row[1]; // Assuming Matricule is in the second column (index 1)
+     // Build explicit tracking indexes 
+     const subjectsList: { name: string; startIndex: number }[] = [];
+     for (let i = 3; i < subjectRow.length; i++) {
+       if (subjectRow[i] && String(subjectRow[i]).trim() !== "") {
+         subjectsList.push({
+           name: String(subjectRow[i]).trim(),
+           startIndex: i
+         });
+       }
+     }
 
-  for (const subjectS of subject) {
-    const base = subjectS.startIndex;
+     // Grade mapper utility function
+     function grandMap(totalScore: number): string {
+       if (totalScore >= 80) return "A+";
+       if (totalScore >= 70) return "A";
+       if (totalScore >= 65) return "B+";
+       if (totalScore > 50) return "B";
+       if (totalScore >= 45) return "C+";
+       if (totalScore >= 40) return "C";
+       return "D"; 
+     }
 
-    const marks = {
-      ca: Number(row[base]),
-      exam: Number(row[base + 1]),
-    };
+     // 🚀 Core Processing Loop: Data rows start at index 3
+     for (let i = 3; i < data.length; i++) {
+       const row = data[i];
+       const matricule = row[2]; // CSNXXXXXX is in Column B (Index 1)
 
-    // 3️⃣ STUDENT (must exist)
-    const student = await prisma.student.findUnique({
-      where: {matricule: matricule}
-    });
-    if (!student) throw new Error(`Student ${matricule} not found`);
+       if (!matricule) continue;
 
-    // 4️⃣ SUBJECTS → RESULTS
-    const subjects = Object.entries(row).filter(
-      ([key]) => !["Level", "Department", "Matricule"].includes(key)
-    );
+       // Verify Student exists
+       const student = await prisma.student.findUnique({
+         where: { matricule: String(matricule).trim() }
+       });
+       if (!student) throw new Error(`Student ${matricule} not found in database.`);
 
-    for (const [courseName, marks] of subjects) {
+       // Loop over identified subject blocks
+       for (const sub of subjectsList) {
+         const baseIndex = sub.startIndex;
+         
+         const caMark = Number(row[baseIndex] || 0);
+         const examMark = Number(row[baseIndex + 1] || 0);
+         const totalMark = caMark + examMark;
 
-      // 5️⃣ COURSE (must exist)
-      const course = await prisma.subject.findUnique({
-        where: { name: courseName }
-      });
-      if (!course) throw new Error(`Course "${courseName}" not found`);
-      
-      // 6️⃣ EXAM (must exist)
-      const exam = await prisma.exam.findFirst({
-        where: {
-          courseId: course.id,
-          levelId: student.levelId,
-        
-        }
-      });
-      if (!exam) throw new Error(`Exam for course "${courseName}" not found for student's level and department`);
-       
-   // calculating the tatal marks for the subject
-   const  totalMask = marks.ca +marks.exam
-   // function to retur the Grand value of a 
-   function grandMap( totalMasks:string){
-    if(totalMask >= 80) return "A+"
-    else if(totalMask>=70)return "A"
-    else if (totalMask >=65) return"B+"
-    else if (totalMask>50) return "B"
-    else if (totalMask>=45) return "c+"
-    else  if (totalMask >= 40) return "c"
-    else return "D" 
-   }
-    console.log(grandMap(totalMask))
-      // 7️⃣ RESULT (create or update ONLY)
-      await prisma.result.upsert({
-  where: {
-    studentId_courseId: {
-      studentId: student.id,
-      courseId: course.id
-    }
-  },
-  update: {
-    CA: marks.ca,
-    Exam: marks.exam,
-    total: totalMask,
-    date: new Date(),
-    grand:grandMap(totalMask),
-    examId: exam.id
-  },
-  create: {
-    studentId: student.id,
-    courseId: course.id,
-    CA: marks.ca,
-    Exam: marks.exam,
-    total:totalMask,
-    grand: grandMap(totalMask),
-    date: new Date(),
-    examId: exam.id
-  }
-});
+         // Verify Course/Subject Definition
+         const course = await prisma.subject.findUnique({
+           where: { name: sub.name }
+         });
+         if (!course) throw new Error(`Course "${sub.name}" not defined in database structures.`);
+         
+         // Fetch corresponding Exam configuration meta-id
+         const exam = await prisma.exam.findFirst({
+           where: {
+             courseId: course.id,
+             levelId: student.levelId,
+           }
+         });
+         if (!exam) throw new Error(`Exam template mapping for "${sub.name}" not found.`);
 
-    }
-  
-  
-  
-  }
-  }
- return {
-   success: true,
-   }
-}
-catch (error:any) {
-  if (error.code === "P1001" || error.code === "P2002") {
+         // Safe data persistence upsert tracking
+         await prisma.result.upsert({
+           where: {
+             studentId_courseId: {
+               studentId: student.id,
+               courseId: course.id
+             }
+           },
+           update: {
+             CA: caMark,
+             Exam: examMark,
+             total: totalMark,
+             date: new Date(),
+             grade: grandMap(totalMark),
+             examId: exam.id
+           },
+           create: {
+             studentId: student.id,
+             courseId: course.id,
+             CA: caMark,
+             Exam: examMark,
+             total: totalMark,
+             grade: grandMap(totalMark),
+             date: new Date(),
+             examId: exam.id
+           }
+         });
+       }
+     }
+
+     return { success: true };
+
+  } catch (error: any) {
     return {
       success: false,
-      error: "Network error please check your connection and try again"
+      error: error instanceof Error ? error.message : "An unexpected execution error occurred."
     };
-  } 
- else if (error instanceof Error) { 
-  return {
- success: false, error: error instanceof Error ? error.message : "Unknown error" };
-} 
-
- else { 
-  
-  return {
-    success: false,
-    error: "An unexpected error occurred. Please try again later."
-  };
-}
-}
+  }
 }

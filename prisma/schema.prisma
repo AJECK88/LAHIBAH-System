@@ -218,7 +218,7 @@ model Result {
   studentId String
   courseId  Int
   examId    Int?
-  grand     String
+  grade     String
   course    Subject  @relation(fields: [courseId], references: [id])
   exam      Exam?    @relation(fields: [examId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
