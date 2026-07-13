@@ -19,7 +19,7 @@ try {
     examName: event.currentTarget.examName.value
   }).toString();
   //firing the GET request to the API route with the constructed query parameters
-  const response = await fetch(`/api/excelSheets?${queryParams}`, {
+  const response = await fetch(`/api/excelSheets/examsheet?${queryParams}`, {
     method: "GET",
   })
  if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
