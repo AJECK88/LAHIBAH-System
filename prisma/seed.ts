@@ -105,30 +105,71 @@ async function main() {
   });
 
   // 9. Admin — IMPORTANT: replace the id below with your OWN Clerk user ID
-  // Find yours by logging in and checking the console.log(userId) output,
-  // or in the Clerk dashboard under Users.
   const admin1 = await prisma.admin.upsert({
     where: { email: "lesley@example.com" },
     update: {},
     create: {
-      id: "user_36pzu2n81gxlSIFYN47x0MyxeGD", // <-- Lesley's Clerk ID
+      id: "user_36pzu2n81gxlSIFYN47x0MyxeGD",
       userName: "Lesley",
       email: "lesley@example.com",
     },
   });
 
-  // If your teammate also needs a local admin/teacher row, duplicate the
-  // block above with their own Clerk user ID and details, e.g.:
-  //
-  // const admin2 = await prisma.admin.upsert({
-  //   where: { email: "teammate@example.com" },
-  //   update: {},
-  //   create: {
-  //     id: "PASTE_TEAMMATE_CLERK_USER_ID_HERE",
-  //     userName: "Teammate Name",
-  //     email: "teammate@example.com",
-  //   },
-  // });
+  // 10. School — parent grouping for departments
+  const school1 = await prisma.school.upsert({
+    where: { name: "School of Computer Engineering" },
+    update: {},
+    create: { name: "School of Computer Engineering" },
+  });
+
+  // Link department1 to the school
+  await prisma.department.update({
+    where: { id: department1.id },
+    data: { schoolId: school1.id },
+  });
+
+  // 11. Department chat room — auto-created, everyone in the department joins
+  const deptRoom = await prisma.chatRoom.upsert({
+    where: { id: `dept-room-${department1.id}` },
+    update: {},
+    create: {
+      id: `dept-room-${department1.id}`,
+      type: "DEPARTMENT",
+      name: `${department1.name} Community`,
+      departmentId: department1.id,
+    },
+  });
+
+  // 12. Add the seeded teacher and student as participants
+  await prisma.chatParticipant.upsert({
+    where: { roomId_participantId: { roomId: deptRoom.id, participantId: teacher1.id } },
+    update: {},
+    create: {
+      roomId: deptRoom.id,
+      participantId: teacher1.id,
+      participantType: "TEACHER",
+    },
+  });
+
+  await prisma.chatParticipant.upsert({
+    where: { roomId_participantId: { roomId: deptRoom.id, participantId: student1.id } },
+    update: {},
+    create: {
+      roomId: deptRoom.id,
+      participantId: student1.id,
+      participantType: "STUDENT",
+    },
+  });
+
+  // 13. One test message in the department room
+  await prisma.chatMessage.create({
+    data: {
+      roomId: deptRoom.id,
+      senderId: teacher1.id,
+      senderName: `${teacher1.firstName} ${teacher1.lastName}`,
+      content: "Welcome to the department chat!",
+    },
+  });
 
   console.log("Seeding finished.");
   console.log({
@@ -141,6 +182,8 @@ async function main() {
     parent1: parent1.id,
     student1: student1.id,
     admin1: admin1.id,
+    school1: school1.id,
+    deptRoom: deptRoom.id,
   });
 }
 

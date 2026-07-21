@@ -47,10 +47,47 @@ CREATE TABLE `Attendance` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `ChatMessage` (
+    `id` VARCHAR(191) NOT NULL,
+    `roomId` VARCHAR(191) NOT NULL,
+    `senderId` VARCHAR(191) NOT NULL,
+    `senderName` VARCHAR(191) NOT NULL,
+    `content` TEXT NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `ChatMessage_roomId_idx`(`roomId` ASC),
+    PRIMARY KEY (`id` ASC)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ChatParticipant` (
+    `id` VARCHAR(191) NOT NULL,
+    `roomId` VARCHAR(191) NOT NULL,
+    `participantId` VARCHAR(191) NOT NULL,
+    `participantType` ENUM('STUDENT', 'TEACHER', 'ADMIN') NOT NULL,
+    `joinedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `ChatParticipant_participantId_idx`(`participantId` ASC),
+    UNIQUE INDEX `ChatParticipant_roomId_participantId_key`(`roomId` ASC, `participantId` ASC),
+    PRIMARY KEY (`id` ASC)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ChatRoom` (
+    `id` VARCHAR(191) NOT NULL,
+    `type` ENUM('DIRECT', 'GROUP', 'DEPARTMENT') NOT NULL,
+    `name` VARCHAR(191) NULL,
+    `departmentId` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `ChatRoom_departmentId_fkey`(`departmentId` ASC),
+    PRIMARY KEY (`id` ASC)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Classroom` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `courseId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Classroom_name_key`(`name` ASC),
     PRIMARY KEY (`id` ASC)
@@ -61,8 +98,10 @@ CREATE TABLE `Department` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `teacherId` VARCHAR(191) NULL,
+    `schoolId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `Department_name_key`(`name` ASC),
+    INDEX `Department_schoolId_fkey`(`schoolId` ASC),
     INDEX `Department_teacherId_fkey`(`teacherId` ASC),
     PRIMARY KEY (`id` ASC)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -141,17 +180,6 @@ CREATE TABLE `Level` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Message` (
-    `id` VARCHAR(191) NOT NULL,
-    `senderId` VARCHAR(191) NOT NULL,
-    `receiverId` VARCHAR(191) NOT NULL,
-    `message` VARCHAR(191) NOT NULL,
-    `date` DATETIME(3) NOT NULL,
-
-    PRIMARY KEY (`id` ASC)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Notification` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
@@ -162,6 +190,25 @@ CREATE TABLE `Notification` (
 
     INDEX `Notification_adminId_fkey`(`adminId` ASC),
     INDEX `Notification_teacherId_fkey`(`teacherId` ASC),
+    PRIMARY KEY (`id` ASC)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `NotificationRead` (
+    `id` VARCHAR(191) NOT NULL,
+    `notificationId` VARCHAR(191) NOT NULL,
+    `read` BOOLEAN NOT NULL DEFAULT false,
+    `readAt` DATETIME(3) NULL,
+    `studentId` VARCHAR(191) NULL,
+    `teacherId` VARCHAR(191) NULL,
+    `adminId` VARCHAR(191) NULL,
+    `announcementId` VARCHAR(191) NULL,
+
+    INDEX `NotificationRead_adminId_idx`(`adminId` ASC),
+    INDEX `NotificationRead_announcementId_idx`(`announcementId` ASC),
+    INDEX `NotificationRead_notificationId_idx`(`notificationId` ASC),
+    INDEX `NotificationRead_studentId_idx`(`studentId` ASC),
+    INDEX `NotificationRead_teacherId_idx`(`teacherId` ASC),
     PRIMARY KEY (`id` ASC)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -192,11 +239,20 @@ CREATE TABLE `Result` (
     `studentId` VARCHAR(191) NOT NULL,
     `courseId` INTEGER NOT NULL,
     `examId` INTEGER NULL,
-    `grand` VARCHAR(191) NOT NULL,
+    `grade` VARCHAR(191) NOT NULL,
 
     INDEX `Result_courseId_fkey`(`courseId` ASC),
     INDEX `Result_examId_fkey`(`examId` ASC),
     UNIQUE INDEX `Result_studentId_courseId_key`(`studentId` ASC, `courseId` ASC),
+    PRIMARY KEY (`id` ASC)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `School` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `School_name_key`(`name` ASC),
     PRIMARY KEY (`id` ASC)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -235,8 +291,10 @@ CREATE TABLE `Subject` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `gradeId` VARCHAR(191) NULL,
+    `levelId` INTEGER NULL,
 
     INDEX `Subject_gradeId_fkey`(`gradeId` ASC),
+    INDEX `Subject_levelId_fkey`(`levelId` ASC),
     UNIQUE INDEX `Subject_name_key`(`name` ASC),
     PRIMARY KEY (`id` ASC)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -310,25 +368,6 @@ CREATE TABLE `_SubjectToTeacher` (
     INDEX `_SubjectToTeacher_B_index`(`B` ASC)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `notificationRead` (
-    `id` VARCHAR(191) NOT NULL,
-    `notificationId` VARCHAR(191) NOT NULL,
-    `read` BOOLEAN NOT NULL DEFAULT false,
-    `readAt` DATETIME(3) NULL,
-    `studentId` VARCHAR(191) NULL,
-    `teacherId` VARCHAR(191) NULL,
-    `adminId` VARCHAR(191) NULL,
-    `announcementId` VARCHAR(191) NULL,
-
-    INDEX `notificationRead_adminId_idx`(`adminId` ASC),
-    INDEX `notificationRead_announcementId_idx`(`announcementId` ASC),
-    INDEX `notificationRead_notificationId_idx`(`notificationId` ASC),
-    INDEX `notificationRead_studentId_idx`(`studentId` ASC),
-    INDEX `notificationRead_teacherId_idx`(`teacherId` ASC),
-    PRIMARY KEY (`id` ASC)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 -- AddForeignKey
 ALTER TABLE `Announcement` ADD CONSTRAINT `Announcement_departmentId_fkey` FOREIGN KEY (`departmentId`) REFERENCES `Department`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
@@ -340,6 +379,18 @@ ALTER TABLE `Attendance` ADD CONSTRAINT `Attendance_courseId_fkey` FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE `Attendance` ADD CONSTRAINT `Attendance_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ChatMessage` ADD CONSTRAINT `ChatMessage_roomId_fkey` FOREIGN KEY (`roomId`) REFERENCES `ChatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ChatParticipant` ADD CONSTRAINT `ChatParticipant_roomId_fkey` FOREIGN KEY (`roomId`) REFERENCES `ChatRoom`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ChatRoom` ADD CONSTRAINT `ChatRoom_departmentId_fkey` FOREIGN KEY (`departmentId`) REFERENCES `Department`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Department` ADD CONSTRAINT `Department_schoolId_fkey` FOREIGN KEY (`schoolId`) REFERENCES `School`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Department` ADD CONSTRAINT `Department_teacherId_fkey` FOREIGN KEY (`teacherId`) REFERENCES `Teacher`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -372,6 +423,21 @@ ALTER TABLE `Notification` ADD CONSTRAINT `Notification_adminId_fkey` FOREIGN KE
 ALTER TABLE `Notification` ADD CONSTRAINT `Notification_teacherId_fkey` FOREIGN KEY (`teacherId`) REFERENCES `Teacher`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `NotificationRead` ADD CONSTRAINT `NotificationRead_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `Admin`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NotificationRead` ADD CONSTRAINT `NotificationRead_announcementId_fkey` FOREIGN KEY (`announcementId`) REFERENCES `Announcement`(`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NotificationRead` ADD CONSTRAINT `NotificationRead_notificationId_fkey` FOREIGN KEY (`notificationId`) REFERENCES `Notification`(`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NotificationRead` ADD CONSTRAINT `NotificationRead_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `NotificationRead` ADD CONSTRAINT `NotificationRead_teacherId_fkey` FOREIGN KEY (`teacherId`) REFERENCES `Teacher`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Result` ADD CONSTRAINT `Result_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Subject`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -391,6 +457,9 @@ ALTER TABLE `Student` ADD CONSTRAINT `Student_parentId_fkey` FOREIGN KEY (`paren
 
 -- AddForeignKey
 ALTER TABLE `Subject` ADD CONSTRAINT `Subject_gradeId_fkey` FOREIGN KEY (`gradeId`) REFERENCES `Grade`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Subject` ADD CONSTRAINT `Subject_levelId_fkey` FOREIGN KEY (`levelId`) REFERENCES `Level`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Timetable` ADD CONSTRAINT `Timetable_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Subject`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -418,19 +487,4 @@ ALTER TABLE `_SubjectToTeacher` ADD CONSTRAINT `_SubjectToTeacher_A_fkey` FOREIG
 
 -- AddForeignKey
 ALTER TABLE `_SubjectToTeacher` ADD CONSTRAINT `_SubjectToTeacher_B_fkey` FOREIGN KEY (`B`) REFERENCES `Teacher`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `notificationRead` ADD CONSTRAINT `notificationRead_adminId_fkey` FOREIGN KEY (`adminId`) REFERENCES `Admin`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `notificationRead` ADD CONSTRAINT `notificationRead_announcementId_fkey` FOREIGN KEY (`announcementId`) REFERENCES `Announcement`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `notificationRead` ADD CONSTRAINT `notificationRead_notificationId_fkey` FOREIGN KEY (`notificationId`) REFERENCES `Notification`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `notificationRead` ADD CONSTRAINT `notificationRead_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `notificationRead` ADD CONSTRAINT `notificationRead_teacherId_fkey` FOREIGN KEY (`teacherId`) REFERENCES `Teacher`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 

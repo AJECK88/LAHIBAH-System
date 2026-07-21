@@ -20,18 +20,28 @@ model Admin {
   notifications NotificationRead[] 
 }
 
+model School {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  departments Department[]
+}
+
 model Department {
   id              String           @id @default(cuid())
   name            String           @unique
   teacherId       String?
+  schoolId        String?
+  school          School?          @relation(fields: [schoolId], references: [id])
   announcements   Announcement[]
   supervisor      Teacher?         @relation("DepartmentSupervisor", fields: [teacherId], references: [id])
   events          Event[]
   examDepartments ExamDepartment[]
   students        Student[]
   subjects        Subject[]        @relation("DepartmentToSubject")
+  chatRooms       ChatRoom[]
 
   @@index([teacherId], map: "Department_teacherId_fkey")
+  @@index([schoolId], map: "Department_schoolId_fkey")
 }
 
 model Grade {
@@ -239,12 +249,53 @@ model Timetable {
   @@index([courseId], map: "Timetable_courseId_fkey")
 }
 
-model Message {
+enum ChatRoomType {
+  DIRECT
+  GROUP
+  DEPARTMENT
+}
+
+enum ParticipantType {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model ChatRoom {
+  id           String            @id @default(cuid())
+  type         ChatRoomType
+  name         String?
+  departmentId String?
+  department   Department?       @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime          @default(now())
+  participants ChatParticipant[]
+  messages     ChatMessage[]
+
+  @@index([departmentId], map: "ChatRoom_departmentId_fkey")
+}
+
+model ChatParticipant {
+  id              String          @id @default(cuid())
+  roomId          String
+  room            ChatRoom        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participantId   String
+  participantType ParticipantType
+  joinedAt        DateTime        @default(now())
+
+  @@unique([roomId, participantId])
+  @@index([participantId])
+}
+
+model ChatMessage {
   id         String   @id @default(cuid())
+  roomId     String
+  room       ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   senderId   String
-  receiverId String
-  message    String
-  date       DateTime
+  senderName String
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([roomId])
 }
 
 model Fee {
