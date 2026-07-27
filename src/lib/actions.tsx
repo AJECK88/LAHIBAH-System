@@ -3,6 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
+import { joinDepartmentChat } from "@/lib/chat";
 import { AnyARecord } from "dns";
 
 const passwordgenerator = (length: number) => {
@@ -122,6 +123,9 @@ export const deletCourse = async(
          }
          
       }) 
+
+    // Auto-join the department's chat room
+    await joinDepartmentChat(data.department, clerkId.id, "STUDENT");
       
     // 3️⃣ Send welcome email with credentials
     await sendMail({
@@ -353,6 +357,22 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          }
          
       }) 
+
+    // Auto-join department chat room(s) derived from the courses this teacher teaches
+    if (data.Courses && data.Courses.length > 0) {
+      const subjectsWithDepartments = await prisma.subject.findMany({
+        where: { id: { in: data.Courses.map((c: any) => Number(c)) } },
+        include: { department: { select: { id: true } } },
+      });
+      const departmentIds = new Set<string>();
+      subjectsWithDepartments.forEach((s) => {
+        s.department.forEach((d) => departmentIds.add(d.id));
+      });
+      for (const deptId of departmentIds) {
+        await joinDepartmentChat(deptId, clerkId.id, "TEACHER");
+      }
+    }
+
           // 3️⃣ Send welcome email with credentials
     await sendMail({
   to: data.email,

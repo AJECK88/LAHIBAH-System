@@ -161,6 +161,18 @@ async function main() {
     },
   });
 
+  await prisma.chatParticipant.upsert({
+    where: {
+      roomId_participantId: { roomId: deptRoom.id, participantId: admin1.id },
+    },
+    update: {},
+    create: {
+      roomId: deptRoom.id,
+      participantId: admin1.id,
+      participantType: "ADMIN",
+    },
+  });
+
   // 13. One test message in the department room
   await prisma.chatMessage.create({
     data: {
