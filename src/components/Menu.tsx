@@ -80,6 +80,12 @@ const menuItems = [
         href: "/list/events",
         visible: ["admin", "teacher", "student", "parent"],
       },
+        {
+        icon: "/timeTables.png",
+        label: "Time Tables",
+        href: "/list/timeTables",
+        visible: ["admin"],
+      },
       {
         icon: "/message.png",
         label: "Messages",
