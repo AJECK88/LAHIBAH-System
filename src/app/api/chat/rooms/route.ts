@@ -45,11 +45,11 @@ export async function GET() {
     const [otherStudents, otherTeachers, otherAdmins] = await Promise.all([
       prisma.student.findMany({
         where: { id: { in: Array.from(otherParticipantIds) } },
-        select: { id: true, firstName: true, lastName: true },
+        select: { id: true, firstName: true, lastName: true, image: true },
       }),
       prisma.teacher.findMany({
         where: { id: { in: Array.from(otherParticipantIds) } },
-        select: { id: true, firstName: true, lastName: true },
+        select: { id: true, firstName: true, lastName: true, image: true },
       }),
       prisma.admin.findMany({
         where: { id: { in: Array.from(otherParticipantIds) } },
@@ -58,17 +58,30 @@ export async function GET() {
     ]);
 
     const nameLookup = new Map<string, string>();
-    otherStudents.forEach((s) => nameLookup.set(s.id, `${s.firstName} ${s.lastName}`));
-    otherTeachers.forEach((t) => nameLookup.set(t.id, `${t.firstName} ${t.lastName}`));
-    otherAdmins.forEach((a) => nameLookup.set(a.id, a.userName));
+    const imageLookup = new Map<string, string | null>();
+    otherStudents.forEach((s) => {
+      nameLookup.set(s.id, `${s.firstName} ${s.lastName}`);
+      imageLookup.set(s.id, s.image);
+    });
+    otherTeachers.forEach((t) => {
+      nameLookup.set(t.id, `${t.firstName} ${t.lastName}`);
+      imageLookup.set(t.id, t.image);
+    });
+    otherAdmins.forEach((a) => {
+      nameLookup.set(a.id, a.userName);
+      imageLookup.set(a.id, null);
+    });
 
     const shaped = rooms.map((room) => {
       const lastMessage = room.messages[0] || null;
 
       let displayName = room.name;
+      let image: string | null = null;
+
       if (room.type === "DIRECT") {
         const other = room.participants.find((p) => p.participantId !== userId);
         displayName = other ? nameLookup.get(other.participantId) || "Unknown User" : "Unknown";
+        image = other ? imageLookup.get(other.participantId) || null : null;
       } else if (room.type === "DEPARTMENT") {
         displayName = room.department?.name ? `${room.department.name} Community` : room.name;
       }
@@ -77,6 +90,7 @@ export async function GET() {
         id: room.id,
         type: room.type,
         name: displayName,
+        image,
         lastMessage: lastMessage?.content || "No messages yet",
         lastMessageAt: lastMessage?.createdAt || room.createdAt,
       };

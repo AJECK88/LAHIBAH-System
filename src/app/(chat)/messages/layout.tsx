@@ -8,6 +8,7 @@ interface ChatItem {
   id: string;
   type: string;
   name: string;
+  image: string | null;
   lastMessage: string;
   lastMessageAt: string;
 }
@@ -17,6 +18,34 @@ interface DirectoryUser {
   name: string;
   details: string;
   type: string;
+  image: string | null;
+}
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join('');
+}
+
+function Avatar({ name, image, size = 'w-12 h-12' }: { name: string; image: string | null; size?: string }) {
+  if (image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={image}
+        alt={name}
+        className={`${size} rounded-full flex-shrink-0 object-cover`}
+      />
+    );
+  }
+  return (
+    <div className={`${size} rounded-full bg-emerald-700 flex-shrink-0 flex items-center justify-center text-xs font-semibold text-emerald-100`}>
+      {getInitials(name) || '?'}
+    </div>
+  );
 }
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -151,7 +180,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                 onClick={() => router.push(`/messages/${chat.id}`)}
                 className="w-full text-left flex items-center gap-3 p-3 hover:bg-[#202c33]/70 border-b border-[#222e35]/30 transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-zinc-600 flex-shrink-0" />
+                <Avatar name={chat.name} image={chat.image} />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline">
                     <h3 className="font-medium text-sm truncate">{chat.name}</h3>
@@ -225,7 +254,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                     onClick={() => !creatingRoom && handleAddToChat(user.id, user.type)}
                     className={`flex items-center gap-3 p-3 hover:bg-[#202c33] cursor-pointer transition-colors group ${creatingRoom ? 'opacity-50 pointer-events-none' : ''}`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-zinc-600 flex-shrink-0" />
+                    <Avatar name={user.name} image={user.image} size="w-10 h-10" />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium truncate text-[#e9edef] group-hover:text-emerald-400">{user.name}</h4>
                       <p className="text-xs text-[#8696a0] truncate mt-0.5">{user.details}</p>

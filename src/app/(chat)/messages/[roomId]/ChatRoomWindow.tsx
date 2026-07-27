@@ -14,11 +14,35 @@ interface Message {
 interface ChatRoomWindowProps {
   roomId: string;
   roomName: string;
+  roomImage: string | null;
   initialMessages: Message[];
   currentUser: { id: string; name: string };
 }
 
-export default function ChatRoomWindow({ roomId, roomName, initialMessages, currentUser }: ChatRoomWindowProps) {
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join('');
+}
+
+function Avatar({ name, image }: { name: string; image: string | null }) {
+  if (image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={image} alt={name} className="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+    );
+  }
+  return (
+    <div className="w-10 h-10 rounded-full bg-emerald-700 flex-shrink-0 flex items-center justify-center text-xs font-semibold text-emerald-100">
+      {getInitials(name) || '?'}
+    </div>
+  );
+}
+
+export default function ChatRoomWindow({ roomId, roomName, roomImage, initialMessages, currentUser }: ChatRoomWindowProps) {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [textInput, setTextInput] = useState('');
@@ -83,9 +107,6 @@ export default function ChatRoomWindow({ roomId, roomName, initialMessages, curr
         console.error('Failed to send message');
         setTextInput(content);
       }
-      // No optimistic local append — the message comes back through the
-      // SSE broadcast (sender is included in the participant list), so
-      // there is a single source of truth and no duplicate bubbles.
     } catch (err) {
       console.error('Send error:', err);
       setTextInput(content);
@@ -115,7 +136,7 @@ export default function ChatRoomWindow({ roomId, roomName, initialMessages, curr
             </svg>
           </button>
 
-          <div className="w-10 h-10 rounded-full bg-zinc-700 shrink-0" />
+          <Avatar name={roomName} image={roomImage} />
           <div>
             <h3 className="text-sm font-medium tracking-wide text-[#e9edef]">
               {roomName}

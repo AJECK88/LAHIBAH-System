@@ -14,6 +14,7 @@ export async function GET(req: Request) {
         id: true,
         firstName: true,
         lastName: true,
+        image: true,
         department: { select: { name: true } },
         level: { select: { LevelName: true } },
       },
@@ -25,6 +26,7 @@ export async function GET(req: Request) {
         id: true,
         firstName: true,
         lastName: true,
+        image: true,
         courses: { select: { name: true }, take: 1 },
       },
     });
@@ -42,6 +44,7 @@ export async function GET(req: Request) {
       name: `${s.firstName} ${s.lastName}`,
       details: `${s.department?.name || "No department"} - ${s.level?.LevelName || ""}`,
       type: "STUDENT",
+      image: s.image,
     }));
 
     const shapedTeachers = teachers.map((t) => ({
@@ -49,6 +52,7 @@ export async function GET(req: Request) {
       name: `${t.firstName} ${t.lastName}`,
       details: t.courses[0]?.name || "Teacher",
       type: "TEACHER",
+      image: t.image,
     }));
 
     const shapedAdmins = admins.map((a) => ({
@@ -56,6 +60,7 @@ export async function GET(req: Request) {
       name: a.userName,
       details: "Administrator",
       type: "ADMIN",
+      image: null,
     }));
 
     return new Response(

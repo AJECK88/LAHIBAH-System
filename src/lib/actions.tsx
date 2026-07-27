@@ -12,6 +12,7 @@ const passwordgenerator = (length: number) => {
   for (let i = 0; i < length; i++) {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  
   return password;
 }
 //  the password generator a length of 8 to generate a password of 8 characters
@@ -114,6 +115,7 @@ export const deletCourse = async(
          sex:data.sex,
          matricule:data.MatriculeNo,
          id:clerkId.id,
+         image:clerkId.imageUrl,
          department:{
            connect:{id:data.department}
          }, 
@@ -350,6 +352,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          bloodGroup:data.BloodType,
          teachersId :data.teachersId,
          id:clerkId.id,
+         image:clerkId.imageUrl,
          courses:{
            connect: data.Courses?.map((courseId:any) => ({ id: courseId })),
          } 

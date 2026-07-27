@@ -8,26 +8,26 @@ interface PageProps {
   params: Promise<{ roomId: string }>;
 }
 
-async function resolveParticipantName(participantId: string): Promise<string> {
+async function resolveParticipant(participantId: string): Promise<{ name: string; image: string | null }> {
   const student = await prisma.student.findUnique({
     where: { id: participantId },
-    select: { firstName: true, lastName: true },
+    select: { firstName: true, lastName: true, image: true },
   });
-  if (student) return `${student.firstName} ${student.lastName}`;
+  if (student) return { name: `${student.firstName} ${student.lastName}`, image: student.image };
 
   const teacher = await prisma.teacher.findUnique({
     where: { id: participantId },
-    select: { firstName: true, lastName: true },
+    select: { firstName: true, lastName: true, image: true },
   });
-  if (teacher) return `${teacher.firstName} ${teacher.lastName}`;
+  if (teacher) return { name: `${teacher.firstName} ${teacher.lastName}`, image: teacher.image };
 
   const admin = await prisma.admin.findUnique({
     where: { id: participantId },
     select: { userName: true },
   });
-  if (admin) return admin.userName;
+  if (admin) return { name: admin.userName, image: null };
 
-  return 'Unknown User';
+  return { name: 'Unknown User', image: null };
 }
 
 export default async function RoomPage({ params }: PageProps) {
@@ -72,11 +72,19 @@ export default async function RoomPage({ params }: PageProps) {
   }));
 
   let roomName = room?.name || roomId;
+  let roomImage: string | null = null;
+
   if (room?.type === 'DEPARTMENT' && room.department?.name) {
     roomName = `${room.department.name} Community`;
   } else if (room?.type === 'DIRECT') {
     const other = room.participants.find((p) => p.participantId !== user.id);
-    roomName = other ? await resolveParticipantName(other.participantId) : 'Unknown User';
+    if (other) {
+      const resolved = await resolveParticipant(other.participantId);
+      roomName = resolved.name;
+      roomImage = resolved.image;
+    } else {
+      roomName = 'Unknown User';
+    }
   }
 
   const currentUserName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'You';
@@ -87,6 +95,7 @@ export default async function RoomPage({ params }: PageProps) {
       <ChatRoomWindow
         roomId={roomId}
         roomName={roomName}
+        roomImage={roomImage}
         initialMessages={initialMessages}
         currentUser={currentUserData}
       />
