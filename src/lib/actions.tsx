@@ -3,6 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
+import { joinDepartmentChat } from "@/lib/chat";
 import { AnyARecord } from "dns";
 
 const passwordgenerator = (length: number) => {
@@ -11,6 +12,7 @@ const passwordgenerator = (length: number) => {
   for (let i = 0; i < length; i++) {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  
   return password;
 }
 //  the password generator a length of 8 to generate a password of 8 characters
@@ -113,6 +115,7 @@ export const deletCourse = async(
          sex:data.sex,
          matricule:data.MatriculeNo,
          id:clerkId.id,
+         image:clerkId.imageUrl,
          department:{
            connect:{id:data.department}
          }, 
@@ -122,6 +125,9 @@ export const deletCourse = async(
          }
          
       }) 
+
+    // Auto-join the department's chat room
+    await joinDepartmentChat(data.department, clerkId.id, "STUDENT");
       
     // 3️⃣ Send welcome email with credentials
     await sendMail({
@@ -346,6 +352,7 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          bloodGroup:data.BloodType,
          teachersId :data.teachersId,
          id:clerkId.id,
+         image:clerkId.imageUrl,
          courses:{
            connect: data.Courses?.map((courseId:any) => ({ id: courseId })),
          } 
@@ -353,6 +360,22 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
          }
          
       }) 
+
+    // Auto-join department chat room(s) derived from the courses this teacher teaches
+    if (data.Courses && data.Courses.length > 0) {
+      const subjectsWithDepartments = await prisma.subject.findMany({
+        where: { id: { in: data.Courses.map((c: any) => Number(c)) } },
+        include: { department: { select: { id: true } } },
+      });
+      const departmentIds = new Set<string>();
+      subjectsWithDepartments.forEach((s) => {
+        s.department.forEach((d) => departmentIds.add(d.id));
+      });
+      for (const deptId of departmentIds) {
+        await joinDepartmentChat(deptId, clerkId.id, "TEACHER");
+      }
+    }
+
           // 3️⃣ Send welcome email with credentials
     await sendMail({
   to: data.email,

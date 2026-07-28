@@ -1,16 +1,17 @@
 import { addClient, removeClient } from "@/lib/sse";
+import { currentUser } from "@clerk/nextjs/server";
 
-export const dynamic = "force-dynamic"; // Strictly bypasses Vercel compilation caching
+export const dynamic = "force-dynamic";
 
 export async function GET(req) {
-  const encoder = new TextEncoder();
+  const user = await currentUser();
+  const userId = user?.id || null;
 
+  const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
-      const clientRecord = { controller, encoder };
-      addClient(controller, encoder);
+      const clientRecord = addClient(controller, encoder, userId);
 
-      // Keep connection from idling out on Vercel using a tiny heartbeat ping
       const heartbeat = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(": keepalive ping\n\n"));
@@ -19,7 +20,6 @@ export async function GET(req) {
         }
       }, 15000);
 
-      // Triggers cleanup immediately if a student closes their tab or navigates away
       req.signal.addEventListener("abort", () => {
         clearInterval(heartbeat);
         removeClient(clientRecord);
