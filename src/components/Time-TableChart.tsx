@@ -81,7 +81,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', "Satureday
     return(
         <>
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden overflow-x-auto">
-        <table className="w-full border-collapse min-w-[900px]">
+        <table className="w-full border-collapse min-w-[90x]">
           <thead>
             <tr className="bg-slate-100/70 border-b border-slate-200 text-slate-600 text-xs font-semibold uppercase tracking-wider">
               <th className="p-4 text-left w-36 border-r border-slate-200">Time</th>

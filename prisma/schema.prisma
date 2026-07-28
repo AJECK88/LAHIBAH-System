@@ -17,7 +17,7 @@ model Admin {
   userName      String
   email         String             @unique
   notification  Notification[]
-  notifications NotificationRead[] 
+  notifications NotificationRead[]
 }
 
 model School {
@@ -39,6 +39,7 @@ model Department {
   students        Student[]
   subjects        Subject[]        @relation("DepartmentToSubject")
   chatRooms       ChatRoom[]
+  timeTable       Timetable[]      @relation("TimeTableTODepartment")
 
   @@index([teacherId], map: "Department_teacherId_fkey")
   @@index([schoolId], map: "Department_schoolId_fkey")
@@ -54,7 +55,7 @@ model Subject {
   id          Int          @id @default(autoincrement())
   name        String       @unique
   gradeId     String?
-  levelId     Int?         
+  levelId     Int?
   assignments Assignment[]
   attendance  Attendance[]
   exams       Exam[]
@@ -108,7 +109,7 @@ model Level {
   LevelName String    @unique
   exam      Exam[]
   student   Student[]
-  subjects  Subject[] 
+  subjects  Subject[]
 }
 
 model Teacher {
@@ -143,11 +144,12 @@ model Parent {
 }
 
 model Classroom {
-  id       String    @id @default(cuid())
-  name     String    @unique
+  id         String      @id @default(cuid())
+  name       String      @unique
   //  FIX: Removed disconnected courseId scalar 
-  exams    Exam[]
-  course   Subject[] @relation("ClassroomToSubject")
+  exams      Exam[]
+  course     Subject[]   @relation("ClassroomToSubject")
+  timetables Timetable[]
 }
 
 model Event {
@@ -239,12 +241,15 @@ model Result {
 }
 
 model Timetable {
-  id        String   @id @default(cuid())
-  courseId  Int
-  startTime DateTime
-  endTime   DateTime
-  day       String
-  course    Subject  @relation(fields: [courseId], references: [id])
+  id          String       @id @default(cuid())
+  courseId    Int
+  startTime   DateTime
+  endTime     DateTime
+  day         String
+  course      Subject      @relation(fields: [courseId], references: [id])
+  department  Department[] @relation("TimeTableTODepartment")
+  classroomId String?
+  classroom   Classroom?    @relation(fields: [classroomId], references: [id])
 
   @@index([courseId], map: "Timetable_courseId_fkey")
 }

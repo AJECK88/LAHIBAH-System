@@ -1,5 +1,6 @@
 
 import { TimeTableChart } from '@/components/Time-TableChart';
+import prisma from '@/lib/prisma';
 import { 
   Plus, Calendar, Sparkles, Printer 
 } from 'lucide-react';
@@ -104,7 +105,9 @@ const INITIAL_SLOTS: TimetableSlot[] = [
   }
 ];
 
-export default function TimetableDashboard() {
+export default async function  TimetableDashboard () {
+const department =  await prisma.department.findMany()
+const level =await prisma.level.findMany()
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 space-y-6 font-sans">
@@ -124,7 +127,7 @@ export default function TimetableDashboard() {
         <div className="flex items-center gap-3">
           <button 
             // onClick={() => handleOpenAddModal()} 
-             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm"
+             className="flex items-center gap-2 bg-blue-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm"
           >
             <Plus className="w-4 h-4" />
             Upload Time Table
@@ -140,7 +143,7 @@ export default function TimetableDashboard() {
       </div>
 
       {/* CASCADING FILTER BAR */}
-      <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="bg-white p-5 items-center rounded-2xl shadow-sm border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
             Department
@@ -149,24 +152,10 @@ export default function TimetableDashboard() {
           
             className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all font-medium"
           >
-            {DEPARTMENTS.map((d) => (
+            {department.map((d) => (
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
-            Program
-          </label>
-          {/* <select 
-    
-            className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all font-medium"
-          >
-            {PROGRAMS.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select> */}
         </div>
 
         <div>
@@ -176,8 +165,8 @@ export default function TimetableDashboard() {
           <select 
             className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all font-medium"
           >
-            {LEVELS.map((l) => (
-              <option key={l.id} value={l.id}>{l.name}</option>
+            {level.map((l) => (
+              <option key={l.id} value={l.id}>{l.LevelName}</option>
             ))}
           </select>
         </div>
@@ -192,6 +181,10 @@ export default function TimetableDashboard() {
             <option value="sem1">Semester 1</option>
             <option value="sem2">Semester 2</option>
           </select>
+        </div>
+
+                <div>  
+                  <button className='bg-blue-600 p-2 rounded-2xl w-30 hover:bg-blue-800 text-white font-semibold '>Fetch</button>               
         </div>
       </div>
 

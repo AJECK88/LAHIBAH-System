@@ -4,16 +4,60 @@ import BigCalendar from "@/components/TeacherBigCalelndar";
 import Image from "next/image";
 import prisma from "@/lib/prisma";
 import UserId from "@/components/user";
-const StudentPage = async() => 
-     {
-    const AnnouncementData = await prisma.announcement.findMany({
+import { Prisma } from "@prisma/client";
+
+// Define the Prisma payload type at the module level
+export type TimeTableWithRelations = Prisma.TimetableGetPayload<{
+  include: {
+    department: true;
+    course: true;
+  };
+}>;
+
+const TeacherPag = async () => {
+  const UserIdValue = await UserId();
+
+  // Fetch timetable entries for departments taught by this teacher
+  const TeacherTimeTable: TimeTableWithRelations[] =
+    (await prisma.timetable.findMany({
+      where: {
+        department: {
+          some: {
+            subjects: {
+              some: {
+                teachers: {
+                  some: {
+                    id: UserIdValue?.toString(),
+                  },
+                },
+              },
+            },
+
+          },
+        },
+      },
+      include: {
+        department: true,
+        classroom:true,
+        course:{
+            include:{
+                level:true
+            }
+        },
+      },
+    })) || [];
+  const TeacherTimeTableData = TeacherTimeTable.map((entry) => ({
+    ...entry,
+    day: Number(entry.day),
+  }));
+  const AnnouncementData = await prisma.announcement.findMany({
  
   orderBy: {
     date: 'desc', // soonest first
   },
   take: 3,
 });
-const UserIdValue = await UserId();
+
 const userInfo = await prisma.teacher.findMany({
     where: {
         id: UserIdValue?.toString()
@@ -134,7 +178,7 @@ const currentUserInfo = userInfo[0];
                 {/* BOTTOM CONTENT */}
                 <div className="bg-white p-4 mt-4  w-full rounded-md h-[630px]">
                 <h1>Teacher Schedule</h1>
-                <BigCalendar />
+                <BigCalendar TimeTableData={TeacherTimeTableData} />
                 </div> 
                 </div>
             
@@ -148,4 +192,4 @@ const currentUserInfo = userInfo[0];
         </div>
     )
 }
-export default StudentPage;
+export default TeacherPag;
