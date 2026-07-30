@@ -804,9 +804,10 @@ export const CreateDepartment = async(
        data:{
         name:data.DepartmentName,
         id: data.id,
-        supervisor:{
+       ... (data.Supervisor &&{ supervisor:{
           connect : {id:data.Supervisor}
        }
+      })
       }
     })
     return { successMessage:false , errorMessage:true } 
