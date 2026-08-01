@@ -94,8 +94,7 @@ import { max } from "moment";
 
      export  const departmentschema = z.object({
           DepartmentName: z.string()
-          .min(3, { message: 'Name must be at least 3 characters long' })
-          .max(30, { message: 'Name must not be  at most 20 characters long' }),
+          .min(3, { message: 'Name must be at least 3 characters long' }),
            Supervisor: z.string().optional(),
            id:z.string().optional(),
          })
