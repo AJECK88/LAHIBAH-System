@@ -1,5 +1,5 @@
 
-export const Items_Per_Page = 10
+export const Items_Per_Page = 15
 type RouteAccesMap = { [key: string]: string[] }
 
 export const routeAccessMap : RouteAccesMap = {
