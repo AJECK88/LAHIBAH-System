@@ -19,11 +19,11 @@ const Params = new URLSearchParams(window.location.search);
 } 
 
     return(
-        <div className=" pt-4 md:p-1 lg:p-4 flex items-center justify-between text-gray-500  gap-2">
+        <div className=" pt-4 md:p-1 lg:p-4 flex items-center justify-between text-gray-500  gap-2 ">
             <button disabled={hasProv} className="py-2 p-4 rounded-md bg-slate-200 text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"onClick={()=>{
                 changePage(page -1)
                 }} >Previous</button>
-            <div className="flex items-center gap-2 ">
+            <div className="flex items-center gap-2 overflow-hidden ">
                 {Array.from({length:Math.ceil(count/Items_Per_Page)}
                 ,(_, index)=>{
                    const PageIndex = index + 1;
