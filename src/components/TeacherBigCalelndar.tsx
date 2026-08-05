@@ -22,6 +22,10 @@ export type TeacherTimeTableItem = {
     level?: {
       LevelName?: string;
     };
+     teacher?:{
+      id:number;
+      name:string;
+    }   
   };
   classroom?:{
     name:string
@@ -45,7 +49,6 @@ const BigCalendar = ({ TimeTableData = [] }: BigCalendarProps) => {
     doy: 2,
   },
 })
-console.log(TimeTableData.map(e=>e.department.map(e=>e)))
 useEffect(() => {
    window.addEventListener("resize", () => {
      if (window.innerWidth < 468) {
@@ -101,20 +104,44 @@ useEffect(() => {
         onView={handleViewChange}
         toolbar={true}
         components={{
-          event: ({ event }) => (
-            <div className='gap-2 flex flex-col'>
-            <div>{event.department.length >1 ? "Genral course" :event.department[0].name}</div>
-            <div className='flex gap-2 text-gray-800 bg-blue-200 p-2'>
-            <span className='font-medium text-sm'>
-               {event.classroom?.name}
-            </span>
-             <span className='font-medium text-sm'>
-               {event.destination}
-            </span>
-            </div>
-              <span>{event.course.name}</span>
-            </div>
-          ),
+        event: ({ event }) => (
+  <div className="flex flex-col gap-1.5 p-2.5 rounded-lg bg-white border-l-4 border-indigo-600 shadow-sm hover:shadow-md transition-all duration-150 border-y border-r border-gray-100">
+    
+    {/* Department / Course Scope Badge */}
+    <div className="flex items-center">
+      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+        event.department?.length > 1
+          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+          : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+      }`}>
+        {event.department?.length > 1 
+          ? 'General Course' 
+          : event.department?.[0]?.name || 'Department'}
+      </span>
+    </div>
+
+    {/* Course Title */}
+    <h4 className="font-semibold text-sm text-gray-900 truncate leading-snug">
+      {event.course.name}
+    </h4>
+
+    {/* Classroom & Destination Badges */}
+    <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+      {event.classroom?.name && (
+        <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md bg-gray-100 text-gray-700">
+          📍 {event.classroom.name}
+        </span>
+      )}
+      
+      {event.destination && (
+        <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-100">
+          {event.destination}
+        </span>
+      )}
+    </div>
+
+  </div>
+),
         }}
         style={{ height: 600 }}
        min={new Date(1970, 1, 1, 8, 0)}  

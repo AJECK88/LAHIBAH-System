@@ -8,6 +8,7 @@ import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import FormsContainer from '@/components/FormsContainer';
 import { role } from '@/components/user';
+import { Items_Per_Page } from '../../Settings';
    type DepartmentList = Department & {supervisor:Teacher}
     const Columns = [
         {
@@ -59,6 +60,10 @@ const  DepartmentsListpage = async(
     }:{searchParams:Promise<{[key:string]:string|undefined}>}
     
 ) => {
+     const params = await searchParams;
+    const {page ,...qouryParams} =params;
+    const p = page?parseInt(page):1;
+    const roles = await role();
      const [DepartmentData , count] =await prisma.$transaction([
          prisma.department.findMany({
         
@@ -70,13 +75,12 @@ const  DepartmentsListpage = async(
 
         
         },
+        take: Items_Per_Page,
+            skip: Items_Per_Page*(p -1)
          }),
          prisma.department.count()
      ])
-    const params = await searchParams;
-    const {page ,...qouryParams} =params;
-    const p = page?parseInt(page):1;
-    const roles = await role();
+   
     return (
         /* Student Page */
         /* Right hand side */

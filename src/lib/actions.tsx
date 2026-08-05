@@ -812,6 +812,7 @@ export const CreateDepartment = async(
     })
     return { successMessage:false , errorMessage:true } 
   }catch(error){
+    console.log( "error", error)
      return{ successMessage:true , errorMessage:false}
   }
  

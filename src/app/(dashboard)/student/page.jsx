@@ -9,7 +9,32 @@ import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 const StudentPage = async () => {
   /*  */
-    const user = await currentUser()
+  const user = await currentUser()
+  const UserIdValue = user?.id;
+ const studentId = UserIdValue?.toString();
+
+const TimeTableData = await prisma.timetable.findMany({
+  where: {
+    course: {
+      // Assuming course/subject has enrolled students
+      students: {
+        some: {
+          id: studentId,
+        },
+      },
+    },
+  },
+  include: {
+    department: true,
+    classroom: true,
+    course: {
+      include: {
+        level: true,
+        teachers:true,
+      },
+    },
+  },
+}) || [];
           const userName = user?.fullName;
           const AnnouncementData = await prisma.announcement.findMany({
            
@@ -58,9 +83,9 @@ const StudentPage = async () => {
                     </div>
                   </div>
             </div>
-            <div className="lg:w-1/3 w-full bg-white rounded-xl flex flex-col gap-4 h-[600px]">
-             <h1 className="text-sm bg-gray-100 p-4 font-semibold rounded-tl-xl rounded-tr-xl">Schedule: {"level 100"}</h1>
-             <div className="p-4 "><BigCalendar  /></div>
+            <div className=" w-full bg-white rounded-xl flex flex-col gap-4">
+             <h1 className="text-sm bg-gray-100 p-4 font-semibold rounded-tl-xl rounded-tr-xl">Schedule: {"Level" +" "+TimeTableData[0]?.course?.level?.LevelName || "Level Name Not Available"}</h1>
+             <div className="p-4 "><BigCalendar TimeTableData={TimeTableData}  /></div>
             </div>
             </div>
             <div className="p-4 bg-white w-full lg:w-1/3 h-full md:w-auto">
