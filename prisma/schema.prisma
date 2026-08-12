@@ -39,7 +39,7 @@ model Department {
   students        Student[]
   subjects        Subject[]        @relation("DepartmentToSubject")
   chatRooms       ChatRoom[]
-  timeTable       Timetable[]      @relation("TimeTableTODepartment")
+  timetables      Timetable[]
 
   @@index([teacherId], map: "Department_teacherId_fkey")
   @@index([schoolId], map: "Department_schoolId_fkey")
@@ -105,11 +105,12 @@ model Student {
 }
 
 model Level {
-  id        Int       @id @default(autoincrement())
-  LevelName String    @unique
-  exam      Exam[]
-  student   Student[]
-  subjects  Subject[]
+  id         Int         @id @default(autoincrement())
+  LevelName  String      @unique
+  exam       Exam[]
+  student    Student[]
+  subjects   Subject[]
+  timetables Timetable[]
 }
 
 model Teacher {
@@ -150,6 +151,44 @@ model Classroom {
   exams      Exam[]
   course     Subject[]   @relation("ClassroomToSubject")
   timetables Timetable[]
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+enum Semester {
+  SEMESTER_1
+  SEMESTER_2
+}
+
+model Timetable {
+  id        String    @id @default(cuid())
+  dayOfWeek DayOfWeek @default(MONDAY) // Track day of the week
+  startTime String // e.g. "08:00"
+  endTime   String // e.g. "10:00"
+  semester  Semester  @default(SEMESTER_1) // Track semester
+
+  // Relations
+  courseId Int?
+  course   Subject? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  classroomId String?
+  classroom   Classroom? @relation(fields: [classroomId], references: [id])
+
+  levelId Int?
+  level   Level? @relation(fields: [levelId], references: [id])
+
+  createdAt  DateTime?    @default(now())
+  updatedAt  DateTime?    @updatedAt
+  department Department[]
+
+  @@index([levelId, semester, dayOfWeek])
 }
 
 model Event {
@@ -238,20 +277,6 @@ model Result {
   @@unique([studentId, courseId])
   @@index([courseId], map: "Result_courseId_fkey")
   @@index([examId], map: "Result_examId_fkey")
-}
-
-model Timetable {
-  id          String       @id @default(cuid())
-  courseId    Int
-  startTime   DateTime
-  endTime     DateTime
-  day         String
-  course      Subject      @relation(fields: [courseId], references: [id])
-  department  Department[] @relation("TimeTableTODepartment")
-  classroomId String?
-  classroom   Classroom?    @relation(fields: [classroomId], references: [id])
-
-  @@index([courseId], map: "Timetable_courseId_fkey")
 }
 
 enum ChatRoomType {

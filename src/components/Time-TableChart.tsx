@@ -5,20 +5,23 @@ import { AddSlotModal } from "./Forms/timeTableForm";
 import { Plus, ShieldAlert, Trash2 } from "lucide-react";
 
 type initialSlots={
-    id: Number,
+    id: number,
     day: string,
-    timeSlotId: Number,
-    courseCode: string,
-    courseName: string,
+  StartTime?: string,
+  EndTime?: string,
+  timeSlotId?: number,
+  courseCode?: string,
+    semester: string,
+    courseName: string, 
     room: string,
     lecturer: string,
-    color: string
-
-}
+} 
 
   type SlotData = Omit<initialSlots, 'id'> & {
     hasConflict?: boolean;
     conflictMsg?: string;
+    StartTime?: string;
+    EndTime?: string;
   };
 
 export function TimeTableChart ({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots[] }){
@@ -38,8 +41,6 @@ export function TimeTableChart ({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots
     setIsModalOpen(true);
   };
 
-   
- console.log(INITIAL_SLOTS)
   const handleSaveSlot = (newSlotData: SlotData) => {
     setSlots((prev) => [
       ...prev.filter(
@@ -111,53 +112,60 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', "Satureday
                     {timeSlot.label}
                   </td>
 
-                  {/* Days Columns */}
-                  {DAYS.map((day) => {
-                    const entry = slots.find(
-                      (s) => s.day === day && s.timeSlotId === timeSlot.id
-                    );
+                 {/* Days Columns */}
+{DAYS.map((day) => {
+  const entry = slots.find((s) => {
+    // 1. Case-insensitive day matching ("TUESDAY" === "Tuesday")
+    const isSameDay = s.day.toLowerCase() === day.toLowerCase();
 
-                    return (
-                      <td
-                        key={day}
-                        className="p-2 border-r border-slate-200 last:border-r-0 align-top w-1/5 h-32"
-                      >
-                        {entry! ? (
-                          <div
-                            className={"h-full p-3 rounded-xl border flex flex-col justify-between text-xs transition-all relative group  bg-indigo-50/60 border-indigo-200/80 text-indigo-950 hover:shadow-md w-full"}
-                          >
-                            <div>
-                              <div className="flex items-center justify-between gap-1 mb-1">
-                                <span className="font-bold text-sm tracking-tight">{entry.courseCode}</span>
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                                  <button
-                                    //onClick={() => handleDeleteSlot(entry.id)}
-                                    className="p-1 hover:bg-rose-200/50 rounded text-rose-600 transition-colors"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                              <p className="font-medium text-slate-700 line-clamp-1">{entry.courseName}</p>
-                            </div>
+    // 2. Match by explicit timeSlotId OR parse StartTime
+    let isSameTime = s.timeSlotId === timeSlot.id;
+    if (!isSameTime && s.StartTime) {
+      if (timeSlot.id === 1 && s.StartTime.startsWith("08")) isSameTime = true;
+      if (timeSlot.id === 3 && s.StartTime.startsWith("10")) isSameTime = true;
+      if (timeSlot.id === 4 && s.StartTime.startsWith("12")) isSameTime = true;
+      if (timeSlot.id === 5 && (s.StartTime.startsWith("14") || s.StartTime.startsWith("16"))) isSameTime = true;
+    }
 
-                            <div className="mt-2 pt-2 border-t border-indigo-100/80 flex flex-col gap-0.5 text-[11px] text-slate-500 font-medium">
-                              <span>📍 {entry.room}</span>
-                              <span>👤 {entry.lecturer}</span>
-                            </div>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-            
-                            className="h-full w-full rounded-xl border border-dashed border-slate-300 bg-slate-50/70 text-slate-500 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-600 transition-colors flex items-center justify-center"
-                          >
-                           free Period
-                          </button>
-                        )}
-                      </td>
-                    );
-                  })}
+    return isSameDay && isSameTime;
+  });
+
+  return (
+    <td key={day} className="p-2 border-r border-slate-200 last:border-r-0 align-top w-1/5 h-32">
+      {entry ? (
+        <div className="h-full p-3 rounded-xl border flex flex-col justify-between text-xs transition-all relative group bg-indigo-50/60 border-indigo-200/80 text-indigo-950 hover:shadow-md w-full">
+          <div>
+            <div className="flex items-center justify-between gap-1 mb-1">
+              <span className="font-semibold text-slate-500">{entry.StartTime} - {entry.EndTime}</span>
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                <button
+                  onClick={() => handleDeleteSlot(entry.id)}
+                  className="p-1 hover:bg-rose-200/50 rounded text-rose-600 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            <p className="font-medium text-slate-700 line-clamp-2">{entry.courseName}</p>
+          </div>
+
+          <div className="mt-2 pt-2 border-t border-indigo-100/80 flex flex-col gap-0.5 text-[11px] text-slate-500 font-medium">
+            <span>📍 {entry.room}</span>
+            <span>👤 {entry.lecturer}</span>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => handleOpenAddModal(day, timeSlot.id)}
+          className="h-full w-full rounded-xl border border-dashed border-slate-300 bg-slate-50/70 text-slate-500 hover:border-indigo-300 hover:bg-indigo-50/50 hover:text-indigo-600 transition-colors flex items-center justify-center text-xs"
+        >
+          + Add Slot
+        </button>
+      )}
+    </td>
+  );
+})}
                 </tr>
               );
             })}
@@ -171,7 +179,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', "Satureday
           prog={selectedProg}
           level={selectedLevel}
           onClose={() => setIsModalOpen(false)}
-          onSave={(slot) => handleSaveSlot({ ...slot, color: 'indigo', conflictMsg: slot.conflictMsg ?? undefined })}
+          onSave={(slot) => handleSaveSlot({ ...slot, semester: selectedSemester, conflictMsg: slot.conflictMsg ?? undefined })}
         />
       )}
       </>

@@ -5,9 +5,10 @@ import { useActionState, useEffect, useState } from "react";
 import Image from "next/image";
 import { UploadResult } from "@/app/api/seeds/Result/upload/route";
 import { Loading } from "@clerk/elements/common";
+import { UploadTimeTable } from "@/app/api/seeds/TimeTable/route";
 
 
-const SeedfileInput =({type}:{type:"Exam"|"Result"}) => {
+const SeedfileInput =({type}:{type:"Exam"|"Result"|"TimeTable"}) => {
 
   const [showImage, setShowImage] = useState(true);  /**
    * 📦 Preview image state */
@@ -24,7 +25,7 @@ const SeedfileInput =({type}:{type:"Exam"|"Result"}) => {
   };
   const [Notisfication , setNotisfication] = useState(false)
 
-  const [state, formAction , isLoading] = useActionState( type ==="Exam"?UploadExam: UploadResult,{
+  const [state, formAction , isLoading] = useActionState( type ==="Exam"?UploadExam:type ==="Result"?UploadResult:UploadTimeTable,{
   success: false,
   error:undefined
 }); 
