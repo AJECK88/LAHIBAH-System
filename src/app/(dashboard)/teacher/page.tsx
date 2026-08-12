@@ -32,24 +32,36 @@ const TeacherPag = async () => {
                 },
               },
             },
-
           },
+        },
+        courseId: {
+          not: null,
         },
       },
       include: {
         department: true,
-        classroom:true,
-        course:{
-            include:{
-                level:true
-            }
+        classroom: true,
+        course: {
+          include: {
+            level: true,
+          },
         },
       },
     })) || [];
-  const TeacherTimeTableData = TeacherTimeTable.map((entry) => ({
-    ...entry,
-    day: Number(entry.day),
-  }));
+
+  const TeacherTimeTableData = TeacherTimeTable
+    .filter(
+      (
+        entry
+      ): entry is TimeTableWithRelations & {
+        course: NonNullable<TimeTableWithRelations["course"]>;
+        courseId: number;
+      } => entry.course !== null && entry.courseId !== null,
+    )
+    .map((entry) => ({
+      ...entry,
+      day: Number(entry.dayOfWeek),
+    }));
   const AnnouncementData = await prisma.announcement.findMany({
  
   orderBy: {

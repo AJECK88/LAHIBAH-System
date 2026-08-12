@@ -17,7 +17,6 @@ export type TeacherTimeTableItem = {
   course: {
     id: number;
     name: string;
-    gradeId?: string | null;
     levelId?: number | null;
     level?: {
       LevelName?: string;
