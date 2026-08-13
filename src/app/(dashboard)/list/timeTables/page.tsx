@@ -108,7 +108,9 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
         </div>
 
         <div className="flex items-center gap-3">
+          <div>
             <SeedfileInput type="TimeTable" />
+            </div>
           <button className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-all">
             <Printer className="w-4 h-4" />
           </button>
