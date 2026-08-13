@@ -1,8 +1,9 @@
-"use server";
+
 import SeedfileInput from '@/components/Forms/SeedfileInput';
 import TimeTableFilter from '@/components/Forms/TimeTableFilter';
 import { TimeTableChart } from '@/components/Time-TableChart';
 import prisma from '@/lib/prisma';
+export const dynamic = "force-dynamic";
 import { 
   Plus, Calendar, Sparkles, Printer 
 } from 'lucide-react';
@@ -91,7 +92,6 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
 
 
 }));
-console.log(INITIAL_SLOTS)
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 space-y-6 font-sans">
       
@@ -108,13 +108,7 @@ console.log(INITIAL_SLOTS)
         </div>
 
         <div className="flex items-center gap-3">
-      
             <SeedfileInput type="TimeTable" />
-        
-          <button className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-4 py-2.5 rounded-xl transition-all text-sm">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            Auto-Generate
-          </button>
           <button className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-all">
             <Printer className="w-4 h-4" />
           </button>
@@ -126,7 +120,7 @@ console.log(INITIAL_SLOTS)
 
       {/* TIMETABLE GRID MATRIX */}
   
-      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} />
+      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} key={`${params.department}-${params.level}-${params.semester}`} />
    
     </div>
   );

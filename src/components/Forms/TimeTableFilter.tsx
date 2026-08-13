@@ -1,38 +1,55 @@
- "use client";
+"use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { string } from "zod";
-
-function TimeTableFilter({department, level}:{department: any, level: any}){
-    const [ispedind , startTransition] =useTransition()
-
-    const [SetView, setviewFuction] = useState(false);
-   var queryParams:any
-   const routre = useRouter();
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  const formData = new FormData(e.currentTarget);
-
-  const department = formData.get("department") as string;
-  const level = formData.get("level") as string;
-  const semester = formData.get("semester") as string;
-    queryParams = new URLSearchParams({
-    department,
-    level,
-    semester,
-  }).toString();
-  startTransition( ()=>
-  {routre.push(`/list/timeTables?${queryParams}`);
-   routre.refresh()
+interface Department {
+  id: string;
+  name: string;
 }
- 
-        
-  )
-};
 
-  
+interface Level {
+  id: string | number;
+  LevelName: string;
+}
+
+interface TimeTableFilterProps {
+  department: Department[];
+  level: Level[];
+}
+
+export default function TimeTableFilter({ department, level }: TimeTableFilterProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    const selectedDept = (formData.get("department") as string) || "";
+    const selectedLevel = (formData.get("level") as string) || "";
+    const selectedSemester = (formData.get("semester") as string) || "";
+
+    // Preserve existing search params and selectively set/delete updated values
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedDept) params.set("department", selectedDept);
+    else params.delete("department");
+
+    if (selectedLevel) params.set("level", selectedLevel);
+    else params.delete("level");
+
+    if (selectedSemester) params.set("semester", selectedSemester);
+    else params.delete("semester");
+
+    startTransition(() => {
+      // 1. Push updated query string to URL
+      router.push(`/list/timeTables?${params.toString()}`);
+      // 2. Refresh server component data
+      router.refresh();
+    });
+  };
 return (
 
   <form onSubmit={handleSubmit} className="space-y-4">
@@ -79,10 +96,9 @@ return (
         </div>
 
                 <div>  
-                  <button className='bg-blue-600 p-2 rounded-2xl w-30 hover:bg-blue-800 text-white font-semibold '>Fetch</button>               
+                  <button className='bg-blue-600 p-2 rounded-2xl w-30 hover:bg-blue-800 text-white font-semibold '>{isPending ?"Fetching...":"Fetch"}</button>               
         </div>
       </div>
       </form>
     )
 }
-export default TimeTableFilter

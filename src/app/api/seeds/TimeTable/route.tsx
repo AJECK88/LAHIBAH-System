@@ -68,151 +68,157 @@ export async function UploadTimeTable(
     }
 
     // -----------------------------------------------------------------
-    // 1. PRE-FETCH LOOKUP MAPS (Safely formatted with String protection)
-    // -----------------------------------------------------------------
-    const [subjects, classrooms, teachers, levels, departments] = await Promise.all([
-      prisma.subject.findMany({ select: { id: true, name: true } }),
-      prisma.classroom.findMany({ select: { id: true, name: true } }),
-      prisma.teacher.findMany({ select: { id: true, firstName: true, lastName: true } }),
-      prisma.level.findMany({ select: { id: true, LevelName: true } }),
-      prisma.department.findMany({ select: { id: true, name: true } }),
-    ]);
+    // // 1. PRE-FETCH LOOKUP MAPS (Safely formatted with String protection)
+// -----------------------------------------------------------------
+const [subjects, classrooms, teachers, levels, departments] = await Promise.all([
+  prisma.subject.findMany({ select: { id: true, name: true } }),
+  prisma.classroom.findMany({ select: { id: true, name: true } }),
+  prisma.teacher.findMany({ select: { id: true, firstName: true, lastName: true } }),
+  prisma.level.findMany({ select: { id: true, LevelName: true } }),
+  prisma.department.findMany({ select: { id: true, name: true } }),
+]);
 
-    const subjectMap = new Map(
-      subjects.map((s) => [String(s.name || "").trim().toLowerCase(), s.id])
-    );
-    const classroomMap = new Map(
-      classrooms.map((c) => [String(c.name || "").trim().toLowerCase(), c.id])
-    );
-    const levelMap = new Map(
-      levels.map((l) => [String(l.LevelName || "").trim().toLowerCase(), l.id])
-    );
-    const departmentMap = new Map(
-      departments.map((d) => [String(d.name || "").trim().toLowerCase(), d.id])
-    );
+const subjectMap = new Map(
+  subjects.map((s) => [String(s.name || "").trim().toLowerCase(), s.id])
+);
+const classroomMap = new Map(
+  classrooms.map((c) => [String(c.name || "").trim().toLowerCase(), c.id])
+);
+const levelMap = new Map(
+  levels.map((l) => [String(l.LevelName || "").trim().toLowerCase(), l.id])
+);
+const departmentMap = new Map(
+  departments.map((d) => [String(d.name || "").trim().toLowerCase(), d.id])
+);
 
-    const teacherMap = new Map<string, string>();
-    teachers.forEach((t) => {
-      const full = `${t.firstName || ""} ${t.lastName || ""}`.trim().toLowerCase();
-      if (t.firstName) teacherMap.set(t.firstName.trim().toLowerCase(), t.id);
-      if (t.lastName) teacherMap.set(t.lastName.trim().toLowerCase(), t.id);
-      if (full) teacherMap.set(full, t.id);
-    });
+const teacherMap = new Map<string, string>();
+teachers.forEach((t) => {
+  const full = `${t.firstName || ""} ${t.lastName || ""}`.trim().toLowerCase();
+  if (t.firstName) teacherMap.set(t.firstName.trim().toLowerCase(), t.id);
+  if (t.lastName) teacherMap.set(t.lastName.trim().toLowerCase(), t.id);
+  if (full) teacherMap.set(full, t.id);
+});
 
-    // -----------------------------------------------------------------
-    // 2. PARSE GRID SLOTS
-    // -----------------------------------------------------------------
-    const timetableEntries: ParsedEntry[] = [];
-    let currentDay: DayOfWeek | null = null;
+// -----------------------------------------------------------------
+// 2. PARSE GRID SLOTS
+// -----------------------------------------------------------------
+const timetableEntries: ParsedEntry[] = [];
+let currentDay: DayOfWeek | null = null;
 
-    const timeSlots = [
-      { start: "08:00", end: "10:00" },
-      { start: "10:00", end: "12:00" },
-      { start: "12:00", end: "14:00" },
-      { start: "14:00", end: "16:00" },
-      { start: "16:00", end: "18:00" },
-    ];
+const timeSlots = [
+  { start: "08:00", end: "10:00" },
+  { start: "10:00", end: "12:00" },
+  { start: "12:00", end: "14:00" },
+  { start: "14:00", end: "16:00" },
+  { start: "16:00", end: "18:00" },
+];
 
-    for (let i = 0; i < rawData.length; i++) {
-      const row = rawData[i];
-      if (!row || row.length === 0) continue;
+for (let i = 0; i < rawData.length; i++) {
+  const row = rawData[i];
+  if (!row || row.length === 0) continue;
 
-      const firstCell = String(row[0] || "").trim();
+  const firstCell = String(row[0] || "").trim();
 
-      const detectedDay = mapDayToEnum(firstCell);
-      if (detectedDay) {
-        currentDay = detectedDay;
-        continue;
-      }
+  const detectedDay = mapDayToEnum(firstCell);
+  if (detectedDay) {
+    currentDay = detectedDay;
+    continue;
+  }
 
-      if (
-        currentDay &&
-        (firstCell.toLowerCase().includes("venue") || firstCell.toLowerCase().includes("lecturer"))
-      ) {
-        const courseRow = rawData[i - 1] || [];
-        const detailRow = row;
+  if (
+    currentDay &&
+    (firstCell.toLowerCase().includes("venue") || firstCell.toLowerCase().includes("lecturer"))
+  ) {
+    const courseRow = rawData[i - 1] || [];
+    const detailRow = row;
 
-        for (const [colIdx, slot] of timeSlots.entries()) {
-          const rawCourse = String(courseRow[colIdx + 1] || "").trim();
-          const rawDetail = String(detailRow[colIdx + 1] || "").trim();
+    for (const [colIdx, slot] of timeSlots.entries()) {
+      const rawCourse = String(courseRow[colIdx + 1] || "").trim();
+      const rawDetail = String(detailRow[colIdx + 1] || "").trim();
 
-          if (!rawCourse || rawCourse.toLowerCase() === "undefined") continue;
+      if (!rawCourse || rawCourse.toLowerCase() === "undefined") continue;
 
-          const cleanCourseKey = rawCourse.toLowerCase();
-          const cleanDetailKey = rawDetail.toLowerCase();
+      const cleanCourseKey = rawCourse.toLowerCase();
+      const cleanDetailKey = rawDetail.toLowerCase();
 
-          const courseId = subjectMap.get(cleanCourseKey) ?? null;
-          const classroomId = classroomMap.get(cleanDetailKey) ?? null;
-          const levelId = levelMap.get(cleanDetailKey) ?? null;
-          const departmentId = departmentMap.get(cleanDetailKey) ?? null;
+      const courseId = subjectMap.get(cleanCourseKey) ?? null;
+      const classroomId = classroomMap.get(cleanDetailKey) ?? null;
+      const levelId = levelMap.get(cleanDetailKey) ?? null;
+      const departmentId = departmentMap.get(cleanDetailKey) ?? null;
 
-          let matchedTeacherId: string | null = null;
-          for (const word of rawDetail.split(/\s+/)) {
-            const foundId = teacherMap.get(word.toLowerCase());
-            if (foundId) {
-              matchedTeacherId = foundId;
-              break;
-            }
-          }
-
-          if (courseId) {
-            timetableEntries.push({
-              dayOfWeek: currentDay,
-              startTime: slot.start,
-              endTime: slot.end,
-              semester: "SEMESTER_1",
-              courseId,
-              classroomId,
-              levelId,
-              teacherId: matchedTeacherId,
-              departmentId,
-            });
-          }
+      let matchedTeacherId: string | null = null;
+      for (const word of rawDetail.split(/\s+/)) {
+        const foundId = teacherMap.get(word.toLowerCase());
+        if (foundId) {
+          matchedTeacherId = foundId;
+          break;
         }
       }
-    }
 
-    if (timetableEntries.length === 0) {
-      return {
-        success: false,
-        error: "No valid timetable entries matched existing database records.",
-      };
-    }
-
-    // -----------------------------------------------------------------
-    // 3. ATOMIC TRANSACTION (Iterative inserts with Many-to-Many connect)
-    // -----------------------------------------------------------------
-    const createdCount = await prisma.$transaction(async (tx) => {
-      // Clear target semester scope before replacing
-      await tx.timetable.deleteMany({
-        where: { semester: "SEMESTER_1" },
-      });
-
-      let count = 0;
-      for (const entry of timetableEntries) {
-        await tx.timetable.create({
-          data: {
-            dayOfWeek: entry.dayOfWeek,
-            startTime: entry.startTime,
-            endTime: entry.endTime,
-            semester: entry.semester,
-            courseId: entry.courseId,
-            classroomId: entry.classroomId,
-            levelId: entry.levelId,
-            // Many-to-Many connect for department array
-            department: entry.departmentId
-              ? {
-                  connect: [{ id: entry.departmentId }],
-                }
-              : undefined,
-          },
+      if (courseId) {
+        timetableEntries.push({
+          dayOfWeek: currentDay,
+          startTime: slot.start,
+          endTime: slot.end,
+          semester: "SEMESTER_1",
+          courseId,
+          classroomId,
+          levelId,
+          teacherId: matchedTeacherId,
+          departmentId,
         });
-        count++;
       }
+    }
+  }
+}
 
-      return count;
+if (timetableEntries.length === 0) {
+  return {
+    success: false,
+    error: "No valid timetable entries matched existing database records.",
+  };
+}
+
+// -----------------------------------------------------------------
+// 3. ATOMIC TRANSACTION WITH INCREASED TIMEOUT & RELATIONS
+// -----------------------------------------------------------------
+const createdCount = await prisma.$transaction(
+  async (tx) => {
+    // Clear target semester scope before replacing
+    await tx.timetable.deleteMany({
+      where: { semester: "SEMESTER_1" },
     });
 
+    let count = 0;
+    for (const entry of timetableEntries) {
+      await tx.timetable.create({
+        data: {
+          dayOfWeek: entry.dayOfWeek,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+          semester: entry.semester,
+          // Mandatory Direct / Relational Connects
+          courseId: entry.courseId,
+          classroomId: entry.classroomId || undefined,
+          levelId: entry.levelId || undefined,
+          // Department Implicit Many-to-Many Connect
+          department: entry.departmentId
+            ? {
+                connect: [{ id: entry.departmentId }],
+              }
+            : undefined,
+        },
+      });
+      count++;
+    }
+
+    return count;
+  },
+  {
+    maxWait: 10000, // 10 seconds to acquire connection
+    timeout: 60000, // 60 seconds transaction window to stop P2028 errors
+  }
+);
     return { success: true, count: createdCount };
   } catch (error: any) {
     console.error("Excel Upload Error:", error);

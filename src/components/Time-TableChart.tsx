@@ -71,10 +71,10 @@ type SlotTarget = {
   timeSlotId: number;
 };
 const TIME_SLOTS = [
-  { id: 1, label: '08:00 - 10:00', isBreak: false },
-  { id: 3, label: '10:00 - 12:00', isBreak: false },
-  { id: 4, label: '12:00 - 2:00', isBreak: false },
-  { id: 5, label: '2:00 - 4:00', isBreak: false }
+  { id: 1, label: '08:00 ' , label1:'10:00', isBreak: false },
+  { id: 3, label: '10:00 ' , label1:'12:00', isBreak: false },
+  { id: 4, label: '12:00 ', label1:' 2:00', isBreak: false },
+  { id: 5, label: '2:00 '  , label1: '4:00', isBreak: false }
   
 ];
 
@@ -99,7 +99,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', "Satureday
                 return (
                   <tr key={timeSlot.id} className="bg-slate-100/60">
                     <td className="p-3 text-xs font-semibold text-slate-500 border-r border-slate-200">
-                      {timeSlot.label}
+                    {timeSlot.label1}+{timeSlot.label1}
                     </td>
                   </tr>
                 );
@@ -108,8 +108,10 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', "Satureday
               return (
                 <tr key={timeSlot.id} className="hover:bg-slate-50/50 transition-colors w-fix">
                   {/* Time Column */}
-                  <td className="p-4 text-xs font-semibold text-slate-600 border-r border-slate-200 align-top bg-slate-50/30">
-                    {timeSlot.label}
+                  <td className="p-4 text-xs font-semibold text-slate-600 border-r border-slate-200 align-top bg-slate-50/30 flex flex-col justify-betweenS gap-2 items-center">
+                    <span> {timeSlot.label}</span>
+                     <span>-</span>
+                     <span>{timeSlot.label1}</span>
                   </td>
 
                  {/* Days Columns */}
