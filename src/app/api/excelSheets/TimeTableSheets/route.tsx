@@ -63,9 +63,8 @@ export async function GET(request: NextRequest) {
           ...(departmentId ? { departmentId } : {}),
         },
         include: {
-          subject: { select: { name: true } },
+          course: { select: { name: true } },
           classroom: { select: { name: true } },
-          teacher: { select: { firstName: true, lastName: true } },
         },
       });
     } catch (dbErr) {
