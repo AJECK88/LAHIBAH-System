@@ -134,13 +134,15 @@ export async function UploadTimeTable(
         const courseRow = rawData[i - 1] || [];
         const department = rawData[0] || [];
         const leveFilter = rawData[1]||[];
+        const Semestfilter = rawData[1]||[];
         const detailRow = row;
 
         for (const [colIdx, slot] of timeSlots.entries()) {
           const rawCourse = String(courseRow[colIdx + 1] || "").trim();
           const rawDetail = String(detailRow[colIdx + 1] || "").trim();
           const cleanDepartment = String(department[0] || "").trim().toLowerCase();
-          const  level= String(leveFilter[5] || "").trim().toLocaleLowerCase()
+          const level = String(leveFilter[3] || "").trim().toLocaleLowerCase();
+          const semesterValue = String(Semestfilter[7] || "").trim().toLowerCase();
 
           if (!rawCourse || rawCourse.toLowerCase() === "undefined") continue;
 
@@ -166,7 +168,7 @@ export async function UploadTimeTable(
               dayOfWeek: currentDay,
               startTime: slot.start,
               endTime: slot.end,
-              semester: "SEMESTER_1",
+              semester:semesterValue==="first semester"? "SEMESTER_1":"SEMESTER_2",
               courseId,
               classroomId,
               levelId,

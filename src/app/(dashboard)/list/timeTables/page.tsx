@@ -1,4 +1,5 @@
 
+import TimeTableForm from '@/components/Forms/QUERYDB/TimeTableQueryForm';
 import SeedfileInput from '@/components/Forms/SeedfileInput';
 import TimeTableFilter from '@/components/Forms/TimeTableFilter';
 import { TimeTableChart } from '@/components/Time-TableChart';
@@ -105,11 +106,12 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
           <p className="text-slate-500 text-sm mt-1">
             Configure schedule slots, assign lecturers, and handle hall allocations.
           </p>
+          <SeedfileInput type='TimeTable' key={"timeTable"}/>
         </div>
 
         <div className="flex items-center gap-3">
           <div>
-            <SeedfileInput type="TimeTable" />
+            <TimeTableForm departments={department} levels={level}/>
             </div>
           <button className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-all">
             <Printer className="w-4 h-4" />

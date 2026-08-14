@@ -96,7 +96,7 @@ return (
         </div>
 
                 <div>  
-                  <button className='bg-blue-600 p-2 rounded-2xl w-30 hover:bg-blue-800 text-white font-semibold '>{isPending ?"Fetching...":"Fetch"}</button>               
+                  <button className='col-span-2 bg-blue-400 text-white p-2 rounded-md hover:bg-blue-300 font-semibold '>{isPending ?"Fetching...":"Fetch"}</button>               
         </div>
       </div>
       </form>
