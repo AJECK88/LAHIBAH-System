@@ -58,7 +58,7 @@ finally {
 }
   // Construct the query parameters
     return (
-    <>
+    <div className="relative">
     <button className="flex items-center gap-2 hover:bg-gray-50 p-1" onClick={() => setActivate(!Activestate)}>
     <span>Download excel format template</span>
    <Image src="/arrow_down.svg" alt="Excel Template" width={25} height={25} />
@@ -106,7 +106,7 @@ finally {
 
 </form>
 </div> )}
-</>
+</div>
     )
 }
  export default ExamForm;

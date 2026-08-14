@@ -69,19 +69,19 @@ finally {
 }
   // Construct the query parameters
     return (
-    <>
-    <button className="flex items-center gap-2 hover:bg-gray-50 p-1" onClick={() => setActivate(!Activestate)}>
+    <div className="relative">
+    <button className="flex items-center gap-2 hover:bg-gray-50 p-1 relative" onClick={() => setActivate(!Activestate)}>
     <span>Download timetable format template</span>
    <Image src="/arrow_down.svg" alt="Excel Template" width={25} height={25} />
    </button>
 
     {Activestate && ( 
  
-  <div className="flex flex-col absolute bg-white pt-0 pl-4  pb-4 border-2 border-gray-200 rounded-md shadow-md z-10 w-100% md:w-100 lg:w-100 xl:w-100 2xl:w-100">
+  <div className="flex  flex-col right-0 left-0 absolute bg-white pt-0 pl-4  pb-4 border-2 border-gray-200 rounded-md shadow-md z-10 W-100% md:w-200 lg:w-100 xl:w-200 2xl:w-200">
    
    {/* exist form button */}
    <div className="flex gap-2 items-center justify-end p-2">
-    <button className="rounded-md hover:bg-gray-100 p-2" onClick={() => setActivate(!Activestate)}>
+    <button className="rounded-md hover:bg-gray-100 p-2"  onClick={() => setActivate(!Activestate)}>
      <Image  src="/close.png" alt="Excel Template" width={10} height={10} /></button>
      </div>
  {/* form inputs */}
@@ -117,7 +117,7 @@ finally {
 
 </form>
 </div> )}
-</>
+</div>
     )
 }
  export default  TimeTableForm;
