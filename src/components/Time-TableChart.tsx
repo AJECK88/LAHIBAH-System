@@ -28,8 +28,21 @@ type SlotTarget = {
   day: string;
   timeSlotId: number;
 };
+interface courseTye{
+   name:string
+   id:number
+}
+interface teachersTye {
+  id:string,
+  firstName:string,
+  lastName:string
 
-export function TimeTableChart({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots[] }) {
+}
+interface ClassRoomTye{
+  id:string,
+  name: string
+}
+export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom }: { INITIAL_SLOTS: initialSlots[], courses:courseTye[], teachers:teachersTye[] , ClassRoom:ClassRoomTye[]}  ) {
   const [selectedProg, setSelectedProg] = useState("hnd-cs");
   const [selectedLevel, setSelectedLevel] = useState("l200");
   const [selectedSemester, setSelectedSemester] = useState("sem1");
@@ -39,7 +52,7 @@ export function TimeTableChart({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots[
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSlotTarget, setActiveSlotTarget] = useState<SlotTarget | undefined>(undefined);
 
-  // 🔴 CRITICAL FIX FOR SERVER FILTER RE-RENDERING:
+ 
   // Update local state whenever new INITIAL_SLOTS arrive from the server query
   useEffect(() => {
     setSlots(INITIAL_SLOTS);
@@ -76,7 +89,6 @@ export function TimeTableChart({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots[
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-x-auto">
-        {/* 🔴 Fixed table layout prevents columns from expanding/collapsing */}
         <table className="w-full border-collapse table-fixed min-w-[1000px]">
           <thead>
             <tr className="bg-slate-100/70 border-b border-slate-200 bor text-slate-600 text-xs font-semibold uppercase tracking-wider">
@@ -192,6 +204,9 @@ export function TimeTableChart({ INITIAL_SLOTS }: { INITIAL_SLOTS: initialSlots[
       {isModalOpen && (
         <AddSlotModal
           target={activeSlotTarget}
+          classRoom={ClassRoom}
+          courses={courses}
+          teachers={teachers}
           prog={selectedProg}
           level={selectedLevel}
           onClose={() => setIsModalOpen(false)}

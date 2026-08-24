@@ -8,28 +8,6 @@ export const dynamic = "force-dynamic";
 import { 
   Plus, Calendar, Sparkles, Printer 
 } from 'lucide-react';
-import { S } from 'node_modules/@upstash/redis/error-8y4qG0W2.mjs';
-
-// Sample Data
-const DEPARTMENTS = [
-  { id: 'cs', name: 'Computer Science' },
-  { id: 'ee', name: 'Electrical Engineering' },
-  { id: 'bm', name: 'Business Management' }
-];
-
-const PROGRAMS = {
-  cs: [
-    { id: 'hnd-cs', name: 'HND Computer Science' },
-    { id: 'bsc-se', name: 'B.Sc. Software Engineering' }
-  ],
-  ee: [
-    { id: 'hnd-ee', name: 'HND Electrical Tech' }
-  ],
-  bm: [
-    { id: 'bsc-bm', name: 'B.Sc. Business Admin' }
-  ]
-};
-
 interface PageProps {
   searchParams: Promise<{
     department?: string;
@@ -41,8 +19,35 @@ interface PageProps {
 export default async function TimetableDashboard({ searchParams }: PageProps) {
 
 const params = await searchParams
+const classRoom = await prisma.classroom.findMany({
+  select:{
+    name:true,
+    id:true
+  }
+})
+const Teachers = await prisma.teacher.findMany(
+  {
+    select:{
+       id:true,
+       lastName:true,
+       firstName:true
+    }
+  }
+)
+const course = await prisma.subject.findMany(
+  {
+    where:{
+      levelId:Number(params.level),
+      department:{
+        some:{id:params.department}
+      }
+
+    }
+  }
+)
 const department = await prisma.department.findMany()
 const level = await prisma.level.findMany()
+//filtring all time table for a particular department 
 const departmentData = await prisma.department.findMany({
   where: {
     id: params.department,
@@ -124,7 +129,7 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
 
       {/* TIMETABLE GRID MATRIX */}
   
-      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} key={`${params.department}-${params.level}-${params.semester}`} />
+      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} key={`${params.department}-${params.level}-${params.semester}`} teachers={Teachers} courses={course} ClassRoom={classRoom} />
    
     </div>
   );

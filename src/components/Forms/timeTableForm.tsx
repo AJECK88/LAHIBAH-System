@@ -26,21 +26,36 @@ type Slot = {
   hasConflict: boolean;
   conflictMsg: string | null;
 };
+type courseTye={
+   name:string
+   id:number
+}
+interface ClassRoomTye{
+  id:string,
+  name: string
+}
+type teachersTye ={
+  id:string,
+  firstName:string,
+  lastName:string
 
+}
 type AddSlotModalProps = {
   target?: Target;
-  dept?: string;
+  courses:courseTye[];
+  teachers:teachersTye[];
+  classRoom:ClassRoomTye[];
   prog?: string;
   level?: string | number;
   onClose: () => void;
   onSave: (slot: Slot) => void;
 };
 
-export function AddSlotModal({ target, onClose, onSave }: AddSlotModalProps) {
+export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classRoom }: AddSlotModalProps) {
   const [courseCode, setCourseCode] = useState('CS205');
-  const [courseName, setCourseName] = useState('Web Development');
-  const [lecturer, setLecturer] = useState('Mr. Tanyi');
-  const [room, setRoom] = useState('Lab 3');
+  const [courseName, setCourseName] = useState('');
+  const [lecturer, setLecturer] = useState('');
+  const [room, setRoom] = useState('');
   const [day, setDay] = useState(target?.day || 'Monday');
   const [timeSlotId, setTimeSlotId] = useState(target?.timeSlotId || 1);
 
@@ -116,13 +131,14 @@ export function AddSlotModal({ target, onClose, onSave }: AddSlotModalProps) {
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-600 mb-1">Course Name</label>
-              <input 
-                type="text" 
-                value={courseName} 
-                onChange={(e) => setCourseName(e.target.value)} 
-                required 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium"
-              />
+              <select className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800" value={courseName}
+              required
+               onChange={(e)=>setCourseName(e.target.value)} >
+               <option value='' disabled>select course</option>
+                {courses.map(course =>
+                  <option key={course.id} value={course.name}>{course.name}</option> 
+                )}
+              </select>
             </div>
           </div>
 
@@ -133,25 +149,26 @@ export function AddSlotModal({ target, onClose, onSave }: AddSlotModalProps) {
                 value={lecturer} 
                 onChange={(e) => setLecturer(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
+                required
               >
-                <option value="Dr. Ambe">Dr. Ambe</option>
-                <option value="Eng. Nkwenti">Eng. Nkwenti</option>
-                <option value="Prof. Fon">Prof. Fon</option>
-                <option value="Mr. Tanyi">Mr. Tanyi</option>
+                <option value='' disabled>Select teacher</option>
+                { teachers.map(  teacher =>
+                <option key={teacher.id} value={teacher.firstName +" "+ teacher.lastName}>{teacher.firstName +" " + teacher.lastName}</option>
+                )}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Assigned Hall / Lab</label>
               <select 
-                value={room} 
+                value={room}
                 onChange={(e) => setRoom(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
+                required
+                
               >
-                <option value="Lab 1">Lab 1 (Comp Center)</option>
-                <option value="Lab 2">Lab 2 (Comp Center)</option>
-                <option value="Room 202">Room 202</option>
-                <option value="Amphitheater A">Amphitheater A</option>
+                <option value='' disabled>Select Room</option>
+               {classRoom.map( classRoom =><option key={classRoom.id} value={classRoom.name}>{classRoom.name}</option>)}
               </select>
             </div>
           </div>
