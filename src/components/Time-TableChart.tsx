@@ -42,9 +42,22 @@ interface ClassRoomTye{
   id:string,
   name: string
 }
-export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom }: { INITIAL_SLOTS: initialSlots[], courses:courseTye[], teachers:teachersTye[] , ClassRoom:ClassRoomTye[]}  ) {
+interface level{
+  id:number,
+  LevelName:string
+}
+interface department{
+  id:string,
+  name:string
+
+}
+
+export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom, uniqueLevels, uniqueDepartments }: { INITIAL_SLOTS: initialSlots[], courses:courseTye[], teachers:teachersTye[] , ClassRoom:ClassRoomTye[], uniqueLevels: level[], uniqueDepartments: department[] }) {
   const [selectedProg, setSelectedProg] = useState("hnd-cs");
-  const [selectedLevel, setSelectedLevel] = useState("l200");
+  const [selectedLevel, setSelectedLevel] = useState({
+    LevelName: uniqueLevels.length > 0 ? uniqueLevels[0].LevelName : "",
+    id: uniqueLevels.length > 0 ? uniqueLevels[0].id : 0,
+  });
   const [selectedSemester, setSelectedSemester] = useState("sem1");
 
   // 1. Local slots state initialized with server props
@@ -207,6 +220,7 @@ export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom }
           classRoom={ClassRoom}
           courses={courses}
           teachers={teachers}
+          departments={uniqueDepartments}
           prog={selectedProg}
           level={selectedLevel}
           onClose={() => setIsModalOpen(false)}

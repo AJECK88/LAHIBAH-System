@@ -1,10 +1,10 @@
 "use server"
 import { clerkClient } from "@clerk/nextjs/server";
+import { DayOfWeek } from "@prisma/client";
 import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, TeacherSchema, teacherSchema } from "./FormValidationSchima"
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
-import { AnyARecord } from "dns";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -252,8 +252,7 @@ export const deletCourse = async(
        return { successMessage:true , errorMessage:false };
     }
     catch(error){
-      console.log(error +" << error from creating student ");
-      console.log(data.level +" << level data ");
+
        return { successMessage:false , errorMessage:true };
       
     }
@@ -888,6 +887,7 @@ export const DeleteDepartment = async(
    currentState:currentState,
    data:FormData
 )=>{
+  
    const id = data.get("id") as string
      try{
      await prisma.announcement.delete({
@@ -905,3 +905,60 @@ export const DeleteDepartment = async(
 }
 export { DeleteAnnouncement } 
  /* || End */
+
+// action TimeTable
+const CreatTimeTable = async (
+  curentState:currentState,
+  data:any
+
+ )=>
+  {
+
+  try{
+   console.log("data",data)
+     const courseId = Number(data.CourseId);
+const startTime = {
+  1: '08:00', 
+  2: '10:00',
+  3: '12:00',
+  4: '2:00',
+  5: '4:00'
+}
+const endTime ={
+  1: '10:00', 
+  2: '12:00',
+  3: '2:00',
+  4: '4:00',
+  5: '6:00'
+}
+     await prisma.timetable.create({
+      data:{
+        id:undefined,
+        endTime:endTime[data.time as keyof typeof endTime],
+        startTime:startTime[data.time as keyof typeof startTime],
+      department:{
+        connect:data.departmentId ? {id:data.departmentId} : undefined
+      },
+      classroom:{
+        connect:{id:data.roomId}
+      },
+      level:{
+        connect:{id: Number(data.levelId)}
+      },
+      course:{
+        connect:{id: courseId}
+      },
+      dayOfWeek: DayOfWeek[data.dayOfWeek as keyof typeof DayOfWeek],
+    
+      }
+     })
+     console.log("Time table created successfully");
+    return{ successMessage:true , errorMessage:false}
+  } 
+  catch(error){
+  console.log("Error creating timetable:", error);
+  return{ successMessage:false , errorMessage:true}
+  
+  }
+}
+export default CreatTimeTable

@@ -45,8 +45,26 @@ const course = await prisma.subject.findMany(
     }
   }
 )
-const department = await prisma.department.findMany()
+const department = await prisma.department.findMany({
+  select:{
+    id:true,
+    name:true
+  }
+})
 const level = await prisma.level.findMany()
+ const uniqueLevel= level.filter((value, index, self) =>
+  index === self.findIndex((t) => (
+    t.id === Number(params.level)
+  ))
+)
+const uniqueDepartment= department.filter((value, index, self) =>
+  index === self.findIndex((t) => (
+    t.id === params.department
+  ))
+
+)
+
+console.log("uniqueDepartment",uniqueDepartment)
 //filtring all time table for a particular department 
 const departmentData = await prisma.department.findMany({
   where: {
@@ -129,7 +147,7 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
 
       {/* TIMETABLE GRID MATRIX */}
   
-      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} key={`${params.department}-${params.level}-${params.semester}`} teachers={Teachers} courses={course} ClassRoom={classRoom} />
+      <TimeTableChart INITIAL_SLOTS={INITIAL_SLOTS} key={`${params.department}-${params.level}-${params.semester}`} uniqueLevels={uniqueLevel}  uniqueDepartments={uniqueDepartment} teachers={Teachers} courses={course} ClassRoom={classRoom} />
    
     </div>
   );
