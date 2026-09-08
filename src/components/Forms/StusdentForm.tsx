@@ -95,7 +95,6 @@ const onSubmit = handleSubmit((formData) => {
    */
   const departments = relatedData?.departments ?? [];
   const levels = relatedData2?.level ?? [];
-  console.log("Levels data:", levels);
     /* || Updating the form default when editing data changes */
       useEffect(()=>{
  

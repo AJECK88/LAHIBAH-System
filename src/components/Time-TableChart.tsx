@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, startTransition, useActionState } from "react";
 import { AddSlotModal } from "./Forms/timeTableForm";
 import { Plus, ShieldAlert, Trash2 } from "lucide-react";
+import { DeleteTimeTable } from "@/lib/actions";
 
 type initialSlots = {
   id: number;
@@ -59,11 +60,18 @@ export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom, 
     id: uniqueLevels.length > 0 ? uniqueLevels[0].id : 0,
   });
   const [selectedSemester, setSelectedSemester] = useState("sem1");
+  const [Deletset , deleteFunction]= useActionState(
+    DeleteTimeTable ,{
+      successMessage:false,
+      errorMessage:false
+
+  })
 
   // 1. Local slots state initialized with server props
   const [slots, setSlots] = useState(INITIAL_SLOTS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeSlotTarget, setActiveSlotTarget] = useState<SlotTarget | undefined>(undefined);
+
 
  
   // Update local state whenever new INITIAL_SLOTS arrive from the server query
@@ -87,14 +95,20 @@ export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom, 
   };
 
   const handleDeleteSlot = (id: number) => {
+
     setSlots((prev) => prev.filter((s) => s.id !== id));
+    startTransition(()=>{
+      const data = {id:id}
+      deleteFunction(data)
+    })
   };
 
   const TIME_SLOTS = [
     { id: 1, label: "08:00 ", label1: "10:00", isBreak: false },
-    { id: 3, label: "10:00 ", label1: "12:00", isBreak: false },
-    { id: 4, label: "12:00 ", label1: " 2:00", isBreak: false },
-    { id: 5, label: "2:00 ", label1: "4:00", isBreak: false },
+    { id: 2, label: "10:00 ", label1: "12:00", isBreak: false },
+    { id: 3, label: "12:00 ", label1: " 2:00", isBreak: false },
+    { id: 4, label: "2:00 ", label1: "4:00", isBreak: false },
+    { id: 5, label: "4:00 ", label1: "6:00", isBreak: false },
   ];
 
   const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -162,7 +176,7 @@ export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom, 
 
                     return (
                       <td
-                        key={day}
+                        key={entry?.id || `${day}-${timeSlot.id}`}
                         className="p-2 border-r border-slate-200 last:border-r-0 align-top w-[140px] h-[140px]"
                       >
                         {/* Wrapper Box enforcing strict fixed width and height */}

@@ -934,8 +934,8 @@ const endTime ={
      await prisma.timetable.create({
       data:{
         id:undefined,
-        endTime:endTime[data.time as keyof typeof endTime],
-        startTime:startTime[data.time as keyof typeof startTime],
+        endTime:data.endTime,
+        startTime:data.startTime,
       department:{
         connect:data.departmentId ? {id:data.departmentId} : undefined
       },
@@ -946,9 +946,9 @@ const endTime ={
         connect:{id: Number(data.levelId)}
       },
       course:{
-        connect:{id: courseId}
+        connect:{id:Number(data.courseId)}
       },
-      dayOfWeek: DayOfWeek[data.dayOfWeek as keyof typeof DayOfWeek],
+      dayOfWeek: DayOfWeek[data.day.toUpperCase() as keyof typeof DayOfWeek],
     
       }
      })
@@ -962,3 +962,23 @@ const endTime ={
   }
 }
 export default CreatTimeTable
+
+const DeleteTimeTable = async(
+  currentState:currentState,
+  data:any
+)=>{
+  const id = data.id
+  console.log(id)
+  try{
+    await prisma.timetable.delete({
+      where:{
+        id:Number(id)
+      }
+    })
+    return{ successMessage:true , errorMessage:false}
+  }
+  catch(error){
+    return{ successMessage:false , errorMessage:true}
+  }
+}
+export { DeleteTimeTable }

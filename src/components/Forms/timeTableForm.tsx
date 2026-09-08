@@ -2,28 +2,25 @@ import React, { startTransition, useActionState, useState } from 'react';
 import type { FormEvent } from 'react';
 import { AlertTriangle, CheckCircle2, X } from 'lucide-react';
 import CreatTimeTable from '@/lib/actions';
-import { uniqueId } from 'recharts/types/util/DataUtils';
-
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-const startTime = {
-  1: '08:00', 
+
+const START_TIMES: Record<number, string> = {
+  1: '08:00',
   2: '10:00',
   3: '12:00',
-  4: '2:00',
-  5: '4:00'
-}
-const endTime ={
-  1: '10:00', 
+  4: '14:00',
+  5: '16:00',
+};
+
+const END_TIMES: Record<number, string> = {
+  1: '10:00',
   2: '12:00',
-  3: '2:00',
-  4: '4:00',
-  5: '6:00'
-}
-const timePeriod = {
-  1:'AM',
-  2:'PM'
-}
+  3: '14:00',
+  4: '16:00',
+  5: '18:00',
+};
+
 const TIME_SLOTS = [
   { id: 1, label: '8:00 AM - 10:00 AM', isBreak: false },
   { id: 2, label: '10:00 AM - 12:00 PM', isBreak: false },
@@ -47,42 +44,57 @@ type Slot = {
   hasConflict: boolean;
   conflictMsg: string | null;
 };
-type courseTye={
-   name:string
-   id:number
-}
-interface ClassRoomTye{
-  id:string,
-  name: string
-}
-type teachersTye ={
-  id:string,
-  firstName:string,
-  lastName:string
 
+type courseType = {
+  name: string;
+  id: number;
+};
+
+interface ClassRoomType {
+  id: string;
+  name: string;
 }
+
+type teachersType = {
+  id: string;
+  firstName: string;
+  lastName: string;
+};
+
 type AddSlotModalProps = {
   target?: Target;
-  courses:courseTye[];
-  teachers:teachersTye[];
-  classRoom:ClassRoomTye[];
-  departments:{id:string , name:string}[];
+  courses: courseType[];
+  teachers: teachersType[];
+  classRoom: ClassRoomType[];
+  departments: { id: string; name: string }[];
   prog?: string;
-  level?:{ LevelName: string; id: number };
+  level?: { LevelName: string; id: number };
   onClose: () => void;
   onSave: (slot: Slot) => void;
 };
 
-export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classRoom, level, departments }: AddSlotModalProps) {
-  const [levelId, setLevelId] = useState(level?.id || 0);
+export function AddSlotModal({
+  target,
+  onClose,
+  onSave,
+  courses,
+  teachers,
+  classRoom,
+  level,
+  departments,
+}: AddSlotModalProps) {
+  const [courseId, setCourseId] = useState<number | ''>('');
   const [courseName, setCourseName] = useState('');
-  const [lecturer, setLecturer] = useState('');
-  const [room, setRoom] = useState('');
+  const [lecturerId, setLecturerId] = useState('');
+  const [lecturerName, setLecturerName] = useState('');
+  const [roomId, setRoomId] = useState('');
+  const [roomName, setRoomName] = useState('');
   const [day, setDay] = useState(target?.day || 'Monday');
   const [timeSlotId, setTimeSlotId] = useState(target?.timeSlotId || 1);
 
   // Mock Conflict Detection Logic
-  const hasConflict = lecturer === 'Dr. Ambe' && day === 'Monday' && timeSlotId === 3;
+  const hasConflict = lecturerName === 'Dr. Ambe' && day === 'Monday' && timeSlotId === 3;
+
   const [stateAction, statActionFunction] = useActionState(CreatTimeTable, {
     successMessage: false,
     errorMessage: false,
@@ -92,22 +104,39 @@ export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classR
     e.preventDefault();
 
     startTransition(() => {
-    const formdata = new FormData(e.currentTarget);
-    const data = { ...Object.fromEntries(formdata.entries()), departmentId:departments[0].id , levelId:level?.id};
-    console.log("data", data);
+      const formdata = new FormData(e.currentTarget);
 
-      statActionFunction(data);
+      // Explicitly attach missing structure
+      if (departments?.[0]?.id) {
+        formdata.set('departments', departments[0].id);
+      }
+      if (level?.id) {
+        formdata.set('levelId', String(level.id));
+      }
+
+   
+     const data = {
+        departmentId: formdata.get('departments'),
+        lecturerId: formdata.get('LecturalId'),
+        levelId: formdata.get('levelId'),
+        courseId: formdata.get('CourseId'),
+        roomId: formdata.get('roomId'),
+        day: formdata.get('Day'),
+        startTime: formdata.get('startTime'),
+        endTime: formdata.get('endTime')
+      };
+         statActionFunction(data);
     });
 
     onSave({
       day,
       timeSlotId: Number(timeSlotId),
-      level: Number(levelId),
+      level: Number(level?.id || 0),
       courseName,
-      lecturer,
-      room,
+      lecturer: lecturerName,
+      room: roomName,
       hasConflict,
-      conflictMsg: hasConflict ? 'Lecturer assigned to another level at this time!' : null
+      conflictMsg: hasConflict ? 'Lecturer assigned to another level at this time!' : null,
     });
   };
 
@@ -125,12 +154,18 @@ export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classR
 
         {/* Modal Body / Form */}
         <form onSubmit={onsubmit} className="p-6 space-y-4 text-sm">
+          
+          {/* Hidden Inputs to ensure FormData receives values */}
+          <input type="hidden" name="startTime" value={START_TIMES[timeSlotId]} />
+          <input type="hidden" name="endTime" value={END_TIMES[timeSlotId]} />
+          <input type="hidden" name="levelId" value={level?.id || ''} />
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Day of Week</label>
               <select 
                 value={day} 
-                 name='Day'
+                name="Day"
                 onChange={(e) => setDay(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
               >
@@ -144,7 +179,7 @@ export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classR
               <label className="block text-xs font-medium text-slate-600 mb-1">Time Period</label>
               <select 
                 value={timeSlotId} 
-                name='time'
+                name="time"
                 onChange={(e) => setTimeSlotId(Number(e.target.value))}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
               >
@@ -160,25 +195,33 @@ export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classR
               <label className="block text-xs font-medium text-slate-600 mb-1">Level</label>
               <input
                 value={level?.LevelName || ''}  
-                onChange={(e) => setLevelId(Number (level?.id))}
-                name='level'
-                required 
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium"
+                disabled 
+                readOnly
+                className="w-full bg-slate-100 text-slate-500 border border-slate-200 rounded-xl p-2.5 font-medium cursor-not-allowed"
                 placeholder={level?.LevelName || 'Select Level'}
               />
-
-         
             </div>
+
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-600 mb-1">Course Name</label>
-              <select className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800" value={courseName}
-              required
-              name='CourseId'
-               onChange={(e)=>setCourseName(e.target.options[e.target.selectedIndex].text)} >
-               <option value='' disabled>select course</option>
-                {courses.map(course =>
-                  <option key={course.id} value={course.id}>{course.name}</option> 
-                )}
+              <select
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
+                required
+                name="CourseId"
+                value={courseId}
+                onChange={(e) => {
+                  const selectedId = Number(e.target.value);
+                  setCourseId(selectedId);
+                  const selectedCourse = courses.find((c) => c.id === selectedId);
+                  setCourseName(selectedCourse?.name || '');
+                }}
+              >
+                <option value="" disabled>select course</option>
+                {courses.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -187,31 +230,42 @@ export function AddSlotModal({ target, onClose, onSave, courses ,teachers,classR
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Assigned Lecturer</label>
               <select 
-                value={lecturer} 
-                onChange={(e) => setLecturer(e.target.options[e.target.selectedIndex].text)}
+                value={lecturerId}
+                onChange={(e) => {
+                  setLecturerId(e.target.value);
+                  setLecturerName(e.target.options[e.target.selectedIndex].text);
+                }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
                 required
-                name='LecturalId'
+                name="LecturalId"
               >
-                <option value='' disabled>Select teacher</option>
-                { teachers.map(  teacher =>
-                <option key={teacher.id} value={teacher.id}>{teacher.firstName +" " + teacher.lastName}</option>
-                )}
+                <option value="" disabled>Select teacher</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.firstName} {teacher.lastName}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">Assigned Hall / Lab</label>
               <select 
-                value={room}
-                onChange={(e) => setRoom(e.target.options[e.target.selectedIndex].text)}
+                value={roomId}
+                onChange={(e) => {
+                  setRoomId(e.target.value);
+                  setRoomName(e.target.options[e.target.selectedIndex].text);
+                }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-medium text-slate-800"
                 required
-                name='roomId'
-                
+                name="roomId"
               >
-                <option value='' disabled>Select Room</option>
-               {classRoom.map( classRoom =><option key={classRoom.id} value={classRoom.id}>{classRoom.name}</option>)}
+                <option value="" disabled>Select Room</option>
+                {classRoom.map((room) => (
+                  <option key={room.id} value={room.id}>
+                    {room.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

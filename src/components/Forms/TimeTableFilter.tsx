@@ -23,7 +23,7 @@ export default function TimeTableFilter({ department, level }: TimeTableFilterPr
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  function handleSubmit (e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
@@ -49,7 +49,7 @@ export default function TimeTableFilter({ department, level }: TimeTableFilterPr
       // 2. Refresh server component data
       router.refresh();
     });
-  };
+  }; 
 return (
 
   <form onSubmit={handleSubmit} className="space-y-4">

@@ -60,6 +60,7 @@ const TeacherPag = async () => {
     )
     .map((entry) => ({
       ...entry,
+      id: entry.id.toString(),
       day: Number(entry.dayOfWeek),
     }));
   const AnnouncementData = await prisma.announcement.findMany({

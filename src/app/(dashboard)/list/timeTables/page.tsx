@@ -64,7 +64,7 @@ const uniqueDepartment= department.filter((value, index, self) =>
 
 )
 
-console.log("uniqueDepartment",uniqueDepartment)
+console.log("new courses : ", course);
 //filtring all time table for a particular department 
 const departmentData = await prisma.department.findMany({
   where: {
@@ -105,7 +105,7 @@ const departmentData = await prisma.department.findMany({
 
 // 2. Map Prisma timetables to match your initialSlots shape (and fallback to [] if null)
 const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables) ?? []).map((slot, index)=> ({
-  id: Number (index),
+  id: slot.id,
   day: slot.dayOfWeek,
   StartTime: slot.startTime,
   EndTime: slot.endTime,
@@ -116,6 +116,7 @@ const INITIAL_SLOTS= (departmentData?.flatMap((dept , index)  => dept.timetables
 
 
 }));
+console.log("INITIAL_SLOTS",INITIAL_SLOTS)
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 space-y-6 font-sans">
       
