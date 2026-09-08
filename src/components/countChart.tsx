@@ -17,12 +17,12 @@ const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFe
     fill: 'white',
   },
     {
-    name: 'Boys',
+    name: 'Male',
     count:maleGegree,
     fill: '#C3EBFA',
   },
   {
-    name:'Girl',
+    name:'Female',
     count: femaleDegree,
     fill: '#FAE27C',
   },
