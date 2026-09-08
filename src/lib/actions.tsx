@@ -5,6 +5,7 @@ import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, Teac
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
+import { string } from "zod";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -972,7 +973,7 @@ const DeleteTimeTable = async(
   try{
     await prisma.timetable.delete({
       where:{
-        id:Number(id)
+        id: String(id)
       }
     })
     return{ successMessage:true , errorMessage:false}
