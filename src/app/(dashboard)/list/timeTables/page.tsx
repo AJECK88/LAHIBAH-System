@@ -64,7 +64,6 @@ const uniqueDepartment= department.filter((value, index, self) =>
 
 )
 
-console.log("new courses : ", course);
 //filtring all time table for a particular department 
 const departmentData = await prisma.department.findMany({
   where: {

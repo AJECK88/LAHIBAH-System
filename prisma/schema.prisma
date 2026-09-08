@@ -168,7 +168,7 @@ enum Semester {
 }
 
 model Timetable {
-  id        Int    @id @default(autoincrement())
+  id        String    @id @default(cuid())
   dayOfWeek DayOfWeek @default(MONDAY) // Track day of the week
   startTime String // e.g. "08:00"
   endTime   String // e.g. "10:00"

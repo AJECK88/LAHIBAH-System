@@ -6,7 +6,7 @@ import { Plus, ShieldAlert, Trash2 } from "lucide-react";
 import { DeleteTimeTable } from "@/lib/actions";
 
 type initialSlots = {
-  id: number;
+  id: string;
   day: string;
   StartTime?: string;
   EndTime?: string;
@@ -89,12 +89,12 @@ export function TimeTableChart({ INITIAL_SLOTS , courses, teachers , ClassRoom, 
       ...prev.filter(
         (s) => !(s.day === newSlotData.day && s.timeSlotId === newSlotData.timeSlotId)
       ),
-      { ...newSlotData, id: Date.now() },
+      { ...newSlotData, id: Date.now().toString() },
     ]);
     setIsModalOpen(false);
   };
 
-  const handleDeleteSlot = (id: number) => {
+  const handleDeleteSlot = (id: string) => {
 
     setSlots((prev) => prev.filter((s) => s.id !== id));
     startTransition(()=>{
