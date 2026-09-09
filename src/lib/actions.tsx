@@ -31,6 +31,9 @@ export  const CreateCourse =  async( currentState :currentState, data: CourseSch
          name: data.CourseName,
          teachers:{
              connect: data.teachers?.map((teacherId: string) => ({ id: teacherId })),
+         },
+         level:{
+           connect:{id:Number(data.level)}
          }
      }
    });
@@ -57,6 +60,9 @@ export const UpdateCourse = async (
         teachers: {
           set: [],
           connect: data.teachers?.map((id: string) => ({ id })),
+        },
+        level: {
+          connect: { id: Number(data.level) },  
         },
       },
     });
@@ -804,10 +810,12 @@ export const CreateDepartment = async(
        data:{
         name:data.DepartmentName,
         id: data.id,
-       ... (data.Supervisor &&{ supervisor:{
+       ...(data.Supervisor && { supervisor:{
           connect : {id:data.Supervisor}
-       }
-      })
+       }}),
+       ...(data.courses && { subjects:{
+        connect: data.courses.map((courseId:number) => ({ id: Number(courseId) })),
+       }})
       }
     })
     return { successMessage:false , errorMessage:true } 
@@ -832,6 +840,10 @@ try {
       name: data.DepartmentName,
       supervisor: {
         connect: { id: data.Supervisor },
+      },
+      subjects: {
+        set: [],
+        connect: data.courses?.map((courseId: number) => ({ id: Number(courseId) })),
       },
     },
   });

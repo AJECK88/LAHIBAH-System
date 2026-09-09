@@ -28,7 +28,7 @@ import { role, userrole } from '@/components/user';
                 </td>
 
                 <td className="hidden md:table-cell"> {subject.teachers.map(teacher => teacher.firstName + " " + teacher.lastName).join(", ")}</td>
-                <td>{subject.department.length > 1 ? subject.department.length : subject.department[0]?.name}</td>
+                <td>{subject.department.length > 1 ? subject.department.length>5?"General course":"course exist in " + ""+ subject.department.length + " " +"Departments": subject.department[0]?.name}</td>
                 <td className=" md:table-cell">
                     <div className="flex items-center gap-2 self-end" >
                   {userRole === "admin" && (

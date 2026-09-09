@@ -21,11 +21,13 @@ const CourseForm = ({
   data,
   SetOpen,
   relatedData,
+  relatedData2,
 }: {
   type: "Create" | "Update";
   data?: any ;
    hidden:any
    relatedData?:any;
+   relatedData2?:any;
   SetOpen: Dispatch<SetStateAction<boolean>>
  
 }) => {
@@ -74,6 +76,8 @@ const CourseForm = ({
 }, [data, type, reset])
 
         const teachers= relatedData?.teachers?? []
+        const levels= relatedData2?.level?? []
+    
   return (
     <form
       className="flex flex-col p-2 lg:p-4 justify-center items-center gap-4"
@@ -98,7 +102,32 @@ const CourseForm = ({
           Placeholder="Enter Course Name"
         />
  
+           {/*Level select*/}
+          <div className="flex flex-col w-full">
+            <label htmlFor="level">Level</label>
+            <select
+              id="level"
+              {...register("level")}
+              className="h-10 border-2 border-amber-100 w-full p-2"
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Select level
+              </option>
+              {levels.map((d: any) => (
+                <option key={d.id} value={d.id}>
+                  {d.LevelName}
+                </option>
+              ))}
+            </select>
 
+            {errors.level && (
+              <span className="text-sm text-red-500">
+                {errors.level.message}
+              </span>
+            )}
+
+        </div>
          <div className="flex flex-col w-full">
         <label htmlFor="">Teacher</label>
  
@@ -119,7 +148,7 @@ const CourseForm = ({
       value: t.id,
       label: `${t.firstName} ${t.lastName}`,
     })) || []
-  }
+  } 
   onChange={(selected) => {
     setValue("teachers", selected.map((s: any) => s.value))
   }}

@@ -63,11 +63,11 @@ const deletActionMap: Record<
        Parent: ( SetOpen,type, data , relatedData) =>(
       <ParentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
        ),
-       Course: (  SetOpen,type, data, relatedData) => (
-       <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} hidden/>
+       Course: (  SetOpen,type, data, relatedData,relatedData2) => (
+       <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2} hidden/>
       ),
-       Department: ( SetOpen,type ,data ,relatedData) =>(
-             <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/> 
+       Department: ( SetOpen,type ,data ,relatedData ,relatedData2 ) =>(
+             <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2}/> 
        ),
        announcement:(SetOpen,type, data , relatedData) => (
        <AnnouncementForm  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData}/>

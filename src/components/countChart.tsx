@@ -56,14 +56,14 @@ const CountChart = ({ GenderMale, GenderFemale }: { GenderMale: number; GenderFe
       {/* Button  */}
       <div className="w-full flex flex-row  gap-4 items-center justify-center ">
 
-        {/* Boys info */}
+        {/* Male info */}
        <div className='flex flex-col gap-1 items-center'>
          <div className='w-3 h-3  rounded-full  bg-sky-200 '/>
         <h1 className='font-bold'>{GenderMale}</h1>
         <h2 className='text-xs text-gray-300 '>Male({Number(psMale.toFixed()) + "%"})</h2>
   </div>
 
-       {/* Girls info */}
+       {/* Female info */}
         <div className='flex flex-col gap-1 items-center'>
         <div className='w-3 h-3  rounded-full bg-amber-200 '/>
         <h1 className='font-bold'>{GenderFemale}</h1>

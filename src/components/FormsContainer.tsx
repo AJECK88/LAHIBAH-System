@@ -67,7 +67,17 @@ const FormsContainer = async( {
             )
             relatedData ={teachers :SubjectTeachers}
             
-        
+        const levels2 = await prisma.level.findMany(
+          {
+            select:{
+              id:true,
+              LevelName:true,
+            }
+          })
+          
+          relatedData2={level:levels2}
+        break;
+  
        break;
        case "Teacher":
          const TeacherCourses = await prisma.subject.findMany(
@@ -108,6 +118,16 @@ const FormsContainer = async( {
                 
               })
             relatedData = {teachers :DepartmentTeachers}
+            const couses = await prisma.subject.findMany(
+              {
+                select:{
+                    id :true,
+                    name:true,
+                }
+                
+              })
+            relatedData2 = {courses :couses}
+        break;
         
        break;
    }

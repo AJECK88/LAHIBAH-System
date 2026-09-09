@@ -9,7 +9,7 @@ import { max } from "moment";
           CourseName: z.string()
           .min(3, { message: 'Name must be at least 3 characters long' }),
           teachers: z.array(z.string()).optional(),
-         
+          level:z.string().optional(), 
          })
 
          export type CourseSchema = z.infer<typeof courseSchema>
@@ -97,6 +97,7 @@ import { max } from "moment";
           .min(3, { message: 'Name must be at least 3 characters long' }),
            Supervisor: z.string().optional(),
            id:z.string().optional(),
+           courses: z.array(z.number()).optional(),
          })
         export  type DepartmentSchema = z.infer<typeof departmentschema>
 
