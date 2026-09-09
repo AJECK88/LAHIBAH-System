@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+
 import {
   Download,
   Check,
@@ -71,10 +72,17 @@ export default function MarkAttendancePage() {
   };
 
   return (
-    <div className="p-4 lg:p-6 bg-slate-50/50 min-h-screen space-y-6">
+    <div className="p-4 lg:p-6  min-h-screen space-y-6">
       {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Attendance</h1>
+         <div className="flex items-center gap-2 text-gray-900 font-bold text-2xs">
+                <ChevronLeft className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-800" onClick={() => window.history.back()} />
+                <span>Mark Attendance</span>
+              </div>
+               <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
+               Department: {course} 
+              </div>
         <button
           type="button"
           className="flex items-center gap-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-2 rounded-xl shadow-sm transition-all"
@@ -90,7 +98,7 @@ export default function MarkAttendancePage() {
         <div className="lg:col-span-3 space-y-4">
           <AttendanceCalendar
             selectedDate={selectedDate}
-            onDateSelect={(d:any) => setSelectedDate(d)}
+            onDateSelect={(d: Date) => setSelectedDate(d)}
           />
 
           {/* Filter Dropdowns */}
@@ -154,23 +162,21 @@ export default function MarkAttendancePage() {
         </div>
 
         {/* Right Column: Attendance Marking Area */}
-        <div className="lg:col-span-9 bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-6">
+        <div className="lg:col-span-9  border-gray-100  space-y-6">
           {/* Section Header Bar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-center rounded-sm justify-between gap-4 p-4 border border-gray-200">
             <div className="space-y-1">
-              <div className="flex items-center gap-2 text-gray-500 text-xs font-semibold">
-                <ChevronLeft className="w-4 h-4 cursor-pointer hover:text-gray-800" />
-                <span>Mark Attendance</span>
-              </div>
+             
               <h2 className="text-lg font-bold text-gray-900">
-                Subject: {subject}
+                course: {subject}
               </h2>
               <p className="text-xs text-gray-400 font-medium">
-                Class C4, {group}
+                class Room: {group}
               </p>
             </div>
-
+             <div className="h-8 w-px bg-gray-300" aria-hidden="true" />
             <div className="flex items-center gap-4">
+
               <div className="text-right">
                 <div className="text-xs font-bold text-gray-800">
                   Time: 10:00 AM To 10:45 AM
@@ -179,8 +185,10 @@ export default function MarkAttendancePage() {
                   Week 3 - Tuesday - {selectedDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                 </div>
               </div>
-
-              <span className="text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-xs font-bold">
+              </div>
+        <div className="h-8 w-px bg-gray-300" aria-hidden="true" />
+           <div className="flex items-center gap-4">
+              <span className="text-amber-600  px-3 py-1 rounded-full text-xs font-bold">
                 Pending
               </span>
 
