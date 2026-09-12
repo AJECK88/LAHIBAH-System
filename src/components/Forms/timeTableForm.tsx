@@ -6,19 +6,19 @@ import CreatTimeTable from '@/lib/actions';
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 const START_TIMES: Record<number, string> = {
-  1: '08:00',
-  2: '10:00',
-  3: '12:00',
-  4: '14:00',
-  5: '16:00',
+  1: '08:00 AM',
+  2: '10:00 AM',
+  3: '12:00 PM',
+  4: '1:00 PM',
+  5: '4:00 PM',
 };
 
 const END_TIMES: Record<number, string> = {
-  1: '10:00',
-  2: '12:00',
-  3: '14:00',
-  4: '16:00',
-  5: '18:00',
+  1: '10:00 AM',
+  2: '12:00 PM',
+  3: '1:00 PM',
+  4: '4:00 PM',
+  5: '6:00 PM',
 };
 
 const TIME_SLOTS = [

@@ -928,22 +928,6 @@ const CreatTimeTable = async (
   {
 
   try{
-   console.log("data",data)
-     const courseId = Number(data.CourseId);
-const startTime = {
-  1: '08:00', 
-  2: '10:00',
-  3: '12:00',
-  4: '2:00',
-  5: '4:00'
-}
-const endTime ={
-  1: '10:00', 
-  2: '12:00',
-  3: '2:00',
-  4: '4:00',
-  5: '6:00'
-}
      await prisma.timetable.create({
       data:{
         id:undefined,

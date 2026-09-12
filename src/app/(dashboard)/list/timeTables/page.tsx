@@ -45,6 +45,7 @@ const course = await prisma.subject.findMany(
     }
   }
 )
+console.log("courses"+course)
 const department = await prisma.department.findMany({
   select:{
     id:true,
