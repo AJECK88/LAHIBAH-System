@@ -17,12 +17,39 @@ interface PageProps{
 
 
 export default async function MarkAttendancePage({ searchParams }: PageProps) {
+
+      const params = await searchParams;
   // DB Quoring
   const department = await prisma.department.findMany({ select: { id: true, name: true } });
   const courses = await prisma.subject.findMany({ select: { id: true, name: true } });
   const classRoom = await prisma.classroom.findMany({ select: { id: true, name: true } });
+  const students = params.courseId
+    ? (
+        await prisma.subject.findMany({
+          where: { id: Number(params.courseId) },
+          select: {
+            students: {
+              select: {
+                id: true,
+                lastName: true,
+                firstName: true,
+                matricule: true,
+              },
+            },
+          },
+        })
+      ).flatMap((subject) => subject.students)
+    : [];
+
+  const attendanceStudents = students.map((student) => ({
+    ...student,
+    matricule: student.matricule || "",
+    totalAttdHours: 0,
+    status: "Enrolled" as const,
+  }));
+
   const TimeTable = await prisma.timetable.findMany({select:{id:true,endTime:true,startTime:true ,course:{select:{id:true}}}})
-    const params = await searchParams;
+
    // 1. Find the matching department object
   const selectedDepartment = department.find(
     (dept) => String(dept.id) === String(params?.departmentId)
@@ -53,7 +80,12 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
 
         <div className="w-3/4">
           {/* Right Column: Attendance Marking Area */}
-          <AttendanceTable course={courseName} room={RoomName} Coursetime={courseTime} />
+          <AttendanceTable
+            course={courseName}
+            room={RoomName}
+            Coursetime={courseTime}
+            MOCK_STUDENTS={attendanceStudents}
+          />
         </div>
       </div>
     </div>

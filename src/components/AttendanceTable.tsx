@@ -2,35 +2,28 @@
 import { BarChart2, Check, Clock, Pencil, X } from "lucide-react";
 import { startTransition, useState, useTransition } from "react";
 import { toast } from "react-toastify";
+
+ type Students = {
+  id: string;
+  matricule:string
+  firstName: string;
+  lastName:string;
+  totalAttdHours: number;
+  status: "Enrolled" | "Inactive";
+};
 type propsType={
   course:string,
   room:string
-  Coursetime:string
+  Coursetime:string,
+  MOCK_STUDENTS:Students[]
 }
 
 const AttendanceTable = (props:propsType)=>{
 
- type Student = {
-  id: string;
-  studentId: string;
-  name: string;
-  totalAttdHours: number;
-  status: "Enrolled" | "Inactive";
-};
+
 
  
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
-// Mock Data
-const MOCK_STUDENTS: Student[] = [
-  { id: "1", studentId: "BSBAD0555", name: "Jeremy Schmidt", totalAttdHours: 12, status: "Enrolled" },
-  { id: "2", studentId: "BSBAD0556", name: "Carlota Monteiro", totalAttdHours: 11, status: "Enrolled" },
-  { id: "3", studentId: "BSBAD0557", name: "Lungelo Ngcaba", totalAttdHours: 12, status: "Enrolled" },
-  { id: "4", studentId: "BSBAD0558", name: "Sampson Totton", totalAttdHours: 12, status: "Enrolled" },
-  { id: "5", studentId: "BSBAD0559", name: "Abbie Wilson", totalAttdHours: 12, status: "Enrolled" },
-  { id: "6", studentId: "BSBAD0560", name: "Sukhbirpal Dhalan", totalAttdHours: 11, status: "Enrolled" },
-  { id: "7", studentId: "BSBAD0561", name: "Joana Leite", totalAttdHours: 12, status: "Enrolled" },
-  { id: "8", studentId: "BSBAD0562", name: "Shen Zhi", totalAttdHours: 12, status: "Enrolled" },
-];
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2020, 0, 17));
     // Track student status values
@@ -106,7 +99,7 @@ const MOCK_STUDENTS: Student[] = [
                 </tr>
               </thead>
               <tbody className=" divide-gray-200 divide-y border border-gray-200 bg-white">
-                {MOCK_STUDENTS.map((student) => {
+                {props.MOCK_STUDENTS.map((student) => {
                   const currentStatus = attendance[student.id] || "PRESENT";
 
                   return (
@@ -115,10 +108,10 @@ const MOCK_STUDENTS: Student[] = [
                       className="hover:bg-slate-50/50 transition-colors "
                     >
                       <td className="py-3.5 font-bold text-gray-700 px-3">
-                        {student.studentId}
+                        {student.matricule}
                       </td>
                       <td className="py-3.5 font-bold text-gray-900">
-                        {student.name}
+                        {student.firstName + student.lastName}
                       </td>
 
                       {/* Attendance Toggle Group */}

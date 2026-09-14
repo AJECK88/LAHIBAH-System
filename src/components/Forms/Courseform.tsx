@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import Input from "@/components/input"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { CourseSchema, courseSchema } from "@/lib/FormValidationSchima"
 import { CreateCourse, UpdateCourse } from "@/lib/actions"
 import Select from "react-select"
@@ -22,27 +22,29 @@ const CourseForm = ({
   SetOpen,
   relatedData,
   relatedData2,
+  relatedData3
 }: {
   type: "Create" | "Update";
   data?: any ;
    hidden:any
    relatedData?:any;
    relatedData2?:any;
+   relatedData3?:any,
   SetOpen: Dispatch<SetStateAction<boolean>>
  
 }) => {
   const router = useRouter()
-
   const {
-    setValue, 
+    setValue,
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<CourseSchema>({
     resolver: zodResolver(courseSchema),
-  
   })
+
   const [state, formAction] = useActionState(type==='Create'? CreateCourse: UpdateCourse, {
     successMessage: false,
     errorMessage: false,
@@ -52,7 +54,13 @@ const CourseForm = ({
     startTransition(() => {
       formAction(formData)
     })
-  })
+  });
+
+  // Watch departments to sync form state
+  const watch = useWatch({ control });
+  const selecteddepartementId: any[] = Array.isArray(watch.departments)
+    ? watch.departments
+    : [];
 
   useEffect(() => {
     if (state.successMessage) {
@@ -77,6 +85,8 @@ const CourseForm = ({
 
         const teachers= relatedData?.teachers?? []
         const levels= relatedData2?.level?? []
+        const Departments = relatedData3?.departments ?? []
+        console.log(Departments)
     
   return (
     <form
@@ -91,7 +101,7 @@ const CourseForm = ({
         Course Info
       </h2>
 
-      <div className="grid lg:grid-cols-3 justify-between gap-5 w-full grid-cols-1">
+      <div className="grid lg:grid-cols-2 justify-between gap-5 w-full grid-cols-1">
         <Input
           type="text"
           name="CourseName"
@@ -102,6 +112,7 @@ const CourseForm = ({
           Placeholder="Enter Course Name"
         />
  
+
            {/*Level select*/}
           <div className="flex flex-col w-full">
             <label htmlFor="level">Level</label>
@@ -128,9 +139,43 @@ const CourseForm = ({
             )}
 
         </div>
+          <div className="flex flex-col w-full ">
+          <label className="">Departments</label>
+          <Select
+            isMulti
+            styles={{
+              control: (base) => ({
+                ...base,
+                border: "2px solid #fef3c7",
+              }),
+            }}
+            options={Departments.map((t: any) => ({
+              value: t.id,
+              label: t.name,
+            }))}
+            value={
+              Array.isArray(selecteddepartementId) && Array.isArray(Departments)
+                ? Departments
+                    .filter((c: any) => selecteddepartementId.includes(c.id))
+                    .map((c: any) => ({ value: c.id, label: c.name })) as any
+                : []
+            }
+            onChange={(selected) => {
+              setValue(
+                "departments",
+                selected ? selected.map((s: any) => s.value) : [] as any
+              );
+            }}
+          />
+          {errors.departments && (
+            <span className="text-sm text-red-500">
+              {errors.departments.message}
+            </span>
+          )}
+        </div>
          <div className="flex flex-col w-full">
         <label htmlFor="">Teacher</label>
- 
+           
 <Select
   isMulti
   styles={{
@@ -153,9 +198,8 @@ const CourseForm = ({
     setValue("teachers", selected.map((s: any) => s.value))
   }}
 />
-
-
           </div> 
+
       </div>
         
       {state.errorMessage && (

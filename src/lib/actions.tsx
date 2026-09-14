@@ -25,6 +25,11 @@ type currentState = {
 }
 /* || Course section to creat update and delete */
 export  const CreateCourse =  async( currentState :currentState, data: CourseSchema)  =>{
+  // 1. Find all existing students registered under this level
+  const levelStudents = await prisma.student.findMany({
+    where: { levelId:Number( data.level) },
+    select: { id: true }
+  });
   try{ 
      await prisma.subject.create({
      data:{
@@ -34,9 +39,18 @@ export  const CreateCourse =  async( currentState :currentState, data: CourseSch
          },
          level:{
            connect:{id:Number(data.level)}
+         },
+         students:{
+          connect:levelStudents.map((s)=>({id:s.id}))
+         },
+         ...(data.departments && 
+         {department:{
+          connect: data.departments?.map((departmentId)=>({id:departmentId}))
          }
-     }
+     })
+    }
    });
+  
 /*    revalidatePath(" /list/courses") */
     return { successMessage:true , errorMessage:false };
 
@@ -50,6 +64,11 @@ export const UpdateCourse = async (
   currentState: currentState,
   data: CourseSchema
 ) => {
+   // 1. Find all existing students registered under this level
+  const levelStudents = await prisma.student.findMany({
+    where: { levelId:Number( data.level) },
+    select: { id: true }
+  });
   try {
     await prisma.subject.update({
       where: {
@@ -63,7 +82,14 @@ export const UpdateCourse = async (
         },
         level: {
           connect: { id: Number(data.level) },  
-        },
+        }, students:{
+          connect:levelStudents.map((s)=>({id:s.id}))
+         },
+           ...(data.departments && 
+         {department:{
+          connect: data.departments?.map((departmentId)=>({id:departmentId}))
+         }
+     })
       },
     });
 
@@ -96,6 +122,14 @@ export const deletCourse = async(
 
   /* || student section to update , create and delete */
  export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
+  // 1. Get all subject IDs associated with this level
+  const levelSubjects = await prisma.subject.findMany({
+    where: { levelId: Number(data.level) ,
+       department: {
+        some: { id: data.department }, // e.g., Software Engineering
+      },},
+    select: { id: true }
+  });
   try{
      const client = await clerkClient();
 
@@ -110,6 +144,7 @@ export const deletCourse = async(
       },
     });
       await prisma.student.create({
+        
          data:{
          username:data.FirstName +"_" + data.MatriculeNo.slice(-4),
          address:data.Address,
@@ -128,6 +163,9 @@ export const deletCourse = async(
          }, 
          level:{ 
             connect:{id:Number(data.level)}
+         },
+         courses:{
+          connect:levelSubjects.map(subject => ({id:subject.id}))
          }
          }
          

@@ -52,7 +52,7 @@ const deletActionMap: Record<
         const LessonForm = dynamic( () => import('@/components/Forms/LessonForm'))
 
       const Forms:{
-            [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any , relatedData2?:any)=>JSX.Element;
+                  [key:string]:( SetOpen:Dispatch<SetStateAction<boolean>> , type: "Create" | "Update" , data?: any , relatedData?:any , relatedData2?:any , relatedData3?:any)=>JSX.Element;
  } = { 
        Teacher: ( SetOpen, type, data , relatedData) => (
        <TeachersForms  type={type} data={data}  SetOpen={SetOpen} relatedData={relatedData}/>
@@ -63,8 +63,8 @@ const deletActionMap: Record<
        Parent: ( SetOpen,type, data , relatedData) =>(
       <ParentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData}/>
        ),
-       Course: (  SetOpen,type, data, relatedData,relatedData2) => (
-       <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2} hidden/>
+      Course: (  SetOpen,type, data, relatedData,relatedData2,relatedData3) => (
+      <Courseform  type={type} data={data} SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2} relatedData3={relatedData3} hidden/>
       ),
        Department: ( SetOpen,type ,data ,relatedData ,relatedData2 ) =>(
              <DepartmentForm  type={type} data={data}   SetOpen={SetOpen} relatedData={relatedData} relatedData2={relatedData2}/> 
@@ -80,7 +80,7 @@ const deletActionMap: Record<
 
 
 
-      const FormModel = ({type ,table, data, id , relatedData, relatedData2 }:FormsContainerProps & {relatedData?:any , relatedData2?:any}) => {
+      const FormModel = ({type ,table, data, id , relatedData, relatedData2, relatedData3 }:FormsContainerProps & {relatedData?:any , relatedData2?:any ,relatedData3:any}) => {
       const size = type === "Create" ? "w-8 h-8" : "w-8 h-8"
       const bgColor =
       type === "Create" ? "bg-green-100" :
@@ -140,7 +140,7 @@ const deletActionMap: Record<
       </div>
 
       </form>
-      ): Forms[table]( SetOpen ,type, data, relatedData , relatedData2);
+      ): Forms[table]( SetOpen ,type, data, relatedData , relatedData2,relatedData3);
 
       }
   
