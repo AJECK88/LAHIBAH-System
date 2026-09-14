@@ -86,7 +86,6 @@ const CourseForm = ({
         const teachers= relatedData?.teachers?? []
         const levels= relatedData2?.level?? []
         const Departments = relatedData3?.departments ?? []
-        console.log(Departments)
     
   return (
     <form

@@ -21,7 +21,20 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
       const params = await searchParams;
   // DB Quoring
   const department = await prisma.department.findMany({ select: { id: true, name: true } });
-  const courses = await prisma.subject.findMany({ select: { id: true, name: true } });
+// Fetch only subjects associated with the given departmentId
+const courses = await prisma.subject.findMany({
+  where: {
+    department: {
+      some: {
+        id: params.departmentId, // Works for many-to-many (@relation("DepartmentToSubject"))
+      },
+    },
+  },
+  select: {
+    id: true,
+    name: true,
+  },
+});
   const classRoom = await prisma.classroom.findMany({ select: { id: true, name: true } });
   const students = params.courseId
     ? (
@@ -59,6 +72,7 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
  //2 find  the matching department abject
  const selectedCourses = courses.find((cours)=>String(cours.id) === String(params?.courseId ))
  const courseName =selectedCourses?.name||"All"
+ const courseId = params.courseId ?? "";
  //3 Find the matching room object 
  const SelectedRoom = classRoom.find((Room)=>String(Room.id)==String(params?.roomId))
  const RoomName = SelectedRoom?.name||"All"
@@ -75,7 +89,7 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
       <div className="flex gap-2">
         <div className="w-1/4">
           {/* Main Grid: Filters Sidebar + Attendance Content */}
-          <AttendanceForm courses={courses} departments={department} room={classRoom} />
+          <AttendanceForm key={classRoom[0].id + department[0].id} courses={courses} departments={department} room={classRoom} />
         </div>
 
         <div className="w-3/4">
@@ -83,6 +97,7 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
           <AttendanceTable
             course={courseName}
             room={RoomName}
+            courseId={courseId}
             Coursetime={courseTime}
             MOCK_STUDENTS={attendanceStudents}
           />

@@ -1,7 +1,9 @@
 "use client"
+import { CreateAttendance } from "@/lib/actions";
 import { BarChart2, Check, Clock, Pencil, X } from "lucide-react";
-import { startTransition, useState, useTransition } from "react";
+import { startTransition, useActionState, useState, useTransition } from "react";
 import { toast } from "react-toastify";
+import { object } from "zod";
 
  type Students = {
   id: string;
@@ -13,6 +15,7 @@ import { toast } from "react-toastify";
 };
 type propsType={
   course:string,
+  courseId:string
   room:string
   Coursetime:string,
   MOCK_STUDENTS:Students[]
@@ -24,15 +27,37 @@ const AttendanceTable = (props:propsType)=>{
 
  
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
+  type AttendanceType = {
+    studentId: string;
+    status: AttendanceStatus;
+    courseId: number;
+    date: Date;
+    present: boolean;
+  };
 
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2020, 0, 17));
     // Track student status values
-  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({
+  const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
+  const [state , FormAction]=useActionState(
+    CreateAttendance,{
+    errorMessage:false,
+    successMessage:true
+    }
+  )
+  const AttendancStuctureFormat: AttendanceType[] = Object.entries(attendance).map(([studentId, status]) => ({
+    studentId,
+    status,
+    courseId:Number(props.courseId),
+    date :new Date(),
+    present: status ==="PRESENT" ?true:false
 
-  });
+  }));
    const [isPending, startTransition] = useTransition();
     const handleSave = () => {
     startTransition(async () => {
+      for (const attendanceEntry of AttendancStuctureFormat) {
+        FormAction(attendanceEntry);
+      }
       // Execute your save server action here
       await new Promise((resolve) => setTimeout(resolve, 600));
       toast.success("Attendance saved successfully!");
@@ -100,7 +125,7 @@ type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
               </thead>
               <tbody className=" divide-gray-200 divide-y border border-gray-200 bg-white">
                 {props.MOCK_STUDENTS.map((student) => {
-                  const currentStatus = attendance[student.id] || "PRESENT";
+                  const currentStatus = attendance[student.id] || "";
 
                   return (
                     <tr

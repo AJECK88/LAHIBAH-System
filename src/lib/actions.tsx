@@ -6,6 +6,7 @@ import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
 import { string } from "zod";
+import { error } from "console";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -22,6 +23,14 @@ const passwordgenerator = (length: number) => {
 type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
+}
+type AttendanceType={
+    studentId:string
+    status:string
+    courseId:number,
+    date:Date,
+    present:boolean
+
 }
 /* || Course section to creat update and delete */
 export  const CreateCourse =  async( currentState :currentState, data: CourseSchema)  =>{
@@ -1017,3 +1026,21 @@ const DeleteTimeTable = async(
   }
 }
 export { DeleteTimeTable }
+
+
+// Attendance Function 
+const CreateAttendance = async(
+  currentState:currentState,
+  data:AttendanceType
+)=>{
+  try{
+    await prisma.attendance.createMany({
+      data: data
+    })
+    return{ successMessage:true , errorMessage:false}
+  }
+  catch(error){
+    return{ successMessage:false , errorMessage:true}
+  }
+}
+export {CreateAttendance}
