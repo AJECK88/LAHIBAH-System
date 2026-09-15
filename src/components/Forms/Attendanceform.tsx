@@ -87,8 +87,8 @@ const AttendanceForm = ({
             onChange={(e) => updateQueryParam("semester", e.target.value)}
             className="w-full font-medium text-gray-500 outline-none focus:border-blue-500 transition-colors"
           >
-            <option value="SEMESTER_1">Winter Sem - Term 1</option>
-            <option value="SEMESTER_2">Spring Sem - Term 2</option>
+            <option value="SEMESTER_1">First semester</option>
+            <option value="SEMESTER_2">Second semester</option>
           </select>
         </div>
 

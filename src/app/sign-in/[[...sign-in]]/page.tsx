@@ -6,7 +6,6 @@ import "./login.css"
 import Link from 'next/link'
 import React, { useEffect } from "react"
 import { useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
 
 const Sign_In  =  ()=>{
 const { isSignedIn, user, isLoaded } = useUser();
@@ -19,7 +18,6 @@ const { isSignedIn, user, isLoaded } = useUser();
       
      
    } */
- const router = useRouter()
   useEffect(() => {
   if (isLoaded && isSignedIn && user) {
     const role = user?.publicMetadata.role;

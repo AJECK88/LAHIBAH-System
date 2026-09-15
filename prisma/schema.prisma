@@ -123,6 +123,7 @@ model Teacher {
   firstName     String
   lastName      String
   sex           Usersex
+  createdAt     DateTime       @default(now())
   image         String?
   DateOfBirth   DateTime?
   teachersId    String?
