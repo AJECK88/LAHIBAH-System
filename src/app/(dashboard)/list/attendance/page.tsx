@@ -1,57 +1,63 @@
-
 import prisma from "@/lib/prisma";
 import AttendanceForm from "@/components/Forms/Attendanceform";
 import AttendanceTable from "@/components/AttendanceTable";
 import AttendanceNav from "@/components/AttendanceNav";
-import { c } from "node_modules/@upstash/redis/error-8y4qG0W2.mjs";
-import { Prisma } from "@prisma/client";
 
-
-interface PageProps{
+interface PageProps {
   searchParams: Promise<{
     departmentId?: string;
     courseId?: string;
     semester?: string;
     roomId?: string;
-}>};
-
+  }>;
+}
 
 export default async function MarkAttendancePage({ searchParams }: PageProps) {
+  const params = await searchParams;
 
-      const params = await searchParams;
-  // DB Quoring
-  const department = await prisma.department.findMany({ select: { id: true, name: true } });
-// Fetch only subjects associated with the given departmentId
-const courses = await prisma.subject.findMany({
-  where: {
-    department: {
-      some: {
-        id: params.departmentId, // Works for many-to-many (@relation("DepartmentToSubject"))
-      },
-    },
-  },
-  select: {
-    id: true,
-    name: true,
-  },
-});
-  const classRoom = await prisma.classroom.findMany({ select: { id: true, name: true } });
-  const students = params.courseId
-    ? (
-        await prisma.subject.findMany({
-          where: { id: Number(params.courseId) },
-          select: {
-            students: {
-              select: {
-                id: true,
-                lastName: true,
-                firstName: true,
-                matricule: true,
-              },
+  // 1. Fetch Departments and Classrooms
+  const department = await prisma.department.findMany({
+    select: { id: true, name: true },
+  });
+
+  const classRoom = await prisma.classroom.findMany({
+    select: { id: true, name: true },
+  });
+
+  // 2. Fetch Courses (Filtered by department if provided, otherwise fetch all)
+  const courses = await prisma.subject.findMany({
+    where: params.departmentId
+      ? {
+          department: {
+            some: {
+              id: params.departmentId,
             },
           },
-        })
-      ).flatMap((subject) => subject.students)
+        }
+      : {}, // Omit filter when no departmentId is selected
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  // 3. Directly fetch Enrolled Students for the selected course
+  const students = params.courseId
+    ? await prisma.student.findMany({
+        where: {
+          courses: {
+            some: {
+              id: Number(params.courseId),
+            },
+          },
+        },
+        select: {
+          id: true,
+          lastName: true,
+          firstName: true,
+          matricule: true,
+        },
+      })
     : [];
 
   const attendanceStudents = students.map((student) => ({
@@ -61,39 +67,64 @@ const courses = await prisma.subject.findMany({
     status: "Enrolled" as const,
   }));
 
-  const TimeTable = await prisma.timetable.findMany({select:{id:true,endTime:true,startTime:true ,course:{select:{id:true}}}})
+  // 4. Fetch Timetable for the selected course
+  const TimeTable = params.courseId
+    ? await prisma.timetable.findFirst({
+        where: {
+          courseId: Number(params.courseId),
+        },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+        },
+      })
+    : null;
 
-   // 1. Find the matching department object
+  // 5. Safe Selected Entity Name Resolution
   const selectedDepartment = department.find(
     (dept) => String(dept.id) === String(params?.departmentId)
   );
   const departmentName = selectedDepartment?.name || "All";
   const departmentId = selectedDepartment?.id || "All";
- //2 find  the matching department abject
- const selectedCourses = courses.find((cours)=>String(cours.id) === String(params?.courseId ))
- const courseName =selectedCourses?.name||"All"
- const courseId = params.courseId ?? "";
- //3 Find the matching room object 
- const SelectedRoom = classRoom.find((Room)=>String(Room.id)==String(params?.roomId))
- const RoomName = SelectedRoom?.name||"All"
- //find the matching timetable
- const TimeFram = TimeTable.find((Course)=> Number(Course.course?.id)===Number(params?.courseId));
- console.log("times"+TimeFram , params.courseId)
- const courseTime = TimeFram ? `${TimeFram.startTime} - ${TimeFram.endTime}` : "All";
+
+  const selectedCourse = courses.find(
+    (cours) => String(cours.id) === String(params?.courseId)
+  );
+  const courseName = selectedCourse?.name || "All";
+  const courseId = params.courseId ?? "";
+
+  const selectedRoom = classRoom.find(
+    (room) => String(room.id) === String(params?.roomId)
+  );
+  const RoomName = selectedRoom?.name || "All";
+
+  const courseTime = TimeTable
+    ? `${TimeTable.startTime} - ${TimeTable.endTime}`
+    : "All";
+
+  // Safe key generator to prevent index [0] undefined crashes
+  const formKey = `${classRoom[0]?.id ?? "no-room"}-${department[0]?.id ?? "no-dept"}`;
 
   return (
     <div className="p-4 lg:p-6 min-h-screen space-y-6">
       {/* Top Navigation */}
-      <AttendanceNav key={ departmentId|| "all"} departmentName={departmentName} />
+      <AttendanceNav key={departmentId} departmentName={departmentName} />
 
-      <div className="flex gap-2">
-        <div className="w-1/4">
-          {/* Main Grid: Filters Sidebar + Attendance Content */}
-          <AttendanceForm key={classRoom[0].id + department[0].id} courses={courses} departments={department} room={classRoom} />
+      {/* Main Layout: Stacked on Mobile, Side-by-Side on Desktop */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left Column: Filters / Form */}
+        <div className="w-full md:w-1/4">
+          <AttendanceForm
+            key={formKey}
+            courses={courses}
+            departments={department}
+            room={classRoom}
+          />
         </div>
 
-        <div className="w-3/4">
-          {/* Right Column: Attendance Marking Area */}
+        {/* Right Column: Attendance Marking Area */}
+        <div className="w-full md:w-3/4">
           <AttendanceTable
             course={courseName}
             room={RoomName}
