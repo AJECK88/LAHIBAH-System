@@ -11,45 +11,33 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts';
+import { getWeeklyAttendanceData } from "@/lib/actions";
+import { useEffect, useState } from "react";
+type AttendanceItem = { name: string; Presents: number; Absents: number };
 
-const data = [
-  {
-    name: 'Mon',
-    Presents: 150,
-    Absents: 50,
-  },
-  {
-    name: 'Tues',
-    Presents: 151,
-    Absents: 49,
-    Total: 2210,
-  },
-  {
-    name: 'Wed',
-    Presents: 2000,
-    Absents: 9800,
-
-  },
-  {
-    name: 'Thur',
-    Presents: 2780,
-    Absents: 3908,
-    
-  },
-  {
-    name: 'Fri',
-    Presents: 1890,
-
-  },
-  {
-    name: 'Sat',
-    Presents: 2390,
-    Absents: 3800,
-   
-  },
-];
-
+// fetch data on client
 const AttendanceChart = () => {
+  const [data, setData] = useState<AttendanceItem[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    getWeeklyAttendanceData().then((res) => {
+      if (!mounted) return;
+      if (!res) {
+        setData([]);
+        return;
+      }
+      // normalize backend grouped shape to AttendanceItem[]
+      const normalized: AttendanceItem[] = res.map((r: any) => ({
+        name: r.name,
+        Presents: Array.isArray(r.Presents) ? r.Presents.length : Number(r.Presents) || 0,
+        Absents: Array.isArray(r.Absents) ? r.Absents.length : Number(r.Absents) || 0,
+      }));
+      setData(normalized);
+    });
+    return () => { mounted = false };
+  }, []);
+
   return (
     <div className="flex rounded-xl bg-white  w-full h-[100%] flex-col pr-5 pl-5 pt-2 pb-2 justify-between">
        {/* title */}
@@ -58,7 +46,7 @@ const AttendanceChart = () => {
            <Image src={"/moreDark.png"} alt=''width={20} height={20}/> 
         </div>
         <div className=" w-full h-full">
-    <ResponsiveContainer >
+    <ResponsiveContainer>
       <BarChart
         width={500}
         height={300}

@@ -23,8 +23,6 @@ const AdminPage = async() => {
      }
    })
 
- const today = new Date()
-
 const AnnouncementData = await prisma.announcement.findMany({
  
   orderBy: {

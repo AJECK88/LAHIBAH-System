@@ -248,6 +248,7 @@ model Attendance {
 
   @@index([courseId], map: "Attendance_courseId_fkey")
   @@index([studentId], map: "Attendance_studentId_fkey")
+  @@unique([courseId ,studentId,date])
 }
 
 model Assignment {

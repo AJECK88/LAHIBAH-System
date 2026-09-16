@@ -1067,14 +1067,17 @@ export async function getWeeklyAttendanceData() {
       const dayEnd = new Date(dayStart);
       dayEnd.setHours(23, 59, 59, 999);
 
-      const [presents, absents] = await Promise.all([
-        prisma.attendance.count({
+      // Fetch distinct student IDs for PRESENT and ABSENT statuses
+      const [presentRecords, absentRecords] = await Promise.all([
+        prisma.attendance.groupBy({
+          by: ["studentId"],
           where: {
             date: { gte: dayStart, lte: dayEnd },
             status: "PRESENT",
           },
         }),
-        prisma.attendance.count({
+        prisma.attendance.groupBy({
+          by: ["studentId"],
           where: {
             date: { gte: dayStart, lte: dayEnd },
             status: "ABSENT",
@@ -1082,10 +1085,20 @@ export async function getWeeklyAttendanceData() {
         }),
       ]);
 
+      // 1. Collect all student IDs who are PRESENT at least once today
+      const presentStudentIds = new Set(
+        presentRecords.map((record) => record.studentId)
+      );
+
+      // 2. Filter out present students from the ABSENT set
+      const strictlyAbsentStudentIds = absentRecords
+        .map((record) => record.studentId)
+        .filter((studentId) => !presentStudentIds.has(studentId));
+
       return {
         name: dayName,
-        Presents: presents,
-        Absents: absents,
+        Presents: presentStudentIds.size,
+        Absents: strictlyAbsentStudentIds.length,
       };
     })
   );
