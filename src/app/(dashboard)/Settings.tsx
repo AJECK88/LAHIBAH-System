@@ -4,7 +4,7 @@ type RouteAccesMap = { [key: string]: string[] }
 
 export const routeAccessMap : RouteAccesMap = {
     "admin": ["admin"],
-    "student": ["student"],
+   // "student": ["student"],
     "parent": ["parent"],
     "teacher": ["teacher"],
     "list/teachers": ["admin","teacher"],

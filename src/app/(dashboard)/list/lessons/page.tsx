@@ -3,7 +3,6 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
-import {subjectsData} from '@/lib/data';
 import { type } from 'os';
 import FormModel from '@/components/FormModel';
 import FormsContainer from '@/components/FormsContainer';
@@ -74,7 +73,7 @@ const  LessonsListpage = () => {
             </div>
             {/* || List  */}
             <div className="">
-                <Table columns={Columns} renderRow ={renderRow} data ={subjectsData} />
+                {/* <Table columns={Columns} renderRow ={renderRow} data ={subjectsData} /> */}
             </div>
             {/* || pagination */}
          {/*    <div className="w-full">

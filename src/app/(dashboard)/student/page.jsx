@@ -4,14 +4,15 @@ import Announcement from "@/components/Announcements";
 import BigCalendar from "@/components/Bigcalendar";
 import Image from "next/image";
 import Link  from "next/link";
+import UserId from "@/components/user";
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 const StudentPage = async () => {
-  /*  */
-  const user = await currentUser()
-  const UserIdValue = user?.id;
+  const UserIdValue = await UserId();
  const studentId = UserIdValue?.toString();
+
+
 
 const TimeTableData = await prisma.timetable.findMany({
   where: {
@@ -35,7 +36,6 @@ const TimeTableData = await prisma.timetable.findMany({
     },
   },
 }) || [];
-          const userName = user?.fullName;
           const AnnouncementData = await prisma.announcement.findMany({
            
             orderBy: {
@@ -44,6 +44,26 @@ const TimeTableData = await prisma.timetable.findMany({
             take: 3,
           })
           
+            const currentUserInfo = studentId
+              ? await prisma.student.findUnique({
+                  where: {
+                    id: studentId,
+                  },
+                  include: {
+                    courses: true,
+                    department:true
+                  },
+                })
+              : null;
+          
+            const userAvatar =
+              currentUserInfo?.image && currentUserInfo.image.trim() !== ""
+                ? currentUserInfo.image
+                : currentUserInfo?.sex === "Male"
+                ? "/maleIcon.png"
+                : "/FemaleIcon.png";
+          
+            const courseLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
           
     return (
         /* Student Page */
@@ -51,15 +71,115 @@ const TimeTableData = await prisma.timetable.findMany({
         <div className="p-4 flex gap-4 lg:flex-row  flex-col">
             <div className="w-full lg:w-2/3 h-full md:w-auto flex flex-col gap-4">
             <div className=" flex gap-4 flex-col lg:flex-row">
-                <div className="flex p-6  w-full lg:w-2/3 bg-white rounded-xl mb-2 items-center h-[220px]">
-                    <div className=" flex flex-col justify-between">
-                    <h1 className="text-2xl font-bold mb-2">Welcome back, {userName}!</h1>
-                    <p className="text-gray-600 hidden text-sm lg:block"> We're here to support you 
-                        learning journey. Dive into your classes and keep progressing 
-                        towards your goals.</p>
+                {/* User Profile Card - Row layout on mobile */}
+                <div className="bg-blue-200 border border-blue-300/50 p-3.5 sm:p-5 rounded-xl flex-1 flex flex-row items-start gap-3.5 sm:gap-5 shadow-sm transition-all duration-200 hover:shadow-md">
+                  <div className="relative shrink-0">
+                    <Image
+                      src={userAvatar}
+                      alt="User Avatar"
+                      width={96}
+                      height={96}
+                      style={{ height: "auto" }}
+                      className="w-16 h-16 sm:w-24 sm:h-24 rounded-full object-cover ring-2 sm:ring-4 ring-white/60 shadow-sm"
+                      priority
+                    />
+                  </div>
+              
+                  <div className="w-full flex flex-col justify-between gap-2.5 min-w-0 text-left">
+                    <div>
+                      <h1
+                        className="text-base sm:text-2xl font-bold text-slate-900 truncate"
+                        title={
+                          currentUserInfo
+                            ? `${currentUserInfo.firstName} ${currentUserInfo.lastName}`
+                            : "Student Profile"
+                        }
+                      >
+                        {currentUserInfo
+                          ? `${currentUserInfo.firstName} ${currentUserInfo.lastName}`
+                          : "Student Profile"}
+                      </h1>
+                      <p className="text-xs sm:text-sm font-medium text-slate-600 mt-0.5 truncate">
+                        {courseLabel}
+                      </p>
                     </div>
-                    <Image src="/image/Human.png" alt="Class Image" width={200} height={200} />
+              
+                    {/* User Metadata Grid */}
+                    <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs font-medium text-slate-700 pt-2 border-t border-blue-300/60">
+                      {/* Blood Group */}
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Image
+                          src="/blood.png"
+                          alt="Blood Group"
+                          width={18}
+                          height={18}
+                          style={{ height: "auto" }}
+                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                        />
+                        <span className="truncate">
+                          {currentUserInfo?.bloodGroup ?? "N/A"}
+                        </span>
+                      </div>
+              
+                      {/* Joined Date */}
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Image
+                          src="/date.png"
+                          alt="Joined Date"
+                          width={18}
+                          height={18}
+                          style={{ height: "auto" }}
+                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                        />
+                        <span className="truncate">
+                          {currentUserInfo?.createdAt
+                            ? new Date(currentUserInfo.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )
+                            : "Jan 2025"}
+                        </span>
+                      </div>
+              
+                      {/* Email */}
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Image
+                          src="/mail2.png"
+                          alt="Email"
+                          width={18}
+                          height={18}
+                          style={{ height: "auto" }}
+                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                        />
+                        <span
+                          className="truncate"
+                          title={currentUserInfo?.email ?? "N/A"}
+                        >
+                          {currentUserInfo?.email ?? "N/A"}
+                        </span>
+                      </div>
+              
+                      {/* Phone Number */}
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <Image
+                          src="/phone.png"
+                          alt="Phone Number"
+                          width={18}
+                          height={18}
+                          style={{ height: "auto" }}
+                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                        />
+                        <span className="truncate">
+                          {currentUserInfo?.phoneNumber ?? "N/A"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              
                   {/* || Study more */}
                   <div className="gap-2 bg-white p-2 rounded-lg flex flex-col h-[220px]">
 

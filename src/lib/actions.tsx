@@ -1044,3 +1044,51 @@ const CreateAttendance = async(
   }
 }
 export {CreateAttendance}
+
+export async function getWeeklyAttendanceData() {
+  const now = new Date();
+  
+  // Calculate the date of Monday for the current week
+  const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ...
+  const distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + distanceToMon);
+  monday.setHours(0, 0, 0, 0);
+
+  const days = ["Mon", "Tues", "Wed", "Thur", "Fri"];
+
+  // Fetch attendance records grouped by day
+  const weeklyStats = await Promise.all(
+    days.map(async (dayName, index) => {
+      const dayStart = new Date(monday);
+      dayStart.setDate(monday.getDate() + index);
+
+      const dayEnd = new Date(dayStart);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const [presents, absents] = await Promise.all([
+        prisma.attendance.count({
+          where: {
+            date: { gte: dayStart, lte: dayEnd },
+            status: "PRESENT",
+          },
+        }),
+        prisma.attendance.count({
+          where: {
+            date: { gte: dayStart, lte: dayEnd },
+            status: "ABSENT",
+          },
+        }),
+      ]);
+
+      return {
+        name: dayName,
+        Presents: presents,
+        Absents: absents,
+      };
+    })
+  );
+
+  return weeklyStats;
+}
