@@ -8,7 +8,7 @@ import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import { Items_Per_Page } from '../../Settings';
 import FormsContainer from '@/components/FormsContainer';
-import { role, userrole } from '@/components/user';
+import UserId, { role,  userrole } from '@/components/user';
 
    type subjectsList = Subject & {teachers:Teacher[] , department:Department[]}
  
@@ -48,6 +48,7 @@ searchParams
  
 }) => {
     const userRole = await role();
+    const userId = await UserId();
        const Columns = [
         {
             header:"Course Title",
@@ -76,19 +77,71 @@ searchParams
       const params = await searchParams;
       const {page, ...qouryParems} = params
       const p = page? parseInt(page):1;
-       const [SubjectData , count]= await prisma.$transaction([
-        prisma.subject.findMany({
-            include:{
-                teachers:true,
-                department:true,
-               
-                
-            },
-            take: Items_Per_Page,
-            skip: Items_Per_Page*(p -1)
-          }),
-        prisma.subject.count()
-    ]) 
+    const skip = Items_Per_Page * (p - 1);
+
+let dataQuery;
+let countQuery;
+
+if (userRole === "teacher") {
+  // Filter courses/data where teacher ID matches logged-in user
+  const teacherWhere = {
+    teachers: {
+      some: {
+        id: userId ?? undefined,
+      },
+    },
+  };
+
+  dataQuery = prisma.subject.findMany({
+    where: teacherWhere,
+    include: {
+      teachers: true,
+      department: true,
+    },
+    take: Items_Per_Page,
+    skip,
+  });
+
+  countQuery = prisma.subject.count({ where: teacherWhere });
+
+} else if (userRole === "student") {
+  // Filter courses/data where student is enrolled
+  const studentWhere = {
+    students: {
+      some: {
+        id: userId ?? undefined,
+      },
+    },
+  };
+
+  dataQuery = prisma.subject.findMany({
+    where: studentWhere,
+    include: {
+      teachers: true,
+      department: true,
+    },
+    take: Items_Per_Page,
+    skip,
+  });
+
+  countQuery = prisma.subject.count({ where: studentWhere });
+
+} else {
+  // Admin / Default view: fetch all subjects without restrictions
+  dataQuery = prisma.subject.findMany({
+    include: {
+      teachers: true,
+      department: true,
+    },
+    take: Items_Per_Page,
+    skip,
+  });
+
+  countQuery = prisma.subject.count();
+}
+
+// Execute queries atomically
+const [SubjectData, count] = await prisma.$transaction([dataQuery, countQuery]);
     return (
         /* Student Page */
         /* Right hand side */
