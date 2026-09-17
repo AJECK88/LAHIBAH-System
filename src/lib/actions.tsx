@@ -7,6 +7,7 @@ import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
 import { string } from "zod";
 import { error } from "console";
+import { getCurrentAcademicYearString } from "@/app/(dashboard)/Settings";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -32,57 +33,82 @@ type AttendanceType={
     present:boolean
 
 }
-/* || Course section to creat update and delete */
-export  const CreateCourse =  async( currentState :currentState, data: CourseSchema)  =>{
-  // 1. Find all existing students registered under this level
-  const levelStudents = await prisma.student.findMany({
-    where: { levelId:Number( data.level) },
-    select: { id: true }
-  });
-  try{ 
-     await prisma.subject.create({
-     data:{
-         name: data.CourseName,
-         teachers:{
-             connect: data.teachers?.map((teacherId: string) => ({ id: teacherId })),
-         },
-         level:{
-           connect:{id:Number(data.level)}
-         },
-         students:{
-          connect:levelStudents.map((s)=>({id:s.id}))
-         },
-         ...(data.departments && 
-         {department:{
-          connect: data.departments?.map((departmentId)=>({id:departmentId}))
-         }
-     })
-    }
-   });
-  
-/*    revalidatePath(" /list/courses") */
-    return { successMessage:true , errorMessage:false };
+/* || Course section to create, update, and delete */
 
-  } catch(error){
-    return { successMessage:false , errorMessage:true };
+export const CreateCourse = async (
+  currentState: currentState,
+  data: CourseSchema
+) => {
+  try {
+    // 1. Get or create the active academic year record
+    const academicYearStr = getCurrentAcademicYearString();
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: academicYearStr },
+      update: {},
+      create: { year: academicYearStr, isCurrent: true },
+    });
 
+    // 2. Find all existing students registered under this level
+    const levelStudents = await prisma.student.findMany({
+      where: { levelId: Number(data.level) },
+      select: { id: true },
+    });
+
+    // 3. Create Subject with nested CourseRegistrations
+    await prisma.subject.create({
+      data: {
+        name: data.CourseName,
+        teachers: {
+          connect: data.teachers?.map((teacherId: string) => ({ id: teacherId })),
+        },
+        level: {
+          connect: { id: Number(data.level) },
+        },
+        registrations: {
+          create: levelStudents.map((s) => ({
+            studentId: s.id,
+            academicYearId: academicYear.id,
+            type: "REGULAR",
+            status: "PENDING",
+          })),
+        },
+        ...(data.departments && {
+          department: {
+            connect: data.departments.map((departmentId: string) => ({
+              id: departmentId,
+            })),
+          },
+        }),
+      },
+    });
+
+    return { successMessage: true, errorMessage: false };
+  } catch (error) {
+    console.error("CreateCourse Error:", error);
+    return { successMessage: false, errorMessage: true };
   }
-
 };
+
 export const UpdateCourse = async (
   currentState: currentState,
   data: CourseSchema
 ) => {
-   // 1. Find all existing students registered under this level
-  const levelStudents = await prisma.student.findMany({
-    where: { levelId:Number( data.level) },
-    select: { id: true }
-  });
   try {
+    const academicYearStr = getCurrentAcademicYearString();
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: academicYearStr },
+      update: {},
+      create: { year: academicYearStr, isCurrent: true },
+    });
+
+    const levelStudents = await prisma.student.findMany({
+      where: { levelId: Number(data.level) },
+      select: { id: true },
+    });
+
+    // Update subject and sync registrations for the new level
     await prisma.subject.update({
-      where: {
-        id: Number(data.id),
-      },
+      where: { id: Number(data.id) },
       data: {
         name: data.CourseName,
         teachers: {
@@ -90,24 +116,44 @@ export const UpdateCourse = async (
           connect: data.teachers?.map((id: string) => ({ id })),
         },
         level: {
-          connect: { id: Number(data.level) },  
-        }, students:{
-          connect:levelStudents.map((s)=>({id:s.id}))
-         },
-           ...(data.departments && 
-         {department:{
-          connect: data.departments?.map((departmentId)=>({id:departmentId}))
-         }
-     })
+          connect: { id: Number(data.level) },
+        },
+        // Upsert course registrations for students in the newly assigned level
+        registrations: {
+          connectOrCreate: levelStudents.map((s) => ({
+            where: {
+              studentId_subjectId_academicYearId_type: {
+                studentId: s.id,
+                subjectId: Number(data.id),
+                academicYearId: academicYear.id,
+                type: "REGULAR",
+              },
+            },
+            create: {
+              studentId: s.id,
+              academicYearId: academicYear.id,
+              type: "REGULAR",
+              status: "PENDING",
+            },
+          })),
+        },
+        ...(data.departments && {
+          department: {
+            set: [],
+            connect: data.departments.map((departmentId: string) => ({
+              id: departmentId,
+            })),
+          },
+        }),
       },
     });
 
     return { successMessage: true, errorMessage: false };
   } catch (error) {
+    console.error("UpdateCourse Error:", error);
     return { successMessage: false, errorMessage: true };
   }
 };
-
 
 
 export const deletCourse = async(
@@ -131,7 +177,14 @@ export const deletCourse = async(
 
   /* || student section to update , create and delete */
  export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
-  // 1. Get all subject IDs associated with this level
+  // 1. Get or create active academic year
+    const academicYearStr = getCurrentAcademicYearString();
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: academicYearStr },
+      update: {},
+      create: { year: academicYearStr, isCurrent: true },
+    });
+  // 2. Get all subject IDs associated with this level
   const levelSubjects = await prisma.subject.findMany({
     where: { levelId: Number(data.level) ,
        department: {
@@ -173,10 +226,25 @@ export const deletCourse = async(
          level:{ 
             connect:{id:Number(data.level)}
          },
-         courses:{
-          connect:levelSubjects.map(subject => ({id:subject.id}))
-         }
-         }
+       // Track academic level history
+        enrollments: {
+          create: {
+            academicYearId: academicYear.id,
+            levelId: Number(data.level),
+            status: "PROMOTED",
+          },
+        },
+        // Register regular level courses under CourseRegistration
+        courseRegs: {
+          create: levelSubjects.map((subject) => ({
+            subjectId: subject.id,
+            academicYearId: academicYear.id,
+            type: "REGULAR",
+            status: "PENDING",
+          })),
+        },
+      },
+         
          
       }) 
 

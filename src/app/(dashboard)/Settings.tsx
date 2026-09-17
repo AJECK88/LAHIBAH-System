@@ -1,7 +1,15 @@
 
 export const Items_Per_Page = 15
 type RouteAccesMap = { [key: string]: string[] }
+export function getCurrentAcademicYearString(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = date.getMonth(); // 0 = January, 7 = August
 
+  // Before August (Jan–Jul), the academic year started in the previous calendar year
+  const startYear = month < 7 ? year - 1 : year;
+  
+  return `${startYear}/${startYear + 1}`;
+}
 export const routeAccessMap : RouteAccesMap = {
     "admin": ["admin"],
     "student": ["student"],

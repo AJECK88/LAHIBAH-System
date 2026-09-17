@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import AttendanceForm from "@/components/Forms/Attendanceform";
 import AttendanceTable from "@/components/AttendanceTable";
 import AttendanceNav from "@/components/AttendanceNav";
+import { s } from "@upstash/redis";
+import { string } from "zod";
 
 interface PageProps {
   searchParams: Promise<{
@@ -45,9 +47,9 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
   const students = params.courseId
     ? await prisma.student.findMany({
         where: {
-          courses: {
+          courseRegs: {
             some: {
-              id: Number(params.courseId),
+              id: String(params.courseId),
             },
           },
         },

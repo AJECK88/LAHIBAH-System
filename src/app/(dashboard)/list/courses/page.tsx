@@ -106,7 +106,8 @@ if (userRole === "teacher") {
 
 } else if (userRole === "student") {
   // Filter courses/data where student is enrolled
-  const studentWhere = {
+  // typed as any because SubjectWhereInput may not include a `students` relation in the schema
+  const studentWhere: any = {
     students: {
       some: {
         id: userId ?? undefined,
