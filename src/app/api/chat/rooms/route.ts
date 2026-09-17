@@ -84,6 +84,8 @@ export async function GET() {
         image = other ? imageLookup.get(other.participantId) || null : null;
       } else if (room.type === "DEPARTMENT") {
         displayName = room.department?.name ? `${room.department.name} Community` : room.name;
+      } else if (room.type === "GROUP") {
+        displayName = room.name || "Unnamed Group";
       }
 
       return {
@@ -91,6 +93,7 @@ export async function GET() {
         type: room.type,
         name: displayName,
         image,
+        memberCount: room.participants.length,
         lastMessage: lastMessage?.content || "No messages yet",
         lastMessageAt: lastMessage?.createdAt || room.createdAt,
       };
@@ -114,7 +117,41 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
-    const { targetUserId, targetType } = await req.json();
+    const body = await req.json();
+    const myRole = (user.publicMetadata?.role as string) || "student";
+    const myType = myRole.toUpperCase() as "STUDENT" | "TEACHER" | "ADMIN";
+
+    // GROUP creation path: { groupName, participants: [{ id, type }] }
+    if (body.groupName && Array.isArray(body.participants)) {
+      const { groupName, participants } = body;
+
+      if (participants.length === 0) {
+        return new Response(JSON.stringify({ error: "At least one participant is required" }), { status: 400 });
+      }
+
+      const participantData = [
+        { participantId: user.id, participantType: myType },
+        ...participants.map((p: { id: string; type: string }) => ({
+          participantId: p.id,
+          participantType: p.type as "STUDENT" | "TEACHER" | "ADMIN",
+        })),
+      ];
+
+      const newGroup = await prisma.chatRoom.create({
+        data: {
+          type: "GROUP",
+          name: groupName,
+          participants: { create: participantData },
+        },
+      });
+
+      return new Response(JSON.stringify({ roomId: newGroup.id, created: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // DIRECT creation path: { targetUserId, targetType }
+    const { targetUserId, targetType } = body;
     if (!targetUserId || !targetType) {
       return new Response(JSON.stringify({ error: "targetUserId and targetType are required" }), { status: 400 });
     }
@@ -138,9 +175,6 @@ export async function POST(req: Request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    const myRole = (user.publicMetadata?.role as string) || "student";
-    const myType = myRole.toUpperCase() as "STUDENT" | "TEACHER" | "ADMIN";
 
     const newRoom = await prisma.chatRoom.create({
       data: {

@@ -76,6 +76,8 @@ export default async function RoomPage({ params }: PageProps) {
 
   if (room?.type === 'DEPARTMENT' && room.department?.name) {
     roomName = `${room.department.name} Community`;
+  } else if (room?.type === 'GROUP') {
+    roomName = room.name || 'Unnamed Group';
   } else if (room?.type === 'DIRECT') {
     const other = room.participants.find((p) => p.participantId !== user.id);
     if (other) {
@@ -96,6 +98,7 @@ export default async function RoomPage({ params }: PageProps) {
         roomId={roomId}
         roomName={roomName}
         roomImage={roomImage}
+        roomType={room?.type || 'DIRECT'}
         initialMessages={initialMessages}
         currentUser={currentUserData}
       />
