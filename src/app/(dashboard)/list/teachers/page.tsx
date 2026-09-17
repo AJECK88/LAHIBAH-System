@@ -7,8 +7,8 @@ import { Items_Per_Page } from '../../../../lib/utlity/Settings';
 import prisma from '@/lib/prisma';
 import { Teacher, Subject, Prisma } from '@prisma/client';
 import { role } from '@/components/user';
-import { NoResultFound } from '@/components/NoResult';
 import FormsContainer from '@/components/FormsContainer';
+import { NoResultFound } from '@/components/NoResult';
 type TeacherList = Teacher & { courses: Subject[] }
 
 
