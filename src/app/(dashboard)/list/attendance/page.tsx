@@ -49,8 +49,10 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
         where: {
           courseRegs: {
             some: {
-              id: String(params.courseId),
+              subject:{
+              id:Number (params.courseId),
             },
+          },
           },
         },
         select: {
