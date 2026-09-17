@@ -417,6 +417,21 @@ export const  UpdateStudent = async(
 
 
 )=>{
+  // 1. Get or create active academic year
+    const academicYearStr = getCurrentAcademicYearString();
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: academicYearStr },
+      update: {},
+      create: { year: academicYearStr, isCurrent: true },
+    });
+  // 2. Get all subject IDs associated with this level
+  const levelSubjects = await prisma.subject.findMany({
+    where: { levelId: Number(data.level) ,
+       department: {
+        some: { id: data.department }, // e.g., Software Engineering
+      },},
+    select: { id: true }
+  });
    try{
     await prisma.student.update({
       where: {
@@ -434,9 +449,30 @@ export const  UpdateStudent = async(
          matricule:data.MatriculeNo,
          department:{
            connect:{id:data.department}
-         } 
+         },
+          level:{ 
+            connect:{id:Number(data.level)}
+         },
+            // Track academic level history
+        enrollments: {
+          create: {
+            academicYearId: academicYear.id,
+            levelId: Number(data.level),
+            status: "PROMOTED",
+          },
+        },
+        // Register regular level courses under CourseRegistration
+        courseRegs: {
+          create: levelSubjects.map((subject) => ({
+            subjectId: subject.id,
+            academicYearId: academicYear.id,
+            type: "REGULAR",
+            status: "PENDING",
+          })),
+        },
+      },
+    
          
-         }
 
     });
 
