@@ -1,5 +1,5 @@
 "use client"
-import { Items_Per_Page } from "@/app/(dashboard)/Settings";
+import { Items_Per_Page } from "@/lib/utlity/Settings";
 import { useRouter } from "next/navigation";
 
  

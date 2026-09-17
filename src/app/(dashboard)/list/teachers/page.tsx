@@ -3,7 +3,7 @@ import Pagination from '@/components/pagination'
 import Table from '@/components/table'
 import Link from 'next/link';
 import TablesearchBar from '@/components/TablesearchBar'
-import { Items_Per_Page } from '../../Settings';
+import { Items_Per_Page } from '../../../../lib/utlity/Settings';
 import prisma from '@/lib/prisma';
 import { Teacher, Subject, Prisma } from '@prisma/client';
 import { role } from '@/components/user';

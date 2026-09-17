@@ -8,7 +8,7 @@ import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
 import FormsContainer from '@/components/FormsContainer';
 import { role } from '@/components/user';
-import { Items_Per_Page } from '../../Settings';
+import { Items_Per_Page } from '../../../../lib/utlity/Settings';
    type DepartmentList = Department & {supervisor:Teacher}
     const Columns = [
         {

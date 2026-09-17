@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Table from '@/components/table'
 import prisma from '@/lib/prisma';
 import { Exam, Prisma, Subject } from '@prisma/client';
-import { Items_Per_Page } from '../../Settings';
+import { Items_Per_Page } from '../../../../lib/utlity/Settings';
 import SeedfileInput from '@/components/Forms/SeedfileInput';
 import ExamForm from '@/components/Forms/QUERYDB/ExamQueryForm';
 import UserId, { role } from '@/components/user';

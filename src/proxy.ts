@@ -4,7 +4,7 @@ import {
   clerkClient,
 } from "@clerk/nextjs/server";
 
-import { routeAccessMap } from "./app/(dashboard)/Settings";
+import { routeAccessMap } from "./lib/utlity/Settings";
 import { NextResponse } from "next/server";
 
 const isAuthRoute = createRouteMatcher([

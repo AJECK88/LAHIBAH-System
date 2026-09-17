@@ -12,5 +12,3 @@ declare const globalThis: {
 const prisma = globalThis.PrismaGlobal ??  PrismaClientSingleton();
 export default prisma;
 if (process.env.NODE_ENV !== "production") globalThis.PrismaGlobal = prisma;
-
-

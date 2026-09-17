@@ -5,7 +5,7 @@ import Link from 'next/link';
  import TablesearchBar from '@/components/TablesearchBar'
 import { Department, Grade, Prisma, Student } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { Items_Per_Page } from '../../Settings';
+import { Items_Per_Page } from '../../../../lib/utlity/Settings';
 import { Key } from 'react';
 import { NoResultFound } from '@/components/NoResult';
 import FormsContainer from '@/components/FormsContainer';

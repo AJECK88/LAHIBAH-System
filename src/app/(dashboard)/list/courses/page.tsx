@@ -6,7 +6,7 @@ import Link from 'next/link';
 import FormModel from '@/components/FormModel';
 import { Department, Subject, Teacher } from '@prisma/client';
 import prisma from '@/lib/prisma';
-import { Items_Per_Page } from '../../Settings';
+import { Items_Per_Page } from '../../../../lib/utlity/Settings';
 import FormsContainer from '@/components/FormsContainer';
 import UserId, { role,  userrole } from '@/components/user';
 

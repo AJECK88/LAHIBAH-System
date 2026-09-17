@@ -7,7 +7,7 @@ import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
 import { string } from "zod";
 import { error } from "console";
-import { getCurrentAcademicYearString } from "@/app/(dashboard)/Settings";
+import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
 
 const passwordgenerator = (length: number) => {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
@@ -411,73 +411,97 @@ export const deletCourse = async(
         return { successMessage:false , errorMessage:true };
   }
 }
-export const  UpdateStudent = async( 
-  currentState :currentState , 
-  data :StudentSchema
-
-
-)=>{
+export const UpdateStudent = async (
+  currentState: currentState,
+  data: StudentSchema
+) => {
   // 1. Get or create active academic year
-    const academicYearStr = getCurrentAcademicYearString();
-    const academicYear = await prisma.academicYear.upsert({
-      where: { year: academicYearStr },
-      update: {},
-      create: { year: academicYearStr, isCurrent: true },
-    });
-  // 2. Get all subject IDs associated with this level
-  const levelSubjects = await prisma.subject.findMany({
-    where: { levelId: Number(data.level) ,
-       department: {
-        some: { id: data.department }, // e.g., Software Engineering
-      },},
-    select: { id: true }
+  const academicYearStr = getCurrentAcademicYearString();
+  const academicYear = await prisma.academicYear.upsert({
+    where: { year: academicYearStr },
+    update: {},
+    create: { year: academicYearStr, isCurrent: true },
   });
-   try{
+
+  // 2. Get all subject IDs associated with this level and department
+  const levelSubjects = await prisma.subject.findMany({
+    where: {
+      levelId: Number(data.level),
+      department: {
+        some: { id: data.department },
+      },
+    },
+    select: { id: true },
+  });
+
+  const studentId = data.id;
+
+  if (!studentId) {
+    throw new Error("Student id is required to update student");
+  }
+
+  try {
     await prisma.student.update({
       where: {
-        id: (data.id),
+        id: studentId,
       },
-          data:{
-         address:data.Address,
-         age:Number(data.age),
-         email:data.email,
-         firstName:data.FirstName,
-         lastName:data.LastName,
-         phoneNumber:data.phoneNumber,
-         DateOfBirth:new Date(data.dateOfBirth),
-         sex:data.sex,
-         matricule:data.MatriculeNo,
-         department:{
-           connect:{id:data.department}
-         },
-          level:{ 
-            connect:{id:Number(data.level)}
-         },
-            // Track academic level history
+      data: {
+        address: data.Address,
+        age: Number(data.age),
+        email: data.email,
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        phoneNumber: data.phoneNumber,
+        DateOfBirth: new Date(data.dateOfBirth),
+        sex: data.sex,
+        matricule: data.MatriculeNo,
+        department: {
+          connect: { id: data.department },
+        },
+        level: {
+          connect: { id: Number(data.level) },
+        },
+        // Safe update for academic level history
         enrollments: {
-          create: {
-            academicYearId: academicYear.id,
-            levelId: Number(data.level),
-            status: "PROMOTED",
+          connectOrCreate: {
+            where: {
+              studentId_academicYearId: {
+                studentId: studentId,
+                academicYearId: academicYear.id,
+              },
+            },
+            create: {
+              academicYearId: academicYear.id,
+              levelId: Number(data.level),
+              status: "PROMOTED",
+            },
           },
         },
-        // Register regular level courses under CourseRegistration
+        // Safe update for regular level course registrations
         courseRegs: {
-          create: levelSubjects.map((subject) => ({
-            subjectId: subject.id,
-            academicYearId: academicYear.id,
-            type: "REGULAR",
-            status: "PENDING",
-          })),
+          connectOrCreate: (levelSubjects.map((subject) => ({
+            where: {
+              studentId_subjectId_academicYearId_type: {
+                studentId: studentId,
+                subjectId: subject.id,
+                academicYearId: academicYear.id,
+                type: "REGULAR",
+              },
+            },
+            create: {
+              subjectId: subject.id,
+              academicYearId: academicYear.id,
+              type: "REGULAR",
+              status: "PENDING",
+            },
+          })) as any),
         },
       },
-    
-         
-
     });
 
     return { successMessage: true, errorMessage: false };
   } catch (error) {
+    console.error("UpdateStudent Error:", error);
     return { successMessage: false, errorMessage: true };
   }
 };
