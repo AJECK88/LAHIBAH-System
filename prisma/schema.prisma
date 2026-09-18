@@ -6,7 +6,6 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 enum Usersex {
   Male
   Female
@@ -78,7 +77,7 @@ model CourseRegistration {
   createdAt      DateTime     @default(now())
 
   @@unique([studentId, subjectId, academicYearId, type])
-  @@index([studentId])
+  @@index([studentId ,academicYearId])
   @@index([subjectId])
 }
 
@@ -104,7 +103,6 @@ model Student {
   levelId      Int                  // Keeps current/active level for quick queries
   matricule    String?              @unique
   DateOfBirth  DateTime?
-  
   attendance   Attendance[]
   fees         Fee[]
   results      Result[]
@@ -269,7 +267,7 @@ model Timetable {
   updatedAt  DateTime?    @updatedAt
   department Department[]
 
-  @@index([levelId, semester, dayOfWeek])
+  @@index([levelId, semester, dayOfWeek ,courseId])
 }
 
 model Event {

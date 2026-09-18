@@ -8,37 +8,39 @@ import UserId from "@/components/user";
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
 const StudentPage = async () => {
   const UserIdValue = await UserId();
  const studentId = UserIdValue?.toString();
 
+if (!studentId) return [];
 
+if (!studentId) return [];
 
-const TimeTableData = studentId
-  ? await prisma.timetable.findMany({
-      where: {
-        course: {
-          // Scope to courses where THIS student is registered in the ACTIVE year
-          courseRegs: {
-            some: {
-              studentId: studentId,
-              academicYearId: activeYearId, // TO ensures past completed years are ignored
-            },
+const TimeTableData = await prisma.timetable.findMany({
+  where: {
+    course: {
+      registrations: {
+        some: {
+          studentId: studentId,
+          academicYear: {
+            year: getCurrentAcademicYearString(),
           },
         },
       },
-      include: {
-        department: true,
-        classroom: true,
-        course: {
-          include: {
-            level: true,
-            teachers: true,
-          },
-        },
+    },
+  },
+  select: {
+    department: true,
+    classroom: true,
+    course: {
+      select: {
+        level: true,
+        teachers: true,
       },
-    })
-  : [];;
+    },
+  },
+});
           const AnnouncementData = await prisma.announcement.findMany({
            
             orderBy: {
@@ -53,7 +55,12 @@ const TimeTableData = studentId
                     id: studentId,
                   },
                   include: {
-                    courses: true,
+                    courseRegs:{
+                     include:{
+                      subject:true
+                     }
+
+                    },
                     department:true
                   },
                 })
@@ -66,7 +73,7 @@ const TimeTableData = studentId
                 ? "/maleIcon.png"
                 : "/FemaleIcon.png";
           
-            const courseLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
+            const DepartmentLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
           
     return (
         /* Student Page */
@@ -103,7 +110,7 @@ const TimeTableData = studentId
                           : "Student Profile"}
                       </h1>
                       <p className="text-xs sm:text-sm font-medium text-slate-600 mt-0.5 truncate">
-                        {courseLabel}
+                        {DepartmentLabel}
                       </p>
                     </div>
               
@@ -120,7 +127,7 @@ const TimeTableData = studentId
                           className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
                         />
                         <span className="truncate">
-                          {currentUserInfo?.bloodGroup ?? "N/A"}
+                          {currentUserInfo?.matricule | "N/A"}
                         </span>
                       </div>
               
