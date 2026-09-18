@@ -5,11 +5,13 @@
                 import Link from "next/dist/client/link";
                 import Image from "next/image"
                import prisma from "@/lib/prisma";
-                const SingleTeacherPage = async(
-                  {params}:{params:{id:string}}
-                ) => {
-                const AnnouncementData = await prisma.announcement.findMany({
 
+                const SingleTeacherPage = async(
+                  {params}:{params: Promise<{id:string}>}
+                ) => {
+
+                 const teacherId = (await params).id
+                const AnnouncementData = await prisma.announcement.findMany({
                   orderBy: {
                   date: 'desc', // soonest first
                       },
@@ -18,7 +20,7 @@
 
            const teacherArray= await prisma.teacher.findMany({
             where:{
-               id:params.id
+               id:teacherId
             },
             select:{
               address:true,

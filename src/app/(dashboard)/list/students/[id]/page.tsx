@@ -8,12 +8,11 @@ import { headers } from 'next/headers'
 import Image from "next/image"
 import prisma from "@/lib/prisma";
 
-const SingleStuentPage = async(
-    {params}:{params:{id:string}}
-) => {
- const StudentArray = await prisma.student.findMany({
+const SingleStuentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+   const { id: studentId } = await params;
+   const StudentArray = await prisma.student.findMany({
     where:{
-        id :params.id
+        id : studentId
     },
     select:{
         address:true,
