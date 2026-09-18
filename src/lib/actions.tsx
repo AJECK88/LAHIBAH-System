@@ -175,58 +175,68 @@ export const deletCourse = async(
 
 } /* || End */ 
 
-  /* || student section to update , create and delete */
- export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
-  // 1. Get or create active academic year
+export const CreatStudent = async (
+  currentState: currentState,
+  data: StudentSchema
+) => {
+  try {
     const academicYearStr = getCurrentAcademicYearString();
-    const academicYear = await prisma.academicYear.upsert({
-      where: { year: academicYearStr },
-      update: {},
-      create: { year: academicYearStr, isCurrent: true },
-    });
-  // 2. Get all subject IDs associated with this level
-  const levelSubjects = await prisma.subject.findMany({
-    where: { levelId: Number(data.level) ,
-       department: {
-        some: { id: data.department }, // e.g., Software Engineering
-      },},
-    select: { id: true }
-  });
-  try{
-     const client = await clerkClient();
+    const generatedUsername = `${data.FirstName}_${data.MatriculeNo.slice(-4)}`;
+     console.log(data)
+    const client = await clerkClient();
 
-    const clerkId = await client.users.createUser({
-      username: data.FirstName +"_" + data.MatriculeNo.slice(-4),
-      emailAddress: [data.email],
-      password: generatedPassword,
-      firstName: data.FirstName,
-      lastName: data.LastName,
-      publicMetadata: {
-        role: "student",
-      },
-    });
-      await prisma.student.create({
-        
-         data:{
-         username:data.FirstName +"_" + data.MatriculeNo.slice(-4),
-         address:data.Address,
-         age:Number(data.age),
-         email:data.email,
-         firstName:data.FirstName,
-         lastName:data.LastName,
-         phoneNumber:data.phoneNumber,
-         DateOfBirth:new Date(data.dateOfBirth),
-         sex:data.sex,
-         matricule:data.MatriculeNo,
-         id:clerkId.id,
-         image:clerkId.imageUrl,
-         department:{
-           connect:{id:data.department}
-         }, 
-         level:{ 
-            connect:{id:Number(data.level)}
-         },
-       // Track academic level history
+    // 1. PARALLELIZATION: Run Clerk user creation alongside DB pre-queries
+    const [clerkUser, academicYear, levelSubjects] = await Promise.all([
+      client.users.createUser({
+        username: generatedUsername,
+        // Pass array of email strings for Clerk Backend SDK
+        emailAddress: [data.email], 
+        password: generatedPassword,
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        publicMetadata: {
+          role: "student",
+        },
+      }),
+
+      prisma.academicYear.upsert({
+        where: { year: academicYearStr },
+        update: {},
+        create: { year: academicYearStr, isCurrent: true },
+      }),
+
+      prisma.subject.findMany({
+        where: {
+          levelId: Number(data.level),
+          department: {
+            some: { id: data.department },
+          },
+        },
+        select: { id: true },
+      }),
+    ]);
+
+    // 2. Single Atomic Database Insertion
+    await prisma.student.create({
+      data: {
+        id: clerkUser.id,
+        username: generatedUsername,
+        address: data.Address,
+        age: Number(data.age),
+        email: data.email,
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        phoneNumber: data.phoneNumber,
+        DateOfBirth: new Date(data.dateOfBirth),
+        sex: data.sex,
+        matricule: data.MatriculeNo,
+        image: clerkUser.imageUrl,
+        department: {
+          connect: { id: data.department },
+        },
+        level: {
+          connect: { id: Number(data.level) },
+        },
         enrollments: {
           create: {
             academicYearId: academicYear.id,
@@ -234,7 +244,6 @@ export const deletCourse = async(
             status: "PROMOTED",
           },
         },
-        // Register regular level courses under CourseRegistration
         courseRegs: {
           create: levelSubjects.map((subject) => ({
             subjectId: subject.id,
@@ -244,18 +253,15 @@ export const deletCourse = async(
           })),
         },
       },
-         
-         
-      }) 
+    });
 
-    // Auto-join the department's chat room
-    await joinDepartmentChat(data.department, clerkId.id, "STUDENT");
-      
-    // 3️⃣ Send welcome email with credentials
-    await sendMail({
-  to: data.email,
-  subject: "Student Account details",
-  html: `
+    // 3. NON-BLOCKING BACKGROUND SIDE EFFECTS (Fire & Forget)
+    void joinDepartmentChat(data.department, clerkUser.id, "STUDENT");
+
+    void sendMail({
+      to: data.email,
+      subject: "Student Account details",
+      html: `
 <!DOCTYPE html>
 <html>
   <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
@@ -263,122 +269,45 @@ export const deletCourse = async(
       <tr>
         <td align="center" style="padding:30px 0;">
           <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
-
-            <!-- School Logo -->
-            <tr>
-              <td align="center" style="padding:20px;">
-                <img
-                  src=""
-                  alt="School Logo"
-                  width="120"
-                  style="display:block;"
-                />
-              </td>
-            </tr>
-
-            <!-- Header -->
             <tr>
               <td style="padding:20px; text-align:center;">
-                <h2 style="margin:0; color:#1f2937;">
-                  Welcome to LAHIBA 🎓
-                </h2>
+                <h2 style="margin:0; color:#1f2937;">Welcome to LAHIBA 🎓</h2>
               </td>
             </tr>
-
-            <!-- Body -->
             <tr>
               <td style="padding:20px; color:#374151; font-size:14px; line-height:1.6;">
-                <p>
-                  Dear <strong>${data.FirstName}</strong>,
-                </p>
-
-                <p>
-                  We are pleased to inform you that your student account has been successfully created.
-                  Below are your login details for the school portal:
-                </p>
-
-                <!-- Student Info -->
+                <p>Dear <strong>${data.FirstName}</strong>,</p>
+                <p>We are pleased to inform you that your student account has been successfully created.</p>
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.FirstName +"_"+ data.MatriculeNo.slice(-4)}</td>
+                    <td>${generatedUsername}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
                     <td>${generatedPassword}</td>
                   </tr>
                 </table>
-
-                <p style="margin-top:20px;">
-                  For security reasons, please change your password after logging in for the first time.
-                </p>
-
-                <!-- Portal Button -->
-                <p style="text-align:center; margin:30px 0;">
-                  <a
-                    href="https://yourschoolwebsite.com/login"
-                    style="
-                      background:#0f766e;
-                      color:#ffffff;
-                      padding:12px 24px;
-                      text-decoration:none;
-                      border-radius:5px;
-                      font-weight:bold;
-                      display:inline-block;
-                    "
-                  >
-                    Access Student Portal
-                  </a>
-                </p>
-
-                <p>
-                  If you need any assistance, please contact the school administration.
-                </p>
-
-                <p>
-                  Kind regards,<br />
-                  <strong>School Administration</strong><br />
-                  Lahiba University
-                </p>
               </td>
             </tr>
-
-            <!-- Footer -->
-            <tr>
-              <td style="padding:15px; background:#f1f5f9; text-align:center; font-size:12px; color:#6b7280;">
-                <p style="margin:0;">
-                  🌐 <a href="https://yourschoolwebsite.com" style="color:#0f766e; text-decoration:none;">
-                    www.yourschoolwebsite.com
-                  </a>
-                </p>
-                <p style="margin:5px 0 0;">
-                   ✉️ info@laureateinstitute.com
-                </p>
-                <p style="margin:5px 0 0;">
-                  © ${new Date().getFullYear()} LAHIBA. All rights reserved.
-                </p>
-              </td>
-            </tr>
-
           </table>
         </td>
       </tr>
     </table>
   </body>
 </html>
-  `,
-})
+      `,
+    }).catch((err) => console.error("Background SendMail Error:", err));
 
-
-
-       return { successMessage:true , errorMessage:false };
-    }
-    catch(error){
-
-       return { successMessage:false , errorMessage:true };
-      
-    }
- }
+    return { successMessage: true, errorMessage: false };
+  } catch (error: any) {
+    console.error("CreatStudent Error:", error);
+    return {
+      successMessage: false,
+      errorMessage: error.message || "Failed to create student",
+    };
+  }
+};
  export const deleteStudent = async(
   currentState:currentState,
   data : FormData
