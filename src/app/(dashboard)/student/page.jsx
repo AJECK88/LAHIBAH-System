@@ -14,28 +14,31 @@ const StudentPage = async () => {
 
 
 
-const TimeTableData = await prisma.timetable.findMany({
-  where: {
-    course: {
-      // Assuming course/subject has enrolled students
-      students: {
-        some: {
-          id: studentId,
+const TimeTableData = studentId
+  ? await prisma.timetable.findMany({
+      where: {
+        course: {
+          // Scope to courses where THIS student is registered in the ACTIVE year
+          courseRegs: {
+            some: {
+              studentId: studentId,
+              academicYearId: activeYearId, // TO ensures past completed years are ignored
+            },
+          },
         },
       },
-    },
-  },
-  include: {
-    department: true,
-    classroom: true,
-    course: {
       include: {
-        level: true,
-        teachers:true,
+        department: true,
+        classroom: true,
+        course: {
+          include: {
+            level: true,
+            teachers: true,
+          },
+        },
       },
-    },
-  },
-}) || [];
+    })
+  : [];;
           const AnnouncementData = await prisma.announcement.findMany({
            
             orderBy: {

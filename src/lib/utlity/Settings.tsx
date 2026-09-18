@@ -27,7 +27,7 @@ export function getCurrentAcademicYearString(date: Date = new Date()): string {
 }
 export const routeAccessMap : RouteAccesMap = {
     "admin": ["admin"],
-    "student": ["student"],
+    //"student": ["student"],
     "parent": ["parent"],
     "teacher": ["teacher"],
     "list/teachers": ["admin","teacher"],
