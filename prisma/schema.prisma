@@ -19,7 +19,7 @@ model AcademicYear {
   year                String               @unique // e.g., "2025/2026"
   isCurrent           Boolean              @default(false)
   createdAt           DateTime             @default(now())
-  
+  Attendance         Attendance[]
   enrollments         Enrollment[]
   courseRegistrations CourseRegistration[]
 }
@@ -323,10 +323,12 @@ model Attendance {
   studentId String
   course    Subject  @relation(fields: [courseId], references: [id])
   student   Student  @relation(fields: [studentId], references: [id])
-
+  academicYearId String?
+  academicYear   AcademicYear? @relation(fields: [academicYearId], references: [id])
   @@index([courseId], map: "Attendance_courseId_fkey")
   @@index([studentId], map: "Attendance_studentId_fkey")
   @@unique([courseId ,studentId,date])
+  @@index([academicYearId])
 }
 
 model Assignment {

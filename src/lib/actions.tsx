@@ -25,14 +25,14 @@ type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
 }
-type AttendanceType={
-    studentId:string
-    status:string
-    courseId:number,
-    date:Date,
-    present:boolean
-
-}
+type AttendanceType = {
+  studentId: string;
+  status: string;
+  courseId: number;
+  date: Date;
+  present: boolean;
+  academicYearId: string;
+};
 /* || Course section to create, update, and delete */
 
 export const CreateCourse = async (
@@ -194,6 +194,7 @@ export const CreatStudent = async (
         password: generatedPassword,
         firstName: data.FirstName,
         lastName: data.LastName,
+        
         publicMetadata: {
           role: "student",
         },
@@ -1087,23 +1088,45 @@ const DeleteTimeTable = async(
 export { DeleteTimeTable }
 
 
-// Attendance Function 
-const CreateAttendance = async(
-  currentState:currentState,
-  data:AttendanceType
-)=>{
-  try{
-    await prisma.attendance.createMany({
-      data: data
-    })
-    return{ successMessage:true , errorMessage:false}
-  }
-  catch(error){
-    return{ successMessage:false , errorMessage:true}
-  }
-}
-export {CreateAttendance}
+export const CreateAttendance = async (currentState: any, data: any) => {
+  try {
+    const records = Array.isArray(data) ? data : [data];
 
+    if (records.length === 0) {
+      return { successMessage: false, errorMessage: true };
+    }
+
+    const currentYearString = getCurrentAcademicYearString(); // e.g. "2026/2027"
+
+    // 1. Ensure the active academic year exists
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: currentYearString },
+      update: {},
+      create: { year: currentYearString, isCurrent: true },
+    });
+
+    // 2. Map payload using the academicYearId foreign key
+    const sanitizedData = records.map((item) => ({
+      studentId: item.studentId,
+      courseId: Number(item.courseId),
+      date: item.date ? new Date(item.date) : new Date(),
+      status: item.status || "PRESENT",
+      present: item.present ?? true,
+      academicYearId: academicYear.id,
+    }));
+
+    // 3. Batch creation
+    await prisma.attendance.createMany({
+      data: sanitizedData,
+      skipDuplicates: true,
+    });
+
+    return { successMessage: true, errorMessage: false };
+  } catch (error) {
+    console.error("CreateAttendance Error:", error);
+    return { successMessage: false, errorMessage: true };
+  }
+};
 export async function getWeeklyAttendanceData() {
   const now = new Date();
   

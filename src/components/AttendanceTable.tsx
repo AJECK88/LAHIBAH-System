@@ -1,6 +1,7 @@
 "use client";
 
 import { CreateAttendance } from "@/lib/actions";
+import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
 import { BarChart2, Check, Clock, Pencil, UserCheck, X } from "lucide-react";
 import { useActionState, useState, useTransition } from "react";
 import { toast } from "react-toastify";
@@ -61,6 +62,7 @@ const AttendanceTable = ({ course, courseId, room, Coursetime, MOCK_STUDENTS }: 
         date: selectedDate,
         status: status,
         present: status === "PRESENT",
+        academicYearId:getCurrentAcademicYearString()
       };
     });
 

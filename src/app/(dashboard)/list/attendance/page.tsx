@@ -4,6 +4,7 @@ import AttendanceTable from "@/components/AttendanceTable";
 import AttendanceNav from "@/components/AttendanceNav";
 import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
 import UserId, { role } from "@/components/user";
+import VeiwAttendanceMatrix from "@/components/VeiwAttendance";
 
 interface PageProps {
   searchParams: Promise<{
@@ -125,8 +126,65 @@ const departments =(userRole === "admin")
     date: params.date || new Date().toISOString().split("T")[0],
   };
 
+  // 1. Fetch all students registered for this subject
+  const registrations =
+    activeCourseId && activeYear
+      ? await prisma.courseRegistration.findMany({
+          where: {
+            subjectId: Number(activeCourseId),
+            academicYearId: activeYear.id,
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                lastName: true,
+                firstName: true,
+                matricule: true,
+              },
+            },
+          },
+          orderBy: { student: { firstName: "asc" } },
+        })
+      : [];
+
+  // 2. Fetch all attendance logs for this subject
+const attendanceRecords =
+  activeCourseId && activeYear
+    ? await prisma.attendance.findMany({
+        where: {
+          courseId: Number(activeCourseId),
+          student: {
+            courseRegs: {
+              some: {
+                academicYearId: activeYear.id,
+              },
+            },
+          },
+        },
+      })
+    : [];
+
+  // Convert Date objects to strings and normalize enum values to the AttendanceRecord union.
+const attendanceRecordsProcessed = attendanceRecords.map((r) => ({
+  ...r,
+  date: r.date instanceof Date ? r.date.toISOString().split("T")[0] : String(r.date),
+  status: (r.status || (r.present ? "PRESENT" : "ABSENT")) as "PRESENT" | "ABSENT" | "LATE",
+}));
+
   return (
     <div className="p-4 lg:p-6 min-h-screen space-y-6">
+      <VeiwAttendanceMatrix
+        courseCode={activeCourseId}
+        dates={[...new Set(attendanceRecordsProcessed.map((r) => r.date.split("T")[0]))]}
+        records={attendanceRecordsProcessed}
+        students={registrations.map((reg) => ({
+          ...reg.student,
+          matricule: reg.student.matricule || "N/A",
+          name: `${reg.student.firstName} ${reg.student.lastName}`,
+        }))}
+        courseName={courseName}
+      />
       {/* Top Navigation */}
       <AttendanceNav key={activeDeptId} departmentName={departmentName} />
 
