@@ -389,21 +389,23 @@ export const deletCourse = async(
 
 
   try{
-       // 1️⃣ Find student
-  const student = await prisma.student.findUnique({
-    where: { id:id },
-  });
-   
-  if (!student || !student.id) {
-    throw new Error("Student not found or not linked to Clerk");
-  }
-    await client.users.deleteUser(student.id);
-
-     await prisma.student.delete({
-     where: {
-     id: (id),
-     }
-   });
+       
+  // 1. Delete all dependent relational records first
+await prisma.$transaction([
+  prisma.enrollment.deleteMany({ where: { studentId: id } }),
+  prisma.courseRegistration.deleteMany({ where: { studentId: id } }),
+  prisma.attendance.deleteMany({ where: { studentId: id } }),
+  prisma.fee.deleteMany({ where: { studentId: id } }),
+  prisma.result.deleteMany({ where: { studentId: id } }),
+  prisma.notificationRead.deleteMany({ where: { studentId: id } }),
+  
+  // Delete the student last
+  prisma.student.delete({ where: { id } }),
+]);
+    // 2. Remove from Clerk in the background without blocking execution
+    const client = await clerkClient();
+    void client.users.deleteUser(id);
+    
    return { successMessage:true , errorMessage:false };
 
  
