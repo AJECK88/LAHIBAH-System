@@ -60,7 +60,7 @@ type TeacherList = Teacher & { courses: Subject[] }
             const roles= await role();
            return  (
             <tr key={teacher.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
-                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={teacher.image || teacher.sex =="Female" ?"/FemaleIcon.png":"/maleIcon.png"} />
+                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={teacher.image===null ?teacher.sex =="Female" ?"/FemaleIcon.png":"/maleIcon.png": teacher.image} />
                 <div className="">
                     <h3 className="font-semibold">{teacher.firstName +" " + teacher.lastName}</h3>
                     <p className="text-xs text-gray-500 hidden md:table-cell">{teacher.email}</p>

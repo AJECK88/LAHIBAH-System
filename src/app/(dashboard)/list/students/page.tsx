@@ -52,7 +52,7 @@ import { role } from '@/components/user';
             const roles = await role();
             return (
             <tr key={student.id} className='border-b border-gray-200 even:bg-slate-50 text-sm hover:bg-gray-100 '>
-                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.image || student.sex ==="Female"?"/FemaleIcon.png":"/maleIcon.png"} />
+                <td className='flex items-center gap-4  p-4'><Image className='md:hidden xl:block w-10 h-10 rounded-full object-cover' alt='' width={40} height={40} src={student.image ===null? student.sex ==="Female"?"/FemaleIcon.png":"/maleIcon.png":student.image} />
                 <div className="">
                     <h3 className="font-semibold">{student.firstName+" "+ student.lastName}</h3>
                     <p className="text-xs text-gray-400 font-semibold ">{student.email}</p>

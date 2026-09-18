@@ -9,6 +9,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
+import { IdCard } from "lucide-react";
 const StudentPage = async () => {
   const UserIdValue = await UserId();
  const studentId = UserIdValue?.toString();
@@ -74,7 +75,7 @@ const TimeTableData = await prisma.timetable.findMany({
                 : "/FemaleIcon.png";
           
             const DepartmentLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
-          
+            console.log(currentUserInfo.matricule)
     return (
         /* Student Page */
         /* Right hand side */
@@ -119,15 +120,15 @@ const TimeTableData = await prisma.timetable.findMany({
                       {/* Blood Group */}
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Image
-                          src="/blood.png"
-                          alt="Blood Group"
+                          src="/id_card.png"
+                          alt="ID"
                           width={18}
                           height={18}
                           style={{ height: "auto" }}
                           className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
                         />
                         <span className="truncate">
-                          {currentUserInfo?.matricule | "N/A"}
+                          {currentUserInfo?.matricule}
                         </span>
                       </div>
               

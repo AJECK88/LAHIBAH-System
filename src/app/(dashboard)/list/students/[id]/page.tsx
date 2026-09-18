@@ -64,27 +64,12 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
                  <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4 " >
                     <div className="w-1/3" >
                     
-                    {Student.image ==null
-                        ?
-                        Student.sex =="Female"
-                        ?
-                        <Image src=  "/FemaleIcon.png"
+                   
+                     <Image src={Student.image || Student.sex ==="Female"? "/FemaleIcon.png":"/maleIcon.png"}
                     alt="User Avatar"
                      width={144} 
                      height={144} 
                      className=" w-36 h-36  object-cover rounded-full " />
-                     : 
-                     <Image src=  "/maleIcon.png"
-                    alt="User Avatar"
-                     width={144} 
-                     height={144} 
-                     className=" w-36 h-36  object-cover rounded-full " />
-                     : <Image src=  "/maleIcon.png"
-                    alt="User Avatar"
-                     width={144} 
-                     height={144} 
-                     className=" w-36 h-36  object-cover rounded-full " />
-                    }
                     
                     </div>
                     <div className="w-2/3 flex flex-col justify-between gap-4 ">
