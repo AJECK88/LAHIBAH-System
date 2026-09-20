@@ -17,10 +17,9 @@ const StudentPage = async () => {
 const TimeTableData = await prisma.timetable.findMany({
   where: {
     course: {
-      // Assuming course/subject has enrolled students
-      students: {
+      registrations: {
         some: {
-          id: studentId,
+          studentId: studentId,
         },
       },
     },
@@ -31,7 +30,7 @@ const TimeTableData = await prisma.timetable.findMany({
     course: {
       include: {
         level: true,
-        teachers:true,
+        teachers: true,
       },
     },
   },
@@ -50,8 +49,8 @@ const TimeTableData = await prisma.timetable.findMany({
                     id: studentId,
                   },
                   include: {
-                    courses: true,
-                    department:true
+                    courseRegs: true,
+                    department: true
                   },
                 })
               : null;
