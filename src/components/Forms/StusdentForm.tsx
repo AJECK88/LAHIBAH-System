@@ -183,7 +183,7 @@ const onSubmit = handleSubmit((formData) => {
         />
 
         <Input
-          type="number"
+          type="tel"
           name="phoneNumber"
           id="phoneNumber"
           register={register}

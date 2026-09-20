@@ -8,10 +8,12 @@ import prisma from "@/lib/prisma";
 
 
 const AdminPage = async() => {
-  const NumberStudents = prisma.student.count()
-  const NumberParents = prisma.parent.count()
-  const NumberTechers =prisma.teacher.count()
-  const NumberAdmin = prisma.admin.count()
+  const [NumberStudents, NumberParents, NumberTechers, NumberAdmin] = await Promise.all([
+    prisma.student.count(),
+    prisma.parent.count(),
+    prisma.teacher.count(),
+    prisma.admin.count(),
+  ])
    const NumberFemaleStudents = await prisma.student.count({
      where:{
    sex :"Female"

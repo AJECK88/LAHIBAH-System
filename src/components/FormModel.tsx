@@ -44,9 +44,9 @@ const deletActionMap: Record<
             loading: () => <h1>Loading...</h1>
        })
         const Courseform = dynamic(()=> import('@/components/Forms/Courseform'),
-        {loading:() => <h1>Loading..</h1>}
+        { ssr: false, loading: () => <h1>Loading...</h1> }
      )
-        const DepartmentForm = dynamic(()=> import('@/components/Forms/DepertmentForm'))
+        const DepartmentForm = dynamic(()=> import('@/components/Forms/DepertmentForm'), { ssr: false, loading: () => <h1>Loading...</h1> })
         const AnnouncementForm = dynamic(()=> import('@/components/Forms/AnnouncementForm'))
         const ExamForm  = dynamic( () => import('@/components/Forms/ExamForm'))
         const LessonForm = dynamic( () => import('@/components/Forms/LessonForm'))
