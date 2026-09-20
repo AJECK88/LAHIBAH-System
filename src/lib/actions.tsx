@@ -5,8 +5,6 @@ import type { CourseSchema, DepartmentSchema, ParentSchema , StudentSchema, Teac
 import prisma from "./prisma"
 import { sendMail } from "@/app/api/send-mail/route";
 import { joinDepartmentChat } from "@/lib/chat";
-import { string } from "zod";
-import { error } from "console";
 import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
 
 const passwordgenerator = (length: number) => {
@@ -18,8 +16,6 @@ const passwordgenerator = (length: number) => {
   
   return password;
 }
-//  the password generator a length of 8 to generate a password of 8 characters
- const generatedPassword = passwordgenerator(8);
 
 type currentState = {
     successMessage:boolean ;
@@ -177,6 +173,7 @@ export const deletCourse = async(
 
   /* || student section to update , create and delete */
  export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
+  try{
   // 1. Get or create active academic year
     const academicYearStr = getCurrentAcademicYearString();
     const academicYear = await prisma.academicYear.upsert({
@@ -188,17 +185,20 @@ export const deletCourse = async(
   const levelSubjects = await prisma.subject.findMany({
     where: { levelId: Number(data.level) ,
        department: {
-        some: { id: data.department }, // e.g., Software Engineering
+        some: { id: data.department },
       },},
     select: { id: true }
   });
-  try{
+
+    // 3. Generate a fresh password for this student
+    const studentPassword = passwordgenerator(8);
+
      const client = await clerkClient();
 
     const clerkId = await client.users.createUser({
       username: data.FirstName +"_" + data.MatriculeNo.slice(-4),
       emailAddress: [data.email],
-      password: generatedPassword,
+      password: studentPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
@@ -251,7 +251,8 @@ export const deletCourse = async(
     // Auto-join the department's chat room
     await joinDepartmentChat(data.department, clerkId.id, "STUDENT");
       
-    // 3️⃣ Send welcome email with credentials
+    // Send welcome email — non-fatal, don't let email failure block student creation
+    try {
     await sendMail({
   to: data.email,
   subject: "Student Account details",
@@ -305,7 +306,7 @@ export const deletCourse = async(
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${generatedPassword}</td>
+                    <td>${studentPassword}</td>
                   </tr>
                 </table>
 
@@ -367,14 +368,18 @@ export const deletCourse = async(
   </body>
 </html>
   `,
-})
-
-
+    }) 
+    } catch (mailErr) {
+      console.warn("Welcome email failed (non-fatal):", mailErr);
+    }
 
        return { successMessage:true , errorMessage:false };
     }
-    catch(error){
-
+    catch(err){
+      console.error("CreatStudent ERROR:", err);
+      if (err && typeof err === "object" && "errors" in err) {
+        console.error("Clerk errors:", JSON.stringify((err as any).errors, null, 2));
+      }
        return { successMessage:false , errorMessage:true };
       
     }
@@ -507,40 +512,41 @@ export const UpdateStudent = async (
 };
 /* || end */
 /* || Teacher section to create , update and delete */
-export const CreatTeache = async(currentState :currentState , data:TeacherSchema)=>{
-        const client = await clerkClient();
+export const CreatTeache = async (currentState: currentState, data: TeacherSchema) => {
+  const client = await clerkClient();
   try {
+    const teacherPassword = passwordgenerator(8);
     const clerkId = await client.users.createUser({
       username: data.FirstName + "_" + data.LastName.slice(-4),
       emailAddress: [data.email],
-      password: generatedPassword,
+      password: teacherPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
         role: "teacher",
       },
     });
-   await prisma.teacher.create({
-         data:{
-         username:data.FirstName + "_" + data.LastName.slice(-4),
-         address:data.Address,
-         email:data.email,
-         firstName:data.FirstName,
-         lastName:data.LastName,
-         phoneNumber:data.phoneNumber,
-         sex:data.sex,
-         DateOfBirth:new Date(data.dateOfBirth),
-         bloodGroup:data.BloodType,
-         teachersId :data.teachersId,
-         id:clerkId.id,
-         image:clerkId.imageUrl,
-         courses:{
-           connect: data.Courses?.map((courseId:any) => ({ id: courseId })),
-         } 
+    await prisma.teacher.create({
+      data: {
+        username: data.FirstName + "_" + data.LastName.slice(-4),
+        address: data.Address,
+        email: data.email,
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        phoneNumber: data.phoneNumber,
+        sex: data.sex,
+        DateOfBirth: new Date(data.dateOfBirth),
+        bloodGroup: data.BloodType,
+        teachersId: data.teachersId,
+        id: clerkId.id,
+        image: clerkId.imageUrl,
+        courses: {
+          connect: data.Courses?.map((courseId: any) => ({ id: courseId })),
+        }
          
-         }
+      }
          
-      }) 
+    })
 
     // Auto-join department chat room(s) derived from the courses this teacher teaches
     if (data.Courses && data.Courses.length > 0) {
@@ -557,11 +563,12 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
       }
     }
 
-          // 3️⃣ Send welcome email with credentials
-    await sendMail({
-  to: data.email,
-  subject: "Teacher Account details",
-  html: `
+    // Send welcome email — non-fatal
+    try {
+      await sendMail({
+      to: data.email,
+      subject: "Teacher Account details",
+      html: `
 <!DOCTYPE html>
 <html>
   <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
@@ -607,11 +614,11 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.FirstName +"_"+ data.LastName.slice(-4)}</td>
+                    <td>${data.FirstName + "_" + data.LastName.slice(-4)}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${generatedPassword}</td>
+                    <td>${teacherPassword}</td>
                   </tr>
                 </table>
 
@@ -673,16 +680,16 @@ export const CreatTeache = async(currentState :currentState , data:TeacherSchema
   </body>
 </html>
   `,
-})
-       return { successMessage:true , errorMessage:false };
+      });
+    } catch (mailErr) {
+      console.warn("Teacher welcome email failed (non-fatal):", mailErr);
     }
-       catch(error){ 
-        console.log(error)
-
-        return( { successMessage:false , errorMessage:true } );   
-       }
-    
-}
+    return { successMessage: true, errorMessage: false };
+  } catch(error){ 
+    console.log(error)
+    return { successMessage: false, errorMessage: true };
+  }
+};
 export const UpdateTeache = async (
   currentState:currentState
   , data:TeacherSchema
@@ -762,10 +769,11 @@ export const deleteTeacher = async(
 )=>{
    const client = await clerkClient();
   try{
+    const parentPassword = passwordgenerator(8);
     const clerkId = await client.users.createUser({
       username: data.FirstName + "_" + data.LastName.slice(-4),
       emailAddress: [data.email],
-      password: generatedPassword,
+      password: parentPassword,
       firstName: data.FirstName,
       lastName: data.LastName,
       publicMetadata: {
@@ -788,6 +796,8 @@ export const deleteTeacher = async(
         }
       })
           // 3️⃣ Send welcome email with credentials
+    // Send welcome email — non-fatal
+    try {
     await sendMail({
   to: data.email,
   subject: "Parent Account details",
@@ -841,7 +851,7 @@ export const deleteTeacher = async(
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
-                    <td>${generatedPassword}</td>
+                    <td>${parentPassword}</td>
                   </tr>
                 </table>
 
@@ -903,11 +913,13 @@ export const deleteTeacher = async(
   </body>
 </html>
   `,
-})
-      return { successMessage:true , errorMessage:false };
-    } catch(error){
-      return { successMessage:false , errorMessage:true     
-       } 
+    });
+    } catch (mailErr) {
+      console.warn("Parent welcome email failed (non-fatal):", mailErr);
+    }
+    return { successMessage: true, errorMessage: false };
+  } catch(error){
+    return { successMessage: false, errorMessage: true };
   }
 }
 
@@ -993,10 +1005,10 @@ export const CreateDepartment = async(
        }})
       }
     })
-    return { successMessage:false , errorMessage:true } 
+    return { successMessage:true , errorMessage:false } 
   }catch(error){
     console.log( "error", error)
-     return{ successMessage:true , errorMessage:false}
+     return{ successMessage:false , errorMessage:true}
   }
  
 

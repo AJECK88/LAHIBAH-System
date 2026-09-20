@@ -37,13 +37,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   for (const { Matcher, allowedRoles } of MatcherRole) {
     if (Matcher(req) && !allowedRoles.includes(role!)) {
-      console.log("MIDDLEWARE REDIRECT:", {
-        path: req.nextUrl.pathname,
-        userId,
-        role,
-        allowedRoles,
-      });
-
       if (role) {
         return NextResponse.redirect(
           new URL(`/${role}`, req.url)
