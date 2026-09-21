@@ -40,10 +40,10 @@ const AnnouncementData = await prisma.announcement.findMany({
       <div className="w-full lg:w-2/3 flex flex-col  gap-4 ">
       {/* Usercards*/}
       <div className="flex gap-4 justify-between flex-wrap lg:row">
-       <Usercarsd  referes={"list/parents"} type="Parent" UserData ={NumberParents}/>
-        <Usercarsd referes={"list/students"} type="Student" UserData={NumberStudents}/>
-        <Usercarsd referes={"list/teachers"}  type="Teacher" UserData={NumberTechers}/>
-        <Usercarsd  referes={""} type="staff" UserData={NumberAdmin} />
+      <Usercarsd  referes={"list/parents"} type="Parent" UserData ={Promise.resolve(NumberParents)}/>
+       <Usercarsd referes={"list/students"} type="Student" UserData={Promise.resolve(NumberStudents)}/>
+       <Usercarsd referes={"list/teachers"}  type="Teacher" UserData={Promise.resolve(NumberTechers)}/>
+       <Usercarsd  referes={""} type="staff" UserData={Promise.resolve(NumberAdmin)} />
         </div> 
       {/* Middle chart */}
       <div className="flex flex-col lg:flex-row gap-4">
