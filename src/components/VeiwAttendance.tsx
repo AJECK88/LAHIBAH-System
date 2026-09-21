@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Check, X, Clock } from "lucide-react";
+import Image from "next/image";
 
 interface Student {
   id: string;
@@ -21,6 +22,7 @@ interface AttendanceMatrixProps {
   dates: string[]; // List of session dates e.g. ["2026-09-01", "2026-09-03"]
   students: Student[];
   records: AttendanceRecord[];
+  Barch:string | null
 }
 
 export default function VeiwAttendanceMatrix({
@@ -29,6 +31,7 @@ export default function VeiwAttendanceMatrix({
   dates,
   students,
   records,
+  Barch
 }: AttendanceMatrixProps) {
   // Helper to find attendance status
   const getStatus = (studentId: string, date: string) => {
@@ -40,11 +43,11 @@ export default function VeiwAttendanceMatrix({
   return (
     <div className="p-6 bg-white rounded-lg shadow-md border border-gray-200">
       {/* Header Info */}
-      <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-800">
-          COURSE ATTENDANCE: {courseCode} ({courseName})
+      <div className="mb-4 text-center">
+        <h2 className="text-xl font-bold text-gray-600 flex flex-row items-center justify-center">
+          COURSE ATTENDANCE <Image height={80} width={20} src={"/keyboard_double_arrow.png"} alt="Arrow"/> {courseCode} [{courseName}]
         </h2>
-        <p className="text-sm text-gray-500">First Semester Sheet</p>
+        <p className="text-sm text-gray-500">First Semester Sheet Barch Of:{Barch}</p>
       </div>
 
       {/* Scrollable Table Container */}
@@ -87,15 +90,15 @@ export default function VeiwAttendanceMatrix({
                     if (status === "PRESENT") presentCount++;
 
                     return (
-                      <td key={dIdx} className="p-2 border-r text-center">
+                      <td key={dIdx} className="p-2 border-r text-center bg-blue-100 w-1.5 h-1.5">
                         {status === "PRESENT" && (
-                          <span className="inline-flex items-center justify-center w-6 h-6 bg-emerald-100 text-emerald-700 rounded-full font-bold">
-                            P
+                          <span className="inline-flex items-center justify-center text-emerald-700 rounded-full font-bold">
+                            <Image height={20} width={20} src={"/check.png"} alt="p"/>
                           </span>
                         )}
                         {status === "ABSENT" && (
                           <span className="inline-flex items-center justify-center w-6 h-6 bg-rose-100 text-rose-700 rounded-full font-bold">
-                            A
+                            <Image height={20} width={20} src={"/close_x.png"} alt="A"/>
                           </span>
                         )}
                         {status === "LATE" && (
@@ -109,7 +112,7 @@ export default function VeiwAttendanceMatrix({
                   })}
 
                   {/* Total Present Count */}
-                  <td className="p-3 text-center font-bold bg-emerald-50 text-emerald-800">
+                  <td className="p-3 text-center font-bold bg-emerald-50 text-emerald-800 w-2 h-2">
                     {presentCount}/{dates.length}
                   </td>
                 </tr>

@@ -1124,10 +1124,12 @@ export const CreateAttendance = async (currentState: any, data: any) => {
     return { successMessage: false, errorMessage: true };
   }
 };
+
+
 export async function getWeeklyAttendanceData() {
   const now = new Date();
   
-  // Calculate the date of Monday for the current week
+  // Calculate Monday of current week
   const dayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ...
   const distanceToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   
@@ -1135,52 +1137,62 @@ export async function getWeeklyAttendanceData() {
   monday.setDate(now.getDate() + distanceToMon);
   monday.setHours(0, 0, 0, 0);
 
-  const days = ["Mon", "Tues", "Wed", "Thur", "Fri"];
+  const sundayEnd = new Date(monday);
+  sundayEnd.setDate(monday.getDate() + 6);
+  sundayEnd.setHours(23, 59, 59, 999);
 
-  // Fetch attendance records grouped by day
-  const weeklyStats = await Promise.all(
-    days.map(async (dayName, index) => {
-      const dayStart = new Date(monday);
-      dayStart.setDate(monday.getDate() + index);
+  // 1. Fetch all records for the entire week in ONE query
+  const records = await prisma.attendance.findMany({
+    where: {
+      date: {
+        gte: monday,
+        lte: sundayEnd,
+      },
+    },
+    select: {
+      studentId: true,
+      status: true,
+      date: true,
+    },
+  });
 
-      const dayEnd = new Date(dayStart);
-      dayEnd.setHours(23, 59, 59, 999);
+  const days = ["Mon", "Tues", "Wed", "Thur", "Fri", "Sat", "Sun"];
 
-      // Fetch distinct student IDs for PRESENT and ABSENT statuses
-      const [presentRecords, absentRecords] = await Promise.all([
-        prisma.attendance.groupBy({
-          by: ["studentId"],
-          where: {
-            date: { gte: dayStart, lte: dayEnd },
-            status: "PRESENT",
-          },
-        }),
-        prisma.attendance.groupBy({
-          by: ["studentId"],
-          where: {
-            date: { gte: dayStart, lte: dayEnd },
-            status: "ABSENT",
-          },
-        }),
-      ]);
+  // 2. Map days and process presence logic in memory
+  const weeklyStats = days.map((dayName, index) => {
+    const dayStart = new Date(monday);
+    dayStart.setDate(monday.getDate() + index);
+    
+    const dayEnd = new Date(dayStart);
+    dayEnd.setHours(23, 59, 59, 999);
 
-      // 1. Collect all student IDs who are PRESENT at least once today
-      const presentStudentIds = new Set(
-        presentRecords.map((record) => record.studentId)
-      );
+    // Filter local records for this specific day
+    const dayRecords = records.filter(
+      (r) => r.date >= dayStart && r.date <= dayEnd
+    );
 
-      // 2. Filter out present students from the ABSENT set
-      const strictlyAbsentStudentIds = absentRecords
-        .map((record) => record.studentId)
-        .filter((studentId) => !presentStudentIds.has(studentId));
+    const presentStudentIds = new Set<string>();
+    const absentStudentIds = new Set<string>();
 
-      return {
-        name: dayName,
-        Presents: presentStudentIds.size,
-        Absents: strictlyAbsentStudentIds.length,
-      };
-    })
-  );
+    for (const record of dayRecords) {
+      if (record.status === "PRESENT") {
+        presentStudentIds.add(record.studentId);
+      } else if (record.status === "ABSENT") {
+        absentStudentIds.add(record.studentId);
+      }
+    }
+
+    // Ensure students marked PRESENT at least once are removed from ABSENT count
+    for (const id of presentStudentIds) {
+      absentStudentIds.delete(id);
+    }
+
+    return {
+      name: dayName,
+      Presents: presentStudentIds.size,
+      Absents: absentStudentIds.size,
+    };
+  });
 
   return weeklyStats;
 }
