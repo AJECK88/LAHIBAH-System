@@ -106,8 +106,7 @@ if (userRole === "teacher") {
 
 } else if (userRole === "student") {
   // Filter courses/data where student is enrolled
-  // typed as any because SubjectWhereInput may not include a `students` relation in the schema
-// 1. Define the filter for the CourseRegistration relation on Subject
+  // 1. Define the filter for the CourseRegistration relation on Subject
 const courseRegWhere = userId
   ? {
       registrations: {

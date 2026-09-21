@@ -9,6 +9,7 @@ interface ChatItem {
   type: string;
   name: string;
   image: string | null;
+  memberCount?: number;
   lastMessage: string;
   lastMessageAt: string;
 }
@@ -34,11 +35,7 @@ function Avatar({ name, image, size = 'w-12 h-12' }: { name: string; image: stri
   if (image) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={image}
-        alt={name}
-        className={`${size} rounded-full flex-shrink-0 object-cover`}
-      />
+      <img src={image} alt={name} className={`${size} rounded-full flex-shrink-0 object-cover`} />
     );
   }
   return (
@@ -54,6 +51,11 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'students' | 'teachers' | 'people'>('students');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [groupMode, setGroupMode] = useState(false);
+  const [selectedForGroup, setSelectedForGroup] = useState<DirectoryUser[]>([]);
+  const [groupName, setGroupName] = useState('');
+  const [creatingGroup, setCreatingGroup] = useState(false);
 
   const [activeChats, setActiveChats] = useState<ChatItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +105,14 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     user.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSearchQuery('');
+    setGroupMode(false);
+    setSelectedForGroup([]);
+    setGroupName('');
+  };
+
   const handleAddToChat = async (targetUserId: string, targetType: string) => {
     setCreatingRoom(true);
     try {
@@ -114,8 +124,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
       const data = await res.json();
 
       if (res.ok && data.roomId) {
-        setIsModalOpen(false);
-        setSearchQuery('');
+        closeModal();
         fetchRooms();
         router.push(`/messages/${data.roomId}`);
       } else {
@@ -125,6 +134,42 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
       console.error('Room creation error:', err);
     } finally {
       setCreatingRoom(false);
+    }
+  };
+
+  const toggleGroupSelection = (user: DirectoryUser) => {
+    setSelectedForGroup((prev) => {
+      const exists = prev.some((u) => u.id === user.id);
+      if (exists) return prev.filter((u) => u.id !== user.id);
+      return [...prev, user];
+    });
+  };
+
+  const handleCreateGroup = async () => {
+    if (!groupName.trim() || selectedForGroup.length === 0) return;
+    setCreatingGroup(true);
+    try {
+      const res = await fetch('/api/chat/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          groupName: groupName.trim(),
+          participants: selectedForGroup.map((u) => ({ id: u.id, type: u.type })),
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.roomId) {
+        closeModal();
+        fetchRooms();
+        router.push(`/messages/${data.roomId}`);
+      } else {
+        console.error('Failed to create group:', data.error);
+      }
+    } catch (err) {
+      console.error('Group creation error:', err);
+    } finally {
+      setCreatingGroup(false);
     }
   };
 
@@ -183,7 +228,12 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                 <Avatar name={chat.name} image={chat.image} />
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline">
-                    <h3 className="font-medium text-sm truncate">{chat.name}</h3>
+                    <h3 className="font-medium text-sm truncate">
+                      {chat.name}
+                      {chat.type !== 'DIRECT' && chat.memberCount ? (
+                        <span className="text-[#8696a0] font-normal"> · {chat.memberCount}</span>
+                      ) : null}
+                    </h3>
                     <span className="text-xs text-[#8696a0]">{formatTime(chat.lastMessageAt)}</span>
                   </div>
                   <p className="text-xs text-[#8696a0] truncate mt-0.5">{chat.lastMessage}</p>
@@ -215,11 +265,46 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-sm p-4">
           <div className="bg-[#222e35] w-full max-w-[450px] rounded-xl shadow-2xl overflow-hidden border border-[#2a3942] flex flex-col max-h-[85vh]">
             <div className="p-4 border-b border-[#2a3942] flex justify-between items-center bg-[#202c33]">
-              <h2 className="text-md font-semibold text-[#e9edef]">Start a Conversation</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-[#8696a0] hover:text-[#e9edef] p-1">
+              <h2 className="text-md font-semibold text-[#e9edef]">
+                {groupMode ? 'New Group' : 'Start a Conversation'}
+              </h2>
+              <button onClick={closeModal} className="text-[#8696a0] hover:text-[#e9edef] p-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
+
+            {!groupMode && (
+              <button
+                onClick={() => setGroupMode(true)}
+                className="flex items-center gap-2 px-4 py-3 text-sm text-emerald-400 hover:bg-[#202c33] border-b border-[#2a3942] transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                New Group
+              </button>
+            )}
+
+            {groupMode && (
+              <div className="p-3 bg-[#111b21] border-b border-[#2a3942]">
+                <input
+                  type="text"
+                  placeholder="Group name..."
+                  value={groupName}
+                  onChange={(e) => setGroupName(e.target.value)}
+                  className="w-full bg-[#2a3942] text-sm text-[#e9edef] rounded-lg px-3 py-2 outline-none placeholder-[#8696a0] mb-2"
+                />
+                {selectedForGroup.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-1">
+                    {selectedForGroup.map((u) => (
+                      <span key={u.id} className="text-[11px] bg-emerald-600/20 text-emerald-400 px-2 py-1 rounded-full flex items-center gap-1">
+                        {u.name}
+                        <button onClick={() => toggleGroupSelection(u)} className="hover:text-white">×</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="p-3 bg-[#111b21]">
               <input
                 type="text"
@@ -248,23 +333,51 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
               {directoryLoading ? (
                 <p className="text-center text-xs text-[#8696a0] py-8">Loading...</p>
               ) : currentTabList.length > 0 ? (
-                currentTabList.map((user) => (
-                  <div
-                    key={user.id}
-                    onClick={() => !creatingRoom && handleAddToChat(user.id, user.type)}
-                    className={`flex items-center gap-3 p-3 hover:bg-[#202c33] cursor-pointer transition-colors group ${creatingRoom ? 'opacity-50 pointer-events-none' : ''}`}
-                  >
-                    <Avatar name={user.name} image={user.image} size="w-10 h-10" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium truncate text-[#e9edef] group-hover:text-emerald-400">{user.name}</h4>
-                      <p className="text-xs text-[#8696a0] truncate mt-0.5">{user.details}</p>
+                currentTabList.map((user) => {
+                  const isSelected = selectedForGroup.some((u) => u.id === user.id);
+                  return (
+                    <div
+                      key={user.id}
+                      onClick={() =>
+                        groupMode
+                          ? toggleGroupSelection(user)
+                          : !creatingRoom && handleAddToChat(user.id, user.type)
+                      }
+                      className={`flex items-center gap-3 p-3 hover:bg-[#202c33] cursor-pointer transition-colors group ${
+                        creatingRoom && !groupMode ? 'opacity-50 pointer-events-none' : ''
+                      } ${isSelected ? 'bg-emerald-600/10' : ''}`}
+                    >
+                      {groupMode && (
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 ${
+                          isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-[#8696a0]'
+                        }`}>
+                          {isSelected && <span className="text-black text-xs">✓</span>}
+                        </div>
+                      )}
+                      <Avatar name={user.name} image={user.image} size="w-10 h-10" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-medium truncate text-[#e9edef] group-hover:text-emerald-400">{user.name}</h4>
+                        <p className="text-xs text-[#8696a0] truncate mt-0.5">{user.details}</p>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-center text-xs text-[#8696a0] py-8">No system matches found.</p>
               )}
             </div>
+
+            {groupMode && (
+              <div className="p-3 border-t border-[#2a3942] bg-[#202c33]">
+                <button
+                  onClick={handleCreateGroup}
+                  disabled={!groupName.trim() || selectedForGroup.length === 0 || creatingGroup}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-[#111b21] font-semibold py-2.5 rounded-lg text-sm transition-colors"
+                >
+                  {creatingGroup ? 'Creating...' : `Create Group (${selectedForGroup.length})`}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

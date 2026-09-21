@@ -60,7 +60,6 @@ const TimeTableData = await prisma.timetable.findMany({
                      include:{
                       subject:true
                      }
-
                     },
                     department:true
                   },
