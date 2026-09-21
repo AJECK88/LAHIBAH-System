@@ -2,8 +2,9 @@ import prisma from "@/lib/prisma";
 import AttendanceForm from "@/components/Forms/Attendanceform";
 import AttendanceTable from "@/components/AttendanceTable";
 import AttendanceNav from "@/components/AttendanceNav";
-import { s } from "@upstash/redis";
-import { string } from "zod";
+import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
+import UserId, { role } from "@/components/user";
+import VeiwAttendanceMatrix from "@/components/VeiwAttendance";
 
 interface PageProps {
   searchParams: Promise<{
@@ -11,45 +12,71 @@ interface PageProps {
     courseId?: string;
     semester?: string;
     roomId?: string;
+    date?: string;
   }>;
 }
 
 export default async function MarkAttendancePage({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  // 1. Fetch Departments and Classrooms
-  const department = await prisma.department.findMany({
-    select: { id: true, name: true },
+  // 1. Get Active Academic Year
+  const academicYearStr = getCurrentAcademicYearString();
+  const activeYear = await prisma.academicYear.findUnique({
+    where: { year: academicYearStr },
+    select: { id: true },
   });
 
-  const classRoom = await prisma.classroom.findMany({
-    select: { id: true, name: true },
-  });
-
-  // 2. Fetch Courses (Filtered by department if provided, otherwise fetch all)
-  const courses = await prisma.subject.findMany({
-    where: params.departmentId
-      ? {
-          department: {
-            some: {
-              id: params.departmentId,
+  // 2. Fetch Base Filter Metadata
+  const userRole = await role();
+  const userId = await UserId()
+const departments =(userRole === "admin")
+  ? await prisma.department.findMany({
+      select: { id: true, name: true },
+    })
+  : (userRole === "teacher")? await prisma.department.findMany({
+      where: {
+        subjects: {
+          some: {
+            teachers: {
+              some: {
+                id: String(userId),
+              },
             },
           },
-        }
-      : {}, // Omit filter when no departmentId is selected
-    select: {
-      id: true,
-      name: true,
-    },
+        },
+      },
+      select: { id: true, name: true },
+    }):[];
+  const classRooms = await prisma.classroom.findMany({
+    select: { id: true, name: true },
   });
 
-  // 3. Directly fetch Enrolled Students for the selected course
-  const students = params.courseId
+  // 3. Resolve Fallback Selections (Server-Side Defaults)
+  const activeDeptId = params.departmentId || departments[0]?.id || "";
+
+  // 4. Fetch Courses filtered by selected department
+  const courses = await prisma.subject.findMany({
+    where: activeDeptId
+      ? {
+          department: {
+            some: { id: activeDeptId },
+          },
+        }
+      : {},
+    select: { id: true, name: true },
+  });
+
+  const activeCourseId = params.courseId || String(courses[0]?.id || "");
+  const activeRoomId = params.roomId || classRooms[0]?.id || "";
+
+  // 5. Fetch Enrolled Students for active course & ACTIVE academic year only
+  const students = activeCourseId && activeYear
     ? await prisma.student.findMany({
         where: {
           courseRegs: {
             some: {
-              id: String(params.courseId),
+              subjectId: Number(activeCourseId),
+              academicYearId: activeYear.id, // Isolates active enrollments
             },
           },
         },
@@ -59,69 +86,117 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
           firstName: true,
           matricule: true,
         },
+        orderBy: { lastName: "asc" },
       })
     : [];
 
   const attendanceStudents = students.map((student) => ({
     ...student,
-    matricule: student.matricule || "",
+    matricule: student.matricule || "N/A",
     totalAttdHours: 0,
     status: "Enrolled" as const,
   }));
 
-  // 4. Fetch Timetable for the selected course
-  const TimeTable = params.courseId
+  // 6. Fetch Timetable Slot for selected course
+  const timetable = activeCourseId
     ? await prisma.timetable.findFirst({
-        where: {
-          courseId: Number(params.courseId),
-        },
-        select: {
-          id: true,
-          startTime: true,
-          endTime: true,
-        },
+        where: { courseId: Number(activeCourseId) },
+        select: { id: true, startTime: true, endTime: true },
       })
     : null;
 
-  // 5. Safe Selected Entity Name Resolution
-  const selectedDepartment = department.find(
-    (dept) => String(dept.id) === String(params?.departmentId)
-  );
+  // 7. Resolve Display Labels
+  const selectedDepartment = departments.find((d) => d.id === activeDeptId);
+  const selectedCourse = courses.find((c) => String(c.id) === activeCourseId);
+  const selectedRoom = classRooms.find((r) => r.id === activeRoomId);
+
   const departmentName = selectedDepartment?.name || "All";
-  const departmentId = selectedDepartment?.id || "All";
-
-  const selectedCourse = courses.find(
-    (cours) => String(cours.id) === String(params?.courseId)
-  );
   const courseName = selectedCourse?.name || "All";
-  const courseId = params.courseId ?? "";
+  const roomName = selectedRoom?.name || "All";
+  const courseTime = timetable
+    ? `${timetable.startTime} - ${timetable.endTime}`
+    : "Not Scheduled";
 
-  const selectedRoom = classRoom.find(
-    (room) => String(room.id) === String(params?.roomId)
-  );
-  const RoomName = selectedRoom?.name || "All";
+  // Pass active filters to form for controlled rendering
+  const activeFilters = {
+    departmentId: activeDeptId,
+    courseId: activeCourseId,
+    roomId: activeRoomId,
+    semester: params.semester || "SEMESTER_1",
+    date: params.date || new Date().toISOString().split("T")[0],
+  };
 
-  const courseTime = TimeTable
-    ? `${TimeTable.startTime} - ${TimeTable.endTime}`
-    : "All";
+  // 1. Fetch all students registered for this subject
+  const registrations =
+    activeCourseId && activeYear
+      ? await prisma.courseRegistration.findMany({
+          where: {
+            subjectId: Number(activeCourseId),
+            academicYearId: activeYear.id,
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                lastName: true,
+                firstName: true,
+                matricule: true,
+              },
+            },
+          },
+          orderBy: { student: { firstName: "asc" } },
+        })
+      : [];
 
-  // Safe key generator to prevent index [0] undefined crashes
-  const formKey = `${classRoom[0]?.id ?? "no-room"}-${department[0]?.id ?? "no-dept"}`;
+  // 2. Fetch all attendance logs for this subject
+const attendanceRecords =
+  activeCourseId && activeYear
+    ? await prisma.attendance.findMany({
+        where: {
+          courseId: Number(activeCourseId),
+          student: {
+            courseRegs: {
+              some: {
+                academicYearId: activeYear.id,
+              },
+            },
+          },
+        },
+      })
+    : [];
+
+  // Convert Date objects to strings and normalize enum values to the AttendanceRecord union.
+const attendanceRecordsProcessed = attendanceRecords.map((r) => ({
+  ...r,
+  date: r.date instanceof Date ? r.date.toISOString().split("T")[0] : String(r.date),
+  status: (r.status || (r.present ? "PRESENT" : "ABSENT")) as "PRESENT" | "ABSENT" | "LATE",
+}));
 
   return (
     <div className="p-4 lg:p-6 min-h-screen space-y-6">
+      <VeiwAttendanceMatrix
+        courseCode={activeCourseId}
+        dates={[...new Set(attendanceRecordsProcessed.map((r) => r.date.split("T")[0]))]}
+        records={attendanceRecordsProcessed}
+        students={registrations.map((reg) => ({
+          ...reg.student,
+          matricule: reg.student.matricule || "N/A",
+          name: `${reg.student.firstName} ${reg.student.lastName}`,
+        }))}
+        courseName={courseName}
+      />
       {/* Top Navigation */}
-      <AttendanceNav key={departmentId} departmentName={departmentName} />
+      <AttendanceNav key={activeDeptId} departmentName={departmentName} />
 
-      {/* Main Layout: Stacked on Mobile, Side-by-Side on Desktop */}
+      {/* Main Layout */}
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Left Column: Filters / Form */}
+        {/* Left Column: Filter Sidebar */}
         <div className="w-full md:w-1/4">
           <AttendanceForm
-            key={formKey}
             courses={courses}
-            departments={department}
-            room={classRoom}
+            departments={departments}
+            room={classRooms}
+            activeFilters={activeFilters}
           />
         </div>
 
@@ -129,8 +204,8 @@ export default async function MarkAttendancePage({ searchParams }: PageProps) {
         <div className="w-full md:w-3/4">
           <AttendanceTable
             course={courseName}
-            room={RoomName}
-            courseId={courseId}
+            room={roomName}
+            courseId={activeCourseId}
             Coursetime={courseTime}
             MOCK_STUDENTS={attendanceStudents}
           />

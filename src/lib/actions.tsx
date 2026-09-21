@@ -21,14 +21,14 @@ type currentState = {
     successMessage:boolean ;
     errorMessage:boolean
 }
-type AttendanceType={
-    studentId:string
-    status:string
-    courseId:number,
-    date:Date,
-    present:boolean
-
-}
+type AttendanceType = {
+  studentId: string;
+  status: string;
+  courseId: number;
+  date: Date;
+  present: boolean;
+  academicYearId: string;
+};
 /* || Course section to create, update, and delete */
 
 export const CreateCourse = async (
@@ -171,62 +171,63 @@ export const deletCourse = async(
 
 } /* || End */ 
 
-  /* || student section to update , create and delete */
- export const  CreatStudent = async( currentState :currentState, data:StudentSchema)  =>{  
-  try{
-  // 1. Get or create active academic year
+export const CreatStudent = async (
+  currentState: currentState,
+  data: StudentSchema
+) => {
+  try {
     const academicYearStr = getCurrentAcademicYearString();
-    const academicYear = await prisma.academicYear.upsert({
-      where: { year: academicYearStr },
-      update: {},
-      create: { year: academicYearStr, isCurrent: true },
-    });
-  // 2. Get all subject IDs associated with this level
-  const levelSubjects = await prisma.subject.findMany({
-    where: { levelId: Number(data.level) ,
-       department: {
-        some: { id: data.department },
-      },},
-    select: { id: true }
-  });
-
-    // 3. Generate a fresh password for this student
+    const generatedUsername = `${data.FirstName}_${data.MatriculeNo.slice(-4)}`;
     const studentPassword = passwordgenerator(8);
+    const client = await clerkClient();
 
-     const client = await clerkClient();
+    // 1. Run Clerk user creation alongside DB pre-queries in parallel
+    const [clerkUser, academicYear, levelSubjects] = await Promise.all([
+      client.users.createUser({
+        username: generatedUsername,
+        emailAddress: [data.email],
+        password: studentPassword,
+        firstName: data.FirstName,
+        lastName: data.LastName,
 
-    const clerkId = await client.users.createUser({
-      username: data.FirstName +"_" + data.MatriculeNo.slice(-4),
-      emailAddress: [data.email],
-      password: studentPassword,
-      firstName: data.FirstName,
-      lastName: data.LastName,
-      publicMetadata: {
-        role: "student",
-      },
-    });
-      await prisma.student.create({
-        
-         data:{
-         username:data.FirstName +"_" + data.MatriculeNo.slice(-4),
-         address:data.Address,
-         age:Number(data.age),
-         email:data.email,
-         firstName:data.FirstName,
-         lastName:data.LastName,
-         phoneNumber:data.phoneNumber,
-         DateOfBirth:new Date(data.dateOfBirth),
-         sex:data.sex,
-         matricule:data.MatriculeNo,
-         id:clerkId.id,
-         image:clerkId.imageUrl,
-         department:{
-           connect:{id:data.department}
-         }, 
-         level:{ 
-            connect:{id:Number(data.level)}
-         },
-       // Track academic level history
+      prisma.academicYear.upsert({
+        where: { year: academicYearStr },
+        update: {},
+        create: { year: academicYearStr, isCurrent: true },
+      }),
+
+      prisma.subject.findMany({
+        where: {
+          levelId: Number(data.level),
+          department: {
+            some: { id: data.department },
+          },
+        },
+        select: { id: true },
+      }),
+    ]);
+
+    // 2. Single Atomic Database Insertion
+    await prisma.student.create({
+      data: {
+        id: clerkUser.id,
+        username: generatedUsername,
+        address: data.Address,
+        age: Number(data.age),
+        email: data.email,
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        phoneNumber: data.phoneNumber,
+        DateOfBirth: new Date(data.dateOfBirth),
+        sex: data.sex,
+        matricule: data.MatriculeNo,
+        image: clerkUser.imageUrl,
+        department: {
+          connect: { id: data.department },
+        },
+        level: {
+          connect: { id: Number(data.level) },
+        },
         enrollments: {
           create: {
             academicYearId: academicYear.id,
@@ -234,7 +235,6 @@ export const deletCourse = async(
             status: "PROMOTED",
           },
         },
-        // Register regular level courses under CourseRegistration
         courseRegs: {
           create: levelSubjects.map((subject) => ({
             subjectId: subject.id,
@@ -244,19 +244,15 @@ export const deletCourse = async(
           })),
         },
       },
-         
-         
-      }) 
+    });
 
-    // Auto-join the department's chat room
-    await joinDepartmentChat(data.department, clerkId.id, "STUDENT");
-      
-    // Send welcome email — non-fatal, don't let email failure block student creation
-    try {
-    await sendMail({
-  to: data.email,
-  subject: "Student Account details",
-  html: `
+    // 3. Non-blocking side effects (fire & forget)
+    void joinDepartmentChat(data.department, clerkUser.id, "STUDENT");
+
+    void sendMail({
+      to: data.email,
+      subject: "Student Account details",
+      html: `
 <!DOCTYPE html>
 <html>
   <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
@@ -264,126 +260,45 @@ export const deletCourse = async(
       <tr>
         <td align="center" style="padding:30px 0;">
           <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:8px; overflow:hidden;">
-
-            <!-- School Logo -->
-            <tr>
-              <td align="center" style="padding:20px;">
-                <img
-                  src=""
-                  alt="School Logo"
-                  width="120"
-                  style="display:block;"
-                />
-              </td>
-            </tr>
-
-            <!-- Header -->
             <tr>
               <td style="padding:20px; text-align:center;">
-                <h2 style="margin:0; color:#1f2937;">
-                  Welcome to LAHIBA 🎓
-                </h2>
+                <h2 style="margin:0; color:#1f2937;">Welcome to LAHIBA 🎓</h2>
               </td>
             </tr>
-
-            <!-- Body -->
             <tr>
               <td style="padding:20px; color:#374151; font-size:14px; line-height:1.6;">
-                <p>
-                  Dear <strong>${data.FirstName}</strong>,
-                </p>
-
-                <p>
-                  We are pleased to inform you that your student account has been successfully created.
-                  Below are your login details for the school portal:
-                </p>
-
-                <!-- Student Info -->
+                <p>Dear <strong>${data.FirstName}</strong>,</p>
+                <p>We are pleased to inform you that your student account has been successfully created.</p>
                 <table width="100%" cellpadding="8" cellspacing="0" style="background:#f9fafb; border:1px solid #e5e7eb;">
                   <tr>
                     <td><strong>Username:</strong></td>
-                    <td>${data.FirstName +"_"+ data.MatriculeNo.slice(-4)}</td>
+                    <td>${generatedUsername}</td>
                   </tr>
                   <tr>
                     <td><strong>Temporary Password:</strong></td>
                     <td>${studentPassword}</td>
                   </tr>
                 </table>
-
-                <p style="margin-top:20px;">
-                  For security reasons, please change your password after logging in for the first time.
-                </p>
-
-                <!-- Portal Button -->
-                <p style="text-align:center; margin:30px 0;">
-                  <a
-                    href="https://yourschoolwebsite.com/login"
-                    style="
-                      background:#0f766e;
-                      color:#ffffff;
-                      padding:12px 24px;
-                      text-decoration:none;
-                      border-radius:5px;
-                      font-weight:bold;
-                      display:inline-block;
-                    "
-                  >
-                    Access Student Portal
-                  </a>
-                </p>
-
-                <p>
-                  If you need any assistance, please contact the school administration.
-                </p>
-
-                <p>
-                  Kind regards,<br />
-                  <strong>School Administration</strong><br />
-                  Lahiba University
-                </p>
               </td>
             </tr>
-
-            <!-- Footer -->
-            <tr>
-              <td style="padding:15px; background:#f1f5f9; text-align:center; font-size:12px; color:#6b7280;">
-                <p style="margin:0;">
-                  🌐 <a href="https://yourschoolwebsite.com" style="color:#0f766e; text-decoration:none;">
-                    www.yourschoolwebsite.com
-                  </a>
-                </p>
-                <p style="margin:5px 0 0;">
-                   ✉️ info@laureateinstitute.com
-                </p>
-                <p style="margin:5px 0 0;">
-                  © ${new Date().getFullYear()} LAHIBA. All rights reserved.
-                </p>
-              </td>
-            </tr>
-
           </table>
         </td>
       </tr>
     </table>
   </body>
 </html>
-  `,
-    }) 
-    } catch (mailErr) {
-      console.warn("Welcome email failed (non-fatal):", mailErr);
-    }
+      `,
+    }).catch((err) => console.error("Background SendMail Error:", err));
 
-       return { successMessage:true , errorMessage:false };
+    return { successMessage: true, errorMessage: false };
+  } catch (err: any) {
+    console.error("CreatStudent ERROR:", err);
+    if (err && typeof err === "object" && "errors" in err) {
+      console.error("Clerk errors:", JSON.stringify(err.errors, null, 2));
     }
-    catch(err){
-      console.error("CreatStudent ERROR:", err);
-      if (err && typeof err === "object" && "errors" in err) {
-        console.error("Clerk errors:", JSON.stringify((err as any).errors, null, 2));
-      }
-       return { successMessage:false , errorMessage:true };
-      
-    }
- }
+    return { successMessage: false, errorMessage: true };
+  }
+};
  export const deleteStudent = async(
   currentState:currentState,
   data : FormData
@@ -394,21 +309,23 @@ export const deletCourse = async(
 
 
   try{
-       // 1️⃣ Find student
-  const student = await prisma.student.findUnique({
-    where: { id:id },
-  });
-   
-  if (!student || !student.id) {
-    throw new Error("Student not found or not linked to Clerk");
-  }
-    await client.users.deleteUser(student.id);
-
-     await prisma.student.delete({
-     where: {
-     id: (id),
-     }
-   });
+       
+  // 1. Delete all dependent relational records first
+await prisma.$transaction([
+  prisma.enrollment.deleteMany({ where: { studentId: id } }),
+  prisma.courseRegistration.deleteMany({ where: { studentId: id } }),
+  prisma.attendance.deleteMany({ where: { studentId: id } }),
+  prisma.fee.deleteMany({ where: { studentId: id } }),
+  prisma.result.deleteMany({ where: { studentId: id } }),
+  prisma.notificationRead.deleteMany({ where: { studentId: id } }),
+  
+  // Delete the student last
+  prisma.student.delete({ where: { id } }),
+]);
+    // 2. Remove from Clerk in the background without blocking execution
+    const client = await clerkClient();
+    void client.users.deleteUser(id);
+    
    return { successMessage:true , errorMessage:false };
 
  
@@ -1168,23 +1085,45 @@ const DeleteTimeTable = async(
 export { DeleteTimeTable }
 
 
-// Attendance Function 
-const CreateAttendance = async(
-  currentState:currentState,
-  data:AttendanceType
-)=>{
-  try{
-    await prisma.attendance.createMany({
-      data: data
-    })
-    return{ successMessage:true , errorMessage:false}
-  }
-  catch(error){
-    return{ successMessage:false , errorMessage:true}
-  }
-}
-export {CreateAttendance}
+export const CreateAttendance = async (currentState: any, data: any) => {
+  try {
+    const records = Array.isArray(data) ? data : [data];
 
+    if (records.length === 0) {
+      return { successMessage: false, errorMessage: true };
+    }
+
+    const currentYearString = getCurrentAcademicYearString(); // e.g. "2026/2027"
+
+    // 1. Ensure the active academic year exists
+    const academicYear = await prisma.academicYear.upsert({
+      where: { year: currentYearString },
+      update: {},
+      create: { year: currentYearString, isCurrent: true },
+    });
+
+    // 2. Map payload using the academicYearId foreign key
+    const sanitizedData = records.map((item) => ({
+      studentId: item.studentId,
+      courseId: Number(item.courseId),
+      date: item.date ? new Date(item.date) : new Date(),
+      status: item.status || "PRESENT",
+      present: item.present ?? true,
+      academicYearId: academicYear.id,
+    }));
+
+    // 3. Batch creation
+    await prisma.attendance.createMany({
+      data: sanitizedData,
+      skipDuplicates: true,
+    });
+
+    return { successMessage: true, errorMessage: false };
+  } catch (error) {
+    console.error("CreateAttendance Error:", error);
+    return { successMessage: false, errorMessage: true };
+  }
+};
 export async function getWeeklyAttendanceData() {
   const now = new Date();
   

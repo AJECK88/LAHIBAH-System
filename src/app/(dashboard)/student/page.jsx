@@ -8,11 +8,15 @@ import UserId from "@/components/user";
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import { currentUser } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import { getCurrentAcademicYearString } from "@/lib/utlity/Settings";
+import { IdCard } from "lucide-react";
 const StudentPage = async () => {
   const UserIdValue = await UserId();
  const studentId = UserIdValue?.toString();
 
+if (!studentId) return [];
 
+if (!studentId) return [];
 
 const TimeTableData = await prisma.timetable.findMany({
   where: {
@@ -20,21 +24,24 @@ const TimeTableData = await prisma.timetable.findMany({
       registrations: {
         some: {
           studentId: studentId,
+          academicYear: {
+            year: getCurrentAcademicYearString(),
+          },
         },
       },
     },
   },
-  include: {
+  select: {
     department: true,
     classroom: true,
     course: {
-      include: {
+      select: {
         level: true,
         teachers: true,
       },
     },
   },
-}) || [];
+});
           const AnnouncementData = await prisma.announcement.findMany({
            
             orderBy: {
@@ -49,8 +56,12 @@ const TimeTableData = await prisma.timetable.findMany({
                     id: studentId,
                   },
                   include: {
-                    courseRegs: true,
-                    department: true
+                    courseRegs:{
+                     include:{
+                      subject:true
+                     }
+                    },
+                    department:true
                   },
                 })
               : null;
@@ -62,8 +73,8 @@ const TimeTableData = await prisma.timetable.findMany({
                 ? "/maleIcon.png"
                 : "/FemaleIcon.png";
           
-            const courseLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
-          
+            const DepartmentLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
+            console.log(currentUserInfo.matricule)
     return (
         /* Student Page */
         /* Right hand side */
@@ -99,7 +110,7 @@ const TimeTableData = await prisma.timetable.findMany({
                           : "Student Profile"}
                       </h1>
                       <p className="text-xs sm:text-sm font-medium text-slate-600 mt-0.5 truncate">
-                        {courseLabel}
+                        {DepartmentLabel}
                       </p>
                     </div>
               
@@ -108,15 +119,15 @@ const TimeTableData = await prisma.timetable.findMany({
                       {/* Blood Group */}
                       <div className="flex items-center gap-1.5 min-w-0">
                         <Image
-                          src="/blood.png"
-                          alt="Blood Group"
+                          src="/id_card.png"
+                          alt="ID"
                           width={18}
                           height={18}
                           style={{ height: "auto" }}
                           className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
                         />
                         <span className="truncate">
-                          {currentUserInfo?.bloodGroup ?? "N/A"}
+                          {currentUserInfo?.matricule}
                         </span>
                       </div>
               

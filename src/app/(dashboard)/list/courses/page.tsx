@@ -106,26 +106,38 @@ if (userRole === "teacher") {
 
 } else if (userRole === "student") {
   // Filter courses/data where student is enrolled
-  const studentWhere: any = {
-    registrations: {
-      some: {
-        studentId: userId ?? undefined,
+  // 1. Define the filter for the CourseRegistration relation on Subject
+const courseRegWhere = userId
+  ? {
+      registrations: {
+        some: {
+          studentId: userId,
+        },
       },
+    }
+  : {};
+
+// 2. Fetch Subjects with selective registration data
+dataQuery = prisma.subject.findMany({
+  where: courseRegWhere, // Filter subjects by registered student
+  select: {
+    name: true,
+    department: true,
+    teachers: true,
+    registrations: {
+      where: userId
+        ? {
+            studentId: userId, // Direct scalar filter on CourseRegistration
+          }
+        : {},
     },
-  };
+  },
+  take: Items_Per_Page,
+  skip,
+});
 
-  dataQuery = prisma.subject.findMany({
-    where: studentWhere,
-    include: {
-      teachers: true,
-      department: true,
-    },
-    take: Items_Per_Page,
-    skip,
-  });
-
-  countQuery = prisma.subject.count({ where: studentWhere });
-
+// 3. Count matching Subjects using the same relation filter
+countQuery = prisma.subject.count({ where: courseRegWhere,});
 } else {
   // Admin / Default view: fetch all subjects without restrictions
   dataQuery = prisma.subject.findMany({
