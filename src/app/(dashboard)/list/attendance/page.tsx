@@ -149,7 +149,7 @@ const departments =(userRole === "admin")
       : [];
 
   // 2. Fetch all attendance logs for this subject
-const attendanceRecords =
+const attendanceRecords=
   activeCourseId && activeYear
     ? await prisma.attendance.findMany({
         where: {
@@ -165,13 +165,19 @@ const attendanceRecords =
       })
     : [];
 
+
+const firstAttendanceYearId = attendanceRecords[0]?.academicYearId;
+const Barch = firstAttendanceYearId 
+  ? await prisma.academicYear.findUnique({ where: { id: firstAttendanceYearId } })
+  : null;
   // Convert Date objects to strings and normalize enum values to the AttendanceRecord union.
 const attendanceRecordsProcessed = attendanceRecords.map((r) => ({
   ...r,
   date: r.date instanceof Date ? r.date.toISOString().split("T")[0] : String(r.date),
   status: (r.status || (r.present ? "PRESENT" : "ABSENT")) as "PRESENT" | "ABSENT" | "LATE",
 }));
-
+ 
+console.log(attendanceRecords)
   return (
     <div className="p-4 lg:p-6 min-h-screen space-y-6">
       <VeiwAttendanceMatrix
@@ -184,6 +190,7 @@ const attendanceRecordsProcessed = attendanceRecords.map((r) => ({
           name: `${reg.student.firstName} ${reg.student.lastName}`,
         }))}
         courseName={courseName}
+        Barch={Barch?.year || null}
       />
       {/* Top Navigation */}
       <AttendanceNav key={activeDeptId} departmentName={departmentName} />
