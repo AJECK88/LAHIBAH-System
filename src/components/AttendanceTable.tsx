@@ -27,6 +27,7 @@ type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
 
 const AttendanceTable = ({ course, courseId, room, Coursetime, MOCK_STUDENTS }: PropsType) => {
   const [selectedDate] = useState<Date>(new Date());
+  const [open, setOpen] = useState(false)
   
   // Track student status values as a map: { [studentId]: "PRESENT" | "ABSENT" | "LATE" }
   const [attendance, setAttendance] = useState<Record<string, AttendanceStatus>>({});
@@ -87,7 +88,7 @@ const AttendanceTable = ({ course, courseId, room, Coursetime, MOCK_STUDENTS }: 
   const presentCount = Object.values(attendance).filter((s) => s === "PRESENT").length;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden space-y-0">
+   <div className="bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden space-y-0">
       {/* Executive Control Header */}
       <div className="p-4 sm:p-5 bg-gray-50/50 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -242,6 +243,7 @@ const AttendanceTable = ({ course, courseId, room, Coursetime, MOCK_STUDENTS }: 
         </table>
       </div>
     </div>
+    
   );
 };
 
