@@ -1,94 +1,164 @@
-
 import Image from 'next/image';
+import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import FormsContainer from '@/components/FormsContainer';
 import AnnouncementsPage from '@/components/AnnouncementMessage';
-import { auth } from '@clerk/nextjs/server';
 import { role } from '@/components/user';
 
- export const  AnnouncementsListpage = async({ 
-  
-}:{ 
-    searchParams:Promise<{[key:string]:string|undefined}>
-}) => { 
-   const { userId, sessionClaims } = await auth();
-   const Role= await role()
- if (userId) { 
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export const AnnouncementsListPage = async ({ searchParams }: PageProps) => {
+  const params = await searchParams;
+  const query = (params.query as string) || '';
+
+  const { userId } = await auth();
+  const userRole = await role();
+
+  // 1. Mark unread notifications as read
+  if (userId) {
     try {
-      const UnreadNotifications = await prisma.notification.findMany({ 
+      const roleFilter = {
+        adminId: userRole === 'admin' ? userId : undefined,
+        teacherId: userRole === 'teacher' ? userId : undefined,
+        studentId: userRole === 'student' ? userId : undefined,
+      };
+
+      const unreadNotifications = await prisma.notification.findMany({
         where: {
           notificationRead: {
-            none: {
-              adminId: Role === "admin" ? userId : undefined,
-              teacherId:Role === "teacher" ? userId : undefined,
-              studentId: Role === "student" ? userId : undefined
-            }
-          }
+            none: roleFilter,
+          },
         },
-        select: { id: true }
+        select: { id: true },
       });
 
-      if (UnreadNotifications.length > 0) {
-        const readRecordsData = UnreadNotifications.map((notification: any) => ({
+      if (unreadNotifications.length > 0) {
+        const readRecords = unreadNotifications.map((notification) => ({
           notificationId: notification.id,
           read: true,
-          readAt: new Date(), 
-          studentId: Role === "student" ? userId : null,
-          teacherId: Role === "teacher" ? userId : null,
-          adminId:   Role === "admin"   ? userId : null,
+          readAt: new Date(),
+          studentId: userRole === 'student' ? userId : null,
+          teacherId: userRole === 'teacher' ? userId : null,
+          adminId: userRole === 'admin' ? userId : null,
         }));
 
         await prisma.notificationRead.createMany({
-          data: readRecordsData
+          data: readRecords,
+          skipDuplicates: true,
         });
-        console.log("Successfully marked notifications as read"); 
       }
     } catch (err) {
-      console.error("CRITICAL READ-TRACKING ERROR:", err);
+      console.error('[NOTIFICATIONS_READ_ERROR]', err);
     }
   }
-   const AnnouncementMessage =  await prisma.announcement.findMany({
-      select:{
-     id:true,
-     title:true,
-     date:true,
-     message:true,
+
+// 2. Fetch Announcements ordered chronologically
+const announcementMessages = await prisma.announcement.findMany({
+  where: query
+    ? {
+        OR: [
+          { title: { contains: query } },
+          { message: { contains: query } },
+        ],
       }
-   })  
+    : {},
+  select: {
+    id: true,
+    title: true,
+    message: true,
+    date: true,
+    department: {
+      select: {
+        id: true,
+        name: true,
+      },
+    },
+  },
+  orderBy: {
+    date: 'desc',
+  },
+});
+
+// Format the data for the AnnouncementsPage component
+const formattedAnnouncements = announcementMessages.map((item) => {
+  return {
+    id: item.id,
+    title: item.title,
+    message: item.message,
+    date: item.date.toISOString(),
+    senderName: item.department?.name || 'School Office',
+    senderPhoto: null,
+    senderRole: 'Department',
+  };
+});
   return (
-<div className='h-[calc(100vh-2rem)] bg-white p-4 flex flex-col gap-4 m-2'>
-  {/* Section Title - Fixed */}
-  <h1 className='font-extrabold text-gray-700'>Announcement</h1>
+    <div className="flex flex-col gap-6 p-4 md:p-6 h-[calc(100vh-2rem)] bg-slate-50/60 rounded-2xl border border-slate-100">
+      
+      {/* Dynamic Header Section */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-200/80 shrink-0">
+        
+        {/* Left Info Group */}
+        <div className="flex items-center gap-4">
+          <div className="relative flex items-center justify-center h-14 w-14 rounded-2xl bg-slate-100/80 border border-slate-200/60 p-2 shrink-0">
+            <Image
+              src="/announcementM .png"
+              alt="Announcements"
+              height={48}
+              width={48}
+              className="object-contain mix-blend-multiply"
+            />
+          </div>
 
-  {/* Header Bar (Create button & info) - Fixed */}
-  <div className='flex justify-between items-center   z-1 md:z-999 bg-white shadow-md p-2 h-25 shrink-0 '>
-    <div className='flex gap-4 p-1 items-center'>
-      <Image 
-        src={'/announcementM .png'} 
-        className='rounded-3xl p-1' 
-        alt={"announcement"} 
-        height={70} 
-        width={70} 
-      />
-      {Role === "admin" ? (
-        <div>
-          <h1 className="hidden md:block font-semibold text-gray-500">Create announcement</h1>
-          <p className="text-sm sm:font-semibold text-gray-900">notify all students</p>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight text-slate-900">
+                Announcements
+              </h1>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+                {announcementMessages.length} Total
+              </span>
+            </div>
+            
+            <p className="text-xs md:text-sm font-medium text-slate-500">
+              {userRole === 'admin'
+                ? 'Create and manage broadcast notifications for the entire campus.'
+                : 'Stay updated with official institutional announcements and schedules.'}
+            </p>
+          </div>
         </div>
-      ) : (
-        <span className="font-semibold text-gray-700">All Announcements</span>
-      )}
+
+        {/* Right Action Trigger (Admin Only) */}
+        {userRole === 'admin' && (
+          <div className="shrink-0 w-full sm:w-auto">
+            <FormsContainer type="Create" table="announcement" />
+          </div>
+        )}
+      </div>
+
+      {/* Main Content Card Container */}
+      <div className="flex-1 w-full overflow-hidden rounded-2xl bg-white border border-slate-200/80 shadow-sm flex flex-col">
+        
+        {/* Sub-header Bar */}
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            Recent Bulletins
+          </h2>
+          <span className="text-xs font-medium text-slate-400">
+            Sorted by newest
+          </span>
+        </div>
+
+        {/* Scrollable List Container */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+          <AnnouncementsPage AnnouncementData={formattedAnnouncements as any} />
+        </div>
+
+      </div>
+
     </div>
-    {Role === "admin" && <FormsContainer type={'Create'} table={"announcement"} />}
-  </div> 
+  );
+};
 
-
-  <div className='bg-gray-200 p-2 flex-1 w-full flex flex-col gap-4 overflow-y-auto rounded-md'>
-    <AnnouncementsPage
-      AnnouncementData={AnnouncementMessage}
-    />
-  </div>
-</div>
-  ) 
-}
-export default AnnouncementsListpage;
+export default AnnouncementsListPage;

@@ -18,12 +18,12 @@ import Image from "next/image";
       id:2,
       Tile:"Matriculation",
       time:"09 : 00 AM - 03:00 PM",
-      discription : "Maticulation the for all level 100 and graduation"
+      discription : "Maticulation day for all level 100 and graduation"
      }, {
       id:4,
       time:"12 : 00 AM - 02:60 PM",
       Tile:"Student Party",
-      discription : "student meating for mogitivation and growth"
+      discription : "student meating for mortivation and growth"
      }
   ]
  const  EventCalendar = () =>{

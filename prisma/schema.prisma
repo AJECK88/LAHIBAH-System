@@ -157,6 +157,7 @@ model Admin {
   userName      String
   email         String             @unique
   notification  Notification[]
+  announcements Announcement[]
   notifications NotificationRead[]
 }
 
@@ -208,6 +209,7 @@ model Teacher {
   department    Department[]       @relation("DepartmentSupervisor")
   notifications Notification[]
   readReceipts  NotificationRead[] // Fixed Case Name
+  announcements  Announcement[]
   courses       Subject[]          @relation("SubjectToTeacher")
 }
 
@@ -428,7 +430,12 @@ model Announcement {
   date             DateTime           @default(now())
   departmentId     String?
   department       Department?        @relation(fields: [departmentId], references: [id])
-  notificationRead NotificationRead[] // Fixed Case Name
+  notificationRead NotificationRead[]
+ adminId     String?
+  admin       Admin?       @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  teacherId   String?
+  teacher     Teacher?     @relation(fields: [teacherId], references: [id], onDelete: SetNull)
 
   @@index([departmentId], map: "Announcement_departmentId_fkey")
 }
