@@ -10,39 +10,30 @@ import prisma from "@/lib/prisma";
 
 const SingleStuentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
    const { id: studentId } = await params;
-   const StudentArray = await prisma.student.findMany({
-    where:{
-        id : studentId
-    },
-    select:{
-        address:true,
-        age:true,
-        attendance:true,
-        DateOfBirth:true,
-        email:true,
-        firstName:true,
-        image:true,
-        lastName:true,
-        matricule:true,
-        fees:true,
-        phoneNumber:true,
-        department:true,
-        sex:true,
-        
-
-    }
-    
-  })
-  const Student =StudentArray[0]
- if (!Student.DateOfBirth) {
-  return <p>Date of birth not available</p>
-}
-
-const formattedDate = new Intl.DateTimeFormat("en-US", {
-  month: "long",
-  day: "2-digit",
-  year: "numeric",
-}).format(new Date(Student.DateOfBirth))
+             const currentUserInfo = studentId
+                ? await prisma.student.findUnique({
+                    where: {
+                      id: studentId,
+                    },
+                    include: {
+                      courseRegs:{
+                       include:{
+                        subject:true
+                       }
+                      },
+                      department:true
+                    },
+                  })
+                : null;
+            
+              const userAvatar =
+                currentUserInfo?.image && currentUserInfo.image.trim() !== ""
+                  ? currentUserInfo.image
+                  : currentUserInfo?.sex === "Male"
+                  ? "/maleIcon.png"
+                  : "/FemaleIcon.png";
+            
+              const DepartmentLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
 
  const AnnouncementData = await prisma.announcement.findMany({
  
@@ -55,101 +46,201 @@ const formattedDate = new Intl.DateTimeFormat("en-US", {
     return (
 
         <div className="lg:flex  gap-4 m-2 lg:flex-row md:flex-col sm:flex-col" >
-             {/* Teacher details go here */}
+           
                 {/* || left side */}
             <div className="xl:w-2/3 w-full">
                 {/* TOP CONTENT */}
                 <div className="flex flex-col lg:flex-row gap-4" >
                       {/* || users  infor card */}
-                 <div className="bg-blue-200 py-6 px-4 rounded-md flex-1 flex gap-4 " >
-                    <div className="w-1/3" >
-                    
-                   
-                     <Image src={Student.image || Student.sex ==="Female"? "/FemaleIcon.png":"/maleIcon.png"}
-                    alt="User Avatar"
-                     width={144} 
-                     height={144} 
-                     className=" w-36 h-36  object-cover rounded-full " />
-                    
-                    </div>
-                    <div className="w-2/3 flex flex-col justify-between gap-4 ">
-                    <h1 className="text-xl  font-semibold">{Student.firstName +" " + Student.lastName}</h1>
-                    <p className="text-sm text-gray-500">{"Depertment of" + " " + Student.department.name}</p>
-                    <div className=" flex items-center  gap-3 flex-wrap text-xs font-medium border-2 border-amber-100 p-2">
-                       {/*  <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
-                            <Image
-                                src="/blood.png"
-                                alt="User Avatar"
-                                width={8}
-                                height={8}
-                                className=" w-8 h-8 "
-                            />
-                            <span className="ml-1">{Student.}</span>
-                        </div> */}
-                           <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
-                            <Image
-                                src="/date.png"
-                                alt="User Avatar"
-                                width={1}
-                                height={1}
-                                className=" w-8 h-8 "
-                            />
-                            <span className="ml-1">{formattedDate}</span>
-                        </div>
-                           <Link  href={`mailto:${Student.email}`} className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
-                            <Image
-                                src="/mail2.png"
-                                alt=""
-                                width={14}
-                                height={14}
-                                className=" w-8 h-8 "
-                            />
-                            <span className="ml-1 font-semibold text-black">{Student.email}</span>
-                        </Link>
-                           <div className="w-full md:w-1/3 flex items-center lg:w-full 2xl:w-1/3 gap-2">
-                            <Image
-                                src="/phone.png"
-                                alt="User Avatar"
-                                width={10}
-                                height={14}
-                                className=" w-8 h-8"
-                            />
-                            <span className="ml-1">{Student.phoneNumber}</span>
-                        </div>
-                        </div>
-                    </div>
-                 </div>
-                    {/* || small card*/}
-                 <div className=" flex-1 flex gap-4 justify-center flex-wrap " >  {/* || card */}
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[45%] xl:w-[48%]">
-                    <Image src={"/singleAttendance.png"} alt="Attendance" width={100} height={100} className=" w-15 h-15 "
-                    /> <div className="">
-                        <h1 className="text-xl font-semibold">90%</h1>
-                        <span className="text-xs text-gray-500">Attendance</span>
-                    </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[45%] xl:w-[48%]">
-                    <Image src={"/singleBranch.png"} alt="Attendance" width={100} height={100} className=" w-15 h-15 " 
-                    /> <div className="">
-                        <h1 className="text-xl font-semibold">2</h1>
-                        <span className="text-xs text-gray-500">Branches</span>
-                    </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[45%] xl:w-[48%]">
-                    <Image src={"/singleLesson.png"} alt="Attendance" width={100} height={100} className=" w-15 h-15 "
-                    /> <div className="">
-                        <h1 className="text-xl font-semibold">9</h1>
-                        <span className="text-xs text-gray-500">Lessons</span>
-                    </div>
-                    </div> 
-                    <div className="bg-white p-4 rounded-md flex gap-4 w-full md:w-[45%] xl:w-[48%]">
-                    <Image src={"/singleClass.png"} alt="Attendance" width={100} height={100} className=" w-15 h-15 "
-                    /> <div className="">
-                        <h1 className="text-xl font-semibold">9</h1>
-                        <span className="text-xs text-gray-500">Classes</span>
-                    </div>
-                    </div>
-
+                 {/* User Profile Card - Row layout on mobile */}
+                                <div className="bg-blue-200 border border-blue-300/50 p-3.5 sm:p-5 rounded-xl flex-1 flex flex-row items-start gap-3.5 sm:gap-5 shadow-sm transition-all duration-200 hover:shadow-md">
+                                  <div className="relative shrink-0">
+                                    <Image
+                                      src={userAvatar}
+                                      alt="User Avatar"
+                                      width={96}
+                                      height={96}
+                                      style={{ height: "auto" }}
+                                      className="w-16 h-16 sm:w-24 sm:h-24 rounded-full object-cover ring-2 sm:ring-4 ring-white/60 shadow-sm"
+                                      priority
+                                    />
+                                  </div>
+                              
+                                  <div className="w-full flex flex-col justify-between gap-2.5 min-w-0 text-left">
+                                    <div>
+                                      <h1
+                                        className="text-base sm:text-2xl font-bold text-slate-900 truncate"
+                                        title={
+                                          currentUserInfo
+                                            ? `${currentUserInfo.firstName} ${currentUserInfo.lastName}`
+                                            : "Student Profile"
+                                        }
+                                      >
+                                        {currentUserInfo
+                                          ? `${currentUserInfo.firstName} ${currentUserInfo.lastName}`
+                                          : "Student Profile"}
+                                      </h1>
+                                      <p className="text-xs sm:text-sm font-medium text-slate-600 mt-0.5 truncate">
+                                        {DepartmentLabel}
+                                      </p>
+                                    </div>
+                              
+                                    {/* User Metadata Grid */}
+                                    <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-xs font-medium text-slate-700 pt-2 border-t border-blue-300/60">
+                                      {/* Blood Group */}
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <Image
+                                          src="/id_card.png"
+                                          alt="ID"
+                                          width={18}
+                                          height={18}
+                                          style={{ height: "auto" }}
+                                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                                        />
+                                        <span className="truncate">
+                                          {currentUserInfo?.matricule}
+                                        </span>
+                                      </div>
+                              
+                                      {/* Joined Date */}
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <Image
+                                          src="/date.png"
+                                          alt="Joined Date"
+                                          width={18}
+                                          height={18}
+                                          style={{ height: "auto" }}
+                                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                                        />
+                                        <span className="truncate">
+                                          {currentUserInfo?.createdAt
+                                            ? new Date(currentUserInfo.createdAt).toLocaleDateString(
+                                                "en-US",
+                                                {
+                                                  month: "short",
+                                                  year: "numeric",
+                                                }
+                                              )
+                                            : "Jan 2025"}
+                                        </span>
+                                      </div>
+                              
+                                      {/* Email */}
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <Image
+                                          src="/mail2.png"
+                                          alt="Email"
+                                          width={18}
+                                          height={18}
+                                          style={{ height: "auto" }}
+                                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                                        />
+                                        <span
+                                          className="truncate"
+                                          title={currentUserInfo?.email ?? "N/A"}
+                                        >
+                                          {currentUserInfo?.email ?? "N/A"}
+                                        </span>
+                                      </div>
+                              
+                                      {/* Phone Number */}
+                                      <div className="flex items-center gap-1.5 min-w-0">
+                                        <Image
+                                          src="/phone.png"
+                                          alt="Phone Number"
+                                          width={18}
+                                          height={18}
+                                          style={{ height: "auto" }}
+                                          className="w-4 h-4 sm:w-5 sm:h-5 shrink-0"
+                                        />
+                                        <span className="truncate">
+                                          {currentUserInfo?.phoneNumber ?? "N/A"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+               {/* Quick Stat Cards - Horizontal Row on Mobile (Scrollable) / Grid on Desktop */}
+                 <div className="flex flex-row overflow-x-auto pb-1 gap-3 w-full lg:w-auto lg:grid lg:grid-cols-2 lg:overflow-visible shrink-0 scrollbar-none">
+                   {/* Attendance */}
+                   <div className="bg-white border border-slate-100 p-3 sm:p-4 rounded-xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200 min-w-[130px] flex-1 sm:flex-initial">
+                     <Image
+                       src="/singleAttendance.png"
+                       alt="Attendance"
+                       width={40}
+                       height={40}
+                       style={{ height: "auto" }}
+                       className="w-8 h-8 sm:w-10 sm:h-10 shrink-0"
+                     />
+                     <div>
+                       <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-none">
+                         90%
+                       </h2>
+                       <span className="text-xs font-medium text-slate-500 mt-1 block whitespace-nowrap">
+                         Attendance
+                       </span>
+                     </div>
+                   </div>
+               
+                   {/* Branches */}
+                   <div className="bg-white border border-slate-100 p-3 sm:p-4 rounded-xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200 min-w-[130px] flex-1 sm:flex-initial">
+                     <Image
+                       src="/singleBranch.png"
+                       alt="Branches"
+                       width={40}
+                       height={40}
+                       style={{ height: "auto" }}
+                       className="w-8 h-8 sm:w-10 sm:h-10 shrink-0"
+                     />
+                     <div>
+                       <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-none">
+                         2
+                       </h2>
+                       <span className="text-xs font-medium text-slate-500 mt-1 block whitespace-nowrap">
+                         Branches
+                       </span>
+                     </div>
+                   </div>
+               
+                   {/* Lessons */}
+                   <div className="bg-white border border-slate-100 p-3 sm:p-4 rounded-xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200 min-w-[130px] flex-1 sm:flex-initial">
+                     <Image
+                       src="/singleLesson.png"
+                       alt="Lessons"
+                       width={40}
+                       height={40}
+                       style={{ height: "auto" }}
+                       className="w-8 h-8 sm:w-10 sm:h-10 shrink-0"
+                     />
+                     <div>
+                       <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-none">
+                         9
+                       </h2>
+                       <span className="text-xs font-medium text-slate-500 mt-1 block whitespace-nowrap">
+                         Lessons
+                       </span>
+                     </div>
+                   </div>
+               
+                   {/* Classes */}
+                   <div className="bg-white border border-slate-100 p-3 sm:p-4 rounded-xl flex items-center gap-3 shadow-sm hover:shadow-md transition-all duration-200 min-w-[130px] flex-1 sm:flex-initial">
+                     <Image
+                       src="/singleClass.png"
+                       alt="Classes"
+                       width={40}
+                       height={40}
+                       style={{ height: "auto" }}
+                       className="w-8 h-8 sm:w-10 sm:h-10 shrink-0"
+                     />
+                     <div>
+                       <h2 className="text-lg sm:text-xl font-bold text-slate-900 leading-none">
+                         9
+                       </h2>
+                       <span className="text-xs font-medium text-slate-500 mt-1 block whitespace-nowrap">
+                         Classes
+                       </span>
+                     </div>
+                   </div>
                  </div>
                 </div>
                {/* BOTTOM CONTENT */}

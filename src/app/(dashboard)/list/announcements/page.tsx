@@ -77,7 +77,7 @@ const announcementMessages = await prisma.announcement.findMany({
     },
   },
   orderBy: {
-    date: 'desc',
+    date: 'asc',
   },
 });
 

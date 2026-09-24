@@ -74,7 +74,6 @@ const TimeTableData = await prisma.timetable.findMany({
                 : "/FemaleIcon.png";
           
             const DepartmentLabel = ` Departmant: ${currentUserInfo?.department.name?? "N/A"}`;
-            console.log(currentUserInfo.matricule)
     return (
         /* Student Page */
         /* Right hand side */
